@@ -2,6 +2,7 @@ Current Prometheus text format (0.0.4)
 
 Official docs: https://prometheus.io/docs/instrumenting/exposition_formats/
 Old working document: https://docs.google.com/document/d/1TapRdI5Tu2e8AIqREtdv_C36t4GGsDQr64KixE-gWu8/edit#
+	In-line comments _not_ copied over
 
 Basic format looks like:
 # HELP http_requests_total The total number of HTTP requests.
