@@ -1,6 +1,6 @@
 # Prometheus Exposition Format: Protobuf vs. Text
 
-_by Björn “Beorn” Rabenstein, SoundCloud Ltd._ [@beorn](https://github.com/beorn7)
+_by Björn “Beorn” Rabenstein, SoundCloud Ltd._ [@beorn7](https://github.com/beorn7)
 
 Prometheus 1.x supports two exposition formats:
 - a Protocol Buffer format (“protobuf”).
