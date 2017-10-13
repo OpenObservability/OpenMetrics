@@ -104,14 +104,14 @@ _histograms_ and _summaries_ in its “poor” embedded TSDB. This was explicitl
 meant as convenient coincidence and not as a leak of Prometheus implementation
 details into the exposition format. To make sure of that, the text format
 parser was implemented to convert the text format into protobuf (rather than
-the interval data model of the Prometheus server), so that we could still
+the internal data model of the Prometheus server), so that we could still
 follow our vision of growing the internal data representation into something
 closer to the rich data model of the protobuf format.
 
 The text format was also designed to closely match the appearence of metric
 selectors in PromQL.
 
-The design efforts paid off quickly as the text format became popular quite
+The design efforts paid off soon as the text format became popular quite
 quickly, with some intended and some not so intended side effects:
 - The text format was used as the usual human-readable representation of
   metrics when looking at the `/metrics` endpoint with a browser. (An easy to
@@ -123,7 +123,7 @@ quickly, with some intended and some not so intended side effects:
   convenient ways of exposing metrics: Drop a snippet with metrics in the text
   format into a designated directory, and the Node Exporter will immediately
   start to expose it. Many questions of “How to export X?” could now be
-  answered by one line of Bash run by cron.
+  answered by one line of Bash run by Cron.
 - The maintainer of the Python and Java client libraries came to the conclusion
   that a dependency on protobuf causes issues in those languages and would
   impede adoption. Thus, he happily implemented those libraries without
@@ -163,7 +163,7 @@ completely, from “You can use the text format, but only the protobuf format
 will give you really high performance.” to “You should avoid the protobuf
 format, it eats quite a few of your cores.”
 
-On top of that, Prometheus 2 avoids calculating a metrics hash on each
+On top of that, Prometheus 2 avoids calculating a metric hash on each
 ingestion. This tweak also leverages how the text format is laid out on the
 wire. In high-ingestion scenarios, metrics hashing would otherwise have become
 the dominant CPU consumer.
@@ -195,8 +195,9 @@ One might argue that each of the items above are of limited relevance for
 Prometheus:
 1. Encoders for both the protobuf and text format exist in various languages
    already (in the form of Prometheus client libraries). For some languages,
-   there are even decoders available. (However, either direction is not at par
-   yet with the languages for which protobuf compilers exist).
+   there are even decoders available. (However, the choice of languages for
+   which protobuf compilers exist is still richer than the choice of languages
+   for which text format encoders exist.)
 2. With the maturity of the Prometheus ecosystem, future changes of the
    exposition format are expected to be rare. (This expectation might be seen
    as naive, though.)
@@ -221,7 +222,7 @@ perspective changes the outcome considerably:
    [section about the data model below](#implied-data-model) for details.
 
 In summary, the advantages of a protobuf format are more relevant for a widely
-adopted standard than for a format meant to be used predominantly with the
+adopted standard than for a format meant to be used predominantly within the
 Prometheus ecosystem.
 
 ### Implied data model
@@ -247,7 +248,7 @@ model into the exposition format. The main implication is that complex metric
 types (_histogram_, _summary_) are broken down into individual metric lines
 with 64bit floating point numbers as data type and some “magic” labels (`le`,
 `quantile`). This is verbose and prone to inconsistencies. For example, the
-text format legally allows to specify a timestamp per line. In a _histogram_
+text format formally allows to specify a timestamp per line. In a _histogram_
 and _summary_, however, all quantiles, buckets, and the sum and count of
 observations must have the same timestamp. Furthermore, data types are not
 appropriate anymore. The count of a bucket and the count of observations are
@@ -273,7 +274,7 @@ It should also be noted here that the current way how Prometheus handles
 complex metric types has a lot of issues even with a completely
 Prometheus-centric view. See
 [this slide deck from the Prometheus developer summit Berlin 2017](https://docs.google.com/presentation/d/1WUSerlBAB6I6jz6Vo3d6VScCgMk7eOrTCOCJZIcjnyc/edit?usp=sharing)
-for details. Since a change within Prometheus is highly desirable. We could,
+for details. Since a change within Prometheus is highly desirable, we could,
 ironically, end up in a state where the standardized text format would still
 follow the leaked internal data model, even after the internal data model of
 Prometheus has improved.
@@ -292,7 +293,7 @@ very long with many buckets. See also the
 
 The text format is needlessly verbose for _histograms_ and _summaries_. The
 impact is particularly high in a use-case with many buckets on a highly
-dimensional metric. Since the data is mostl redundant, it compresses nicely. In
+dimensional metric. Since the data is mostly redundant, it compresses nicely. In
 the Prometheus context, scrapes are gzip-compressed by default, which results
 in no noticable size difference between text and protobuf scrapes. However,
 there are scenarios where the resources needed for compression might be a
@@ -339,7 +340,7 @@ improved Prometheus (or with another backend that deals differently with
 histograms), we will see payloads dominated by histogram buckets – or
 by more efficient representations thereof, i.e. some kind of digest or binary
 compressed data. In either case, it will tip the balance from string-dominated
-towards mostly numeric or even binary data, for which a text-based formet is
+towards mostly numeric or even binary data, for which a text-based format is
 not a natural fit.
 
 ### Required changes for standardization
