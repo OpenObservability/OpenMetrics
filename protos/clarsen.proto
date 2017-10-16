@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package openmetrics;
+
+enum MetricType {
+  COUNTER = 0;
+  GAUGE = 1;
+  SUMMARY = 2;
+  ENUM = 3;
+  BUCKETED_HISTOGRAM = 4;
+  SKETCH_DISTRIBUTION = 5;
+  // ... more
+}
+
+message Enum {
+  map<string, int64> values = 1;
+}
+
+message Value {
+  oneof value {
+    int64 int64 = 1;
+    double float64 = 2;
+  }
+}
+
+message Counter {
+  Value value = 1;
+  int64 start_timestamp = 2;
+}
+
+message Gauge {
+  Value value = 1;
+}
+
+message Summary {
+  Value sum = 1; // required
+  Value count = 2; // required
+  int64 start_timestamp = 3;
+  Value sum_of_squares = 4;
+  Value max = 5;
+  Value min = 6;
+}
+
+message SketchDistribution {
+  bytes value = 1;
+}
+
+message BucketedHistogram {
+  message Bucket {
+    Value start = 1; // required
+    Value end = 2; // required; allows for narrow range buckets
+    // ----
+    Value count = 3; // required
+  }
+  repeated Bucket buckets = 1;
+  Value overflow = 2; // required
+  Value underflow = 3; // required
+}
+
+message DataPoint {
+  string metric = 1; // required
+  map<string, string> labels = 2; // required
+  MetricType metric_type = 3; // required
+  int64 timestamp = 4; // required
+  string unit = 5;
+  Value value = 6;
+  string annotation = 7;  // e.g. exemplar/usernote
+}
+
+message CompactFormat {
+  string metric = 1; // required
+  MetricType metric_type = 2; // required
+  Value value = 3;
+  string unit = 4;
+  string annotation = 5;  // e.g. exemplar/usernote
+}
+
+message CompactSet{
+   map<string, string> labels = 1; // required
+   int64 timestamp = 2; // required
+  CompactFormat data = 3; // required
+}

@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package openmetrics.proto;
+
+enum ValueType {
+ BOOL = 0;
+ INT64 = 1;
+ DOUBLE = 2;
+}
+
+message TypedValue {
+ oneof value {
+   bool bool_value = 1;
+   int64 int64_value = 2;
+   double double_value = 3;
+ }
+}
+
+enum MetricKind {
+ METRIC_KIND_UNSPECIFIED = 0;
+ GAUGE = 1;
+ CUMULATIVE = 2;
+ //   DELTA = 3; ??
+}
+
+message LabelDescriptor {
+ enum ValueType {
+   STRING = 0;
+   BOOL = 1;
+   INT64 = 2;
+ }
+ string key = 1;
+ ValueType value_type = 2;
+ string description = 3;
+}
+
+message Bucket {
+ int64 count = 1;
+ TypedValue lower = 2;
+ TypedValue upper = 3;
+}
+
+message Distribution {
+ int64 count = 1;
+ TypedValue sum = 2;
+ TypedValue sum_of_squared_deviation = 3;
+ repeated Bucket buckets = 4;
+}
+
+message Scalar {
+ TypedValue value = 1;
+}
+
+message MetricValue {
+ oneof value {
+   Distribution distribution = 1;
+   Scalar scalar = 2;
+ }
+}
+
+message MetricDescription {
+ string name = 1;
+ repeated LabelDescriptor labels = 2;
+ MetricKind kind = 3;
+ ValueType value_type = 5;
+ string unit = 6;
+ string description = 7;
+}
+
+message IntervalTime {
+ double start_time = 1;
+ double end_time = 2;
+}
+
+message Metric {
+ MetricDescription metric_description = 1;
+ map<string, string> labels = 2;
+ MetricValue value = 3;
+ IntervalTime interval = 4;
+}

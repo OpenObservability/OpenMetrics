@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package openmetrics;
+
+message Frame {
+  repeated Metric metrics = 1;
+}
+
+message Metric {
+  string       name = 1;
+  string       unit = 2;
+  string       help = 3;
+
+  Type         type   = 4;
+  Kind         kind   = 5;
+  Structure    struct = 6;
+
+  repeated     Child    children = 7;
+
+  // Q: list label keys here so don’t repeat the keys?
+  // .. or not, due to federation.
+}
+
+enum Type {
+  FLOAT64 = 0;
+  INT64 = 1;
+  BOOL = 2;
+  ENUM = 3;
+}
+
+enum Kind {
+  CUMULATIVE = 0;
+  GAUGE = 1;
+  UNKNOWN = 2;
+}
+
+enum Structure {
+  SCALAR = 0;
+  HISTOGRAM = 1;
+  SUMMARY = 2;
+}
+
+message Child {
+  map<string, string> labels = 1;
+
+  // TODO want to have multiple timestamps in the model?
+  oneof value {
+    Scalar         scalar    = 2;
+    Summary        summary   = 3;
+    Histogram      histogram = 4;
+  }
+}
+
+message Scalar {
+  int64 timestamp = 1;
+  Value value = 2;
+}
+
+message Summary {
+  int64    timestamp         = 1;
+  uint64   sample_count      = 2;
+  Value    sample_sum        = 3;
+  repeated Quantile quantile = 4;
+}
+
+message Quantile {
+  double quantile = 1;
+  Value value     = 2;
+}
+
+message Histogram {
+  int64    timestamp     = 1;
+  uint64   sample_count  = 2;
+  Value    sample_sum    = 3;
+  repeated Bucket bucket = 4;
+}
+
+message Bucket {
+  uint64 count       = 1;
+  Value  upper_bound = 2;
+}
+
+message Value {
+  oneof value {
+    double double = 2;
+    uint64 uint64 = 3;
+    bool   bool   = 4;
+    string enum   = 6;
+  }
+
+  // Possible values have to be here for federation use case.
+  repeated string enum_values = 7;
+}

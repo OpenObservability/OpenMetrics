@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package openmetrics;
+
+message Frame {
+  repeated Metric metrics = 1;
+}
+
+message Metric {
+  string name             = 1; // required
+  string unit             = 2;
+  string description      = 3;
+
+  // Type matches what's used in children - should use a proto enum
+  Type string             = 4;
+
+  // (labels,timestamp) must be unique
+  // Ordering/grouping stuff needs specification
+  repeated Child children = 5;
+}
+
+enum Type {
+  GaugeType   = 0;
+  CounterType = 1;
+  // etc
+}
+
+message Child {
+  map<string, string> labels = 1;
+  Value timestamp            = 2;
+
+  oneof value {
+    Gauge gauge = 3;
+    Counter Counter = 4;
+    CumulativeHistogram cumulative_histogram = 5;
+    GaugeCumulativeHistogram gauge_cumulative_histogram = 6;
+    Enum enum = 7;
+    Annotation annotation = 8;
+    Summary summary = 9;
+    Unknown unknown = 10;
+  }
+}
+
+message Value {
+  oneof value {
+    double float64 = 1;
+    uint64 uint64 = 2;
+    // Can add more here
+  }
+}
+
+message Gauge {
+  Value value = 1; // required
+}
+
+message Counter {
+  Value total = 1; // required
+  Value created_time = 2;
+}
+
+message GaugeCumulativeHistogram {
+  message Bucket {
+    Value less_than_or_equal_to = 1;
+    Value count = 2;
+  }
+  // Sorted, must have +Inf  last
+  // Buckets are configured statically for each metric in the instrumentation
+  // API, i.e. don't dynamically change from scrape to scrape.
+  repeated Bucket bucket = 1;
+
+  // TODO: What other fields make sense here?
+}
+
+message CumulativeHistogram {
+  message Bucket {
+    Value less_than_or_equal_to = 1;
+    Value count = 2;
+  }
+
+  // Sorted, must have +Inf  last
+  repeated Bucket buckets = 1;
+  Value sum = 2;
+  Value sum_of_squares_total = 3;
+  Value created_time = 4;
+}
+
+message Enum {
+  repeated string possible = 1;
+  string value = 2; // required
+}
+
+message Summary {
+  message Quantile {
+     Value quantile = 1;
+     Value value = 2;
+  }
+
+  repeated Quantile quantiles = 1;
+  Value sum = 2;
+  Value count = 3;
+  Value sum_of_squares = 4;
+  Value created_time = 5;
+}
+
+message Annotation {
+  message Annotation {
+     map<string, string> annotation_labels = 1;
+  }
+  repeated Annotation annotations = 1;
+}
+
+message Unknown {
+  Value value = 1; // required
+}

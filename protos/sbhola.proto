@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package openmetrics;
+
+message Label {
+  string name = 1; // required
+  oneof value {
+    string string_value = 2;
+    int64 int64_value = 3;
+    bool bool_value = 4;
+  }
+}
+
+message Point {
+  repeated Label label = 1;
+
+  // The actual metric value.
+  oneof value {
+    bool bool_value = 2;
+    string string_value = 3;
+    int64 int_value = 4;
+    EnumValue enum_value = 5;
+    double double_value = 6;
+    DistributionValue distribution_value = 7;
+  }
+
+  int64 start_timestamp = 8; // required
+  int64 end_timestamp = 9;  // required for cumulative
+}
+
+// A set of points belonging to a metric.
+message PointSet {
+  string metric_name = 1; // required
+  repeated Point point = 2;
+}
+
+message MetricSet {
+  repeated Label label = 1;  // Labels that apply to all metrics
+  repeated PointSet point_set = 2;
+
+  // Descriptors of all metrics sent in point_set
+  message MetricDescriptor {
+    string name = 1; // required
+    enum ScalarType {
+      INT = 0;
+      FLOAT = 1;
+      STRING = 2;
+      ENUM = 3;
+    }
+    enum Kind {
+      GAUGE = 0;
+      CUMULATIVE = 1;
+      UNKNOWN = 2;
+    }
+    enum Type {
+       SCALAR = 0;
+       DISTRIBUTION = 1;
+       SUMMARY = 2;
+    }
+    ScalarType scalar_type = 2;
+    Kind kind = 3;
+    Type type = 4;
+
+    string description = 5;
+  }
+  repeated MetricDescriptor md = 3;
+}
+
+message EnumValue {
+  string value = 1;
+  repeated string set_of_possible_values = 2;
+}
+
+message DistributionValue {
+  int64 count = 1;
+  double mean = 2;
+  double sum_of_square_deviation = 3;
+
+  message Range {
+    double min = 1;
+    double max = 2;
+  }
+
+  Range range = 4;
+
+
+  // Buckets are optional.
+  message BucketOptions {
+    oneof options {
+      // The linear bucket.
+      Linear linear_buckets = 1;
+
+      // The exponential buckets.
+      Exponential exponential_buckets = 2;
+
+      // The explicit buckets.
+      Explicit explicit_buckets = 3;
+    }
+  }
+  BucketOptions bucket_options = 5;
+  // First and last buckets are underflow and overflow counts
+  repeated int64 bucket_counts = 7;
+}
+
+message Linear {
+  // TODO
+}
+
+message Exponential {
+  // TODO
+}
+
+message Explicit {
+  // TODO
+}
