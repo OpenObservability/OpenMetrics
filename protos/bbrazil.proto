@@ -7,7 +7,7 @@ message Frame {
 }
 
 message Metric {
-  string name             = 1;
+  string name             = 1; // required
   string unit             = 2;
   string description      = 3;
 
@@ -50,11 +50,11 @@ message Value {
 }
 
 message Gauge {
-  Value value = 1;
+  Value value = 1; // required
 }
 
 message Counter {
-  Value total = 1;
+  Value total = 1; // required
   Value created_time = 2;
 }
 
@@ -86,7 +86,7 @@ message CumulativeHistogram {
 
 message Enum {
   repeated string possible = 1;
-  string value = 2;
+  string value = 2; // required
 }
 
 message Summary {
@@ -110,5 +110,5 @@ message Annotation {
 }
 
 message Unknown {
-  Value value = 1;
+  Value value = 1; // required
 }
