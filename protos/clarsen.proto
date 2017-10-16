@@ -1,74 +1,82 @@
+syntax = "proto3";
+
+package openmetrics;
+
 enum MetricType {
-  COUNTER,
-  GAUGE,
-  SUMMARY,
-  ENUM,
-  BUCKETED_HISTOGRAM,
-  SKETCH_DISTRIBUTION,
-  ... more
+  COUNTER = 0;
+  GAUGE = 1;
+  SUMMARY = 2;
+  ENUM = 3;
+  BUCKETED_HISTOGRAM = 4;
+  SKETCH_DISTRIBUTION = 5;
+  // ... more
 }
 
 message Enum {
-  map<String, int64> values;
+  map<string, int64> values = 1;
+}
+
+message Value {
+  oneof value {
+    int64 int64 = 1;
+    double float64 = 2;
+  }
 }
 
 message Counter {
-  OneOf
-      int64 value;
-      float64 value;
-  Optional int64 start_timestamp;
+  Value value = 1;
+  int64 start_timestamp = 2;
 }
 
 message Gauge {
-  OneOf
-      int64 value;
-      float64 value;
+  Value value = 1;
 }
 
 message Summary {
-  required OneOf <int64|float64> sum;
-  required OneOf <int64|float64> count;
-  optional int64 start_timestamp;
-  optional OneOf <int64|float64> sum_of_squares;
-  optional OneOf <int64|float64> max;
-  optional OneOf <int64|float64> min;
+  Value sum = 1; // required
+  Value count = 2; // required
+  int64 start_timestamp = 3;
+  Value sum_of_squares = 4;
+  Value max = 5;
+  Value min = 6;
 }
 
 message SketchDistribution {
-  repeated byte value;
+  bytes value = 1;
 }
 
 message BucketedHistogram {
-  repeated Bucket{
-    Required <int64|float64> start;
-    Required <int64|float64> end; // allows for narrow range buckets
+  message Bucket {
+    Value start = 1; // required
+    Value end = 2; // required; allows for narrow range buckets
     // ----
-   required <int64|float64> count;
+    Value count = 3; // required
   }
-  required <int64|float64> overflow;
-  required <int64|float64> underflow;
+  repeated Bucket buckets = 1;
+  Value overflow = 2; // required
+  Value underflow = 3; // required
 }
 
 message DataPoint {
-  Required String metric;
-  Required Map<String, String> labels;
-  Required MetricType metric_type;
-  Required int64 timestamp;
-  Optional String unit;
-  OneOf <MetricType> value;
-   Optional String annotation;  // e.g. exemplar/usernote
+  string metric = 1; // required
+  map<string, string> labels = 2; // required
+  MetricType metric_type = 3; // required
+  int64 timestamp = 4; // required
+  string unit = 5;
+  Value value = 6;
+  string annotation = 7;  // e.g. exemplar/usernote
 }
 
 message CompactFormat {
-  Required String metric;
-  Required MetricType metric_type;
-  OneOf <MetricType> value;
-  Optional String unit;
-  Optional String annotation;  // e.g. exemplar/usernote
+  string metric = 1; // required
+  MetricType metric_type = 2; // required
+  Value value = 3;
+  string unit = 4;
+  string annotation = 5;  // e.g. exemplar/usernote
 }
 
 message CompactSet{
-   Required Map<String, String> labels;
-   Required int64 timestamp;
-   Required Repeated CompactFormat data;
+   map<string, string> labels = 1; // required
+   int64 timestamp = 2; // required
+  CompactFormat data = 3; // required
 }
