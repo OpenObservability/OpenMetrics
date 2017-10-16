@@ -1,0 +1,89 @@
+message Frame {
+  repeated Metric
+}
+
+message Metric {
+  required metric_name string
+  optional unit string
+  optional description string
+
+  optional Type string   # Type matches what's used in children - should use a proto enum
+  repeated Child children  # (labels,timestamp) must be unique
+                           # Ordering/grouping stuff needs specification
+}
+
+message Child {
+ map[string]string labels
+ optional Value timestamp
+  # One of:
+  optional Gauge
+  optional Counter
+  optional CumulativeHistogram
+  optional GaugeCumulativeHistogram
+  optional Enum
+  optional Annotation
+  optional Summary
+  optional Unknown
+}
+
+message Value {
+ # One of
+  optional float64
+  optional uint64
+  # Can add more here
+}
+
+
+message Gauge {
+  required Value value
+}
+
+message Counter {
+  required Value total
+  optional Value created_time
+}
+
+message GaugeCumulativeHistogram {
+  repeated Bucket {  # Sorted, must have +Inf  last
+                     # Buckets are configured statically for each metric in the instrumentation API, i.e. don't dynamically change from scrape to scrape.
+     Value less_than_or_equal_to
+     Value count
+  }
+  # What other fields make sense here?
+}
+
+message CummulativeHistogram {
+  repeated Bucket {  # Sorted, must have +Inf  last
+     Value less_than_or_equal_to
+     Value count
+  }
+  optional Value sum
+  optional Value sum_of_squares_total
+  optional Value created_time
+}
+
+message Enum {
+  repeated String possible
+  required string value
+}
+
+message Summary {
+  repeated Quantile {
+     Value quantile
+     Value value
+  }
+  optional Value sum
+  optional Value count
+  optional Value sum_of_squares
+  optional Value created_time
+}
+
+message Annotation
+  repeated {
+     map[string]string annotation_labels
+  }
+}
+
+message Unknown {
+  required Value value
+}

@@ -1,0 +1,68 @@
+message Frame {
+  repeated Metric
+}
+
+message Metric {
+  string       name
+  string       unit
+  string       help
+
+  Type         type    # float64 / int64 / bool / enum etc
+  Kind         kind    # cumulative / gauge / unknown
+  Structure    struct  # scalar / histogram / summary
+
+  repeated     Child    children
+
+  # Q: list label keys here so don’t repeat the keys?
+  # .. or not, due to federation.
+}
+
+message Child {
+  repeated  LabelPair labels
+
+  # One off:
+  repeated Scalar         scalar
+  repeated Summary        summary
+  repeated Histogram      histogram
+
+  # Q: also multiply out each type?
+}
+
+message Scalar {
+  Value value
+}
+
+message Summary {
+  uint64   sample_count
+  Value    sample_sum
+  repeated Quantile quantile
+}
+
+message Quantile {
+  double quantile
+  Value value
+}
+
+message Histogram {
+  uint64   sample_count
+  Value    sample_sum
+  repeated Bucket bucket
+}
+
+message Bucket {
+  uint64 count
+  Value  upper_bound
+}
+
+message Value {
+  int64     timestamp # ms etc...
+
+  # One of:
+  double double
+  uint64 uint64
+  bool   bool
+  string enum
+
+  # Here for federation use case
+  repeated string enum_values
+}

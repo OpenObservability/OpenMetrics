@@ -1,0 +1,92 @@
+message Label {
+  required string name;
+  oneof value {
+    string string_value;
+    int64 int64_value;
+    bool bool_value;
+  }
+}
+
+message Point {
+  repeated Label label;
+
+  // The actual metric value.
+  oneof value {
+    bool bool_value;
+    string string_value;
+    int int_value;
+    EnumValue enum_value;
+    double double_value;
+    DistributionValue distribution_value;
+  }
+
+  required int64 start_timestamp;
+  optional int64 end_timestamp;  // required for cumulative
+}
+
+// A set of points belonging to a metric.
+message PointSet {
+  required string metric_name;
+  repeated Point point;
+}
+
+message MetricSet {
+  repeated Label label;  // Labels that apply to all metrics
+  repeated PointSet point_set;
+
+  // Descriptors of all metrics sent in point_set
+  message MetricDescriptor {
+    required string name ;
+    enum ScalarType {
+       INT, FLOAT, STRING, ENUM
+    }
+    enum Kind {
+       GAUGE, CUMULATIVE, UNKNOWN;
+    }
+    enum Type {
+       SCALAR, DISTRIBUTION, SUMMARY
+    }
+    ScalarType scalar_type;
+    Kind kind;
+    Type type;
+
+    optional string description;
+     ...
+
+  }
+  repeated MetricDescriptor md;
+}
+message EnumValue {
+  string value;
+  repeated string set_of_possible_values;
+}
+message DistributionValue {
+  int64 count;
+  double mean;
+  double sum_of_square_deviation;
+
+  message Range {
+    double/int min;
+    double/int max;
+  }
+
+  optional Range range;
+
+
+  // Buckets are optional.
+  message BucketOptions {
+    oneof options {
+      // The linear bucket.
+      Linear linear_buckets;
+
+      // The exponential buckets.
+      Exponential exponential_buckets;
+
+      // The explicit buckets.
+      Explicit explicit_buckets;
+    }
+  }
+  BucketOptions bucket_options;
+  // First and last buckets are underflow and overflow counts
+  repeated int64 bucket_counts = 7;
+}

@@ -1,0 +1,74 @@
+enum MetricType {
+  COUNTER,
+  GAUGE,
+  SUMMARY,
+  ENUM,
+  BUCKETED_HISTOGRAM,
+  SKETCH_DISTRIBUTION,
+  ... more
+}
+
+message Enum {
+  map<String, int64> values;
+}
+
+message Counter {
+  OneOf
+      int64 value;
+      float64 value;
+  Optional int64 start_timestamp;
+}
+
+message Gauge {
+  OneOf
+      int64 value;
+      float64 value;
+}
+
+message Summary {
+  required OneOf <int64|float64> sum;
+  required OneOf <int64|float64> count;
+  optional int64 start_timestamp;
+  optional OneOf <int64|float64> sum_of_squares;
+  optional OneOf <int64|float64> max;
+  optional OneOf <int64|float64> min;
+}
+
+message SketchDistribution {
+  repeated byte value;
+}
+
+message BucketedHistogram {
+  repeated Bucket{
+    Required <int64|float64> start;
+    Required <int64|float64> end; // allows for narrow range buckets
+    // ----
+   required <int64|float64> count;
+  }
+  required <int64|float64> overflow;
+  required <int64|float64> underflow;
+}
+
+message DataPoint {
+  Required String metric;
+  Required Map<String, String> labels;
+  Required MetricType metric_type;
+  Required int64 timestamp;
+  Optional String unit;
+  OneOf <MetricType> value;
+   Optional String annotation;  // e.g. exemplar/usernote
+}
+
+message CompactFormat {
+  Required String metric;
+  Required MetricType metric_type;
+  OneOf <MetricType> value;
+  Optional String unit;
+  Optional String annotation;  // e.g. exemplar/usernote
+}
+
+message CompactSet{
+   Required Map<String, String> labels;
+   Required int64 timestamp;
+   Required Repeated CompactFormat data;
+}
