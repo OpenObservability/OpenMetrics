@@ -68,8 +68,8 @@ message MetricDescription {
 }
 
 message IntervalTime {
- Timestamp start_time = 1;
- Timestamp end_time = 2;
+ double start_time = 1;
+ double end_time = 2;
 }
 
 message Metric {
