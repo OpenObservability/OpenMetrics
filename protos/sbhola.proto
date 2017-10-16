@@ -1,92 +1,115 @@
+syntax = "proto3";
+
+package openmetrics;
+
 message Label {
-  required string name;
+  string name = 1; // required
   oneof value {
-    string string_value;
-    int64 int64_value;
-    bool bool_value;
+    string string_value = 2;
+    int64 int64_value = 3;
+    bool bool_value = 4;
   }
 }
 
 message Point {
-  repeated Label label;
+  repeated Label label = 1;
 
   // The actual metric value.
   oneof value {
-    bool bool_value;
-    string string_value;
-    int int_value;
-    EnumValue enum_value;
-    double double_value;
-    DistributionValue distribution_value;
+    bool bool_value = 2;
+    string string_value = 3;
+    int64 int_value = 4;
+    EnumValue enum_value = 5;
+    double double_value = 6;
+    DistributionValue distribution_value = 7;
   }
 
-  required int64 start_timestamp;
-  optional int64 end_timestamp;  // required for cumulative
+  int64 start_timestamp = 8; // required
+  int64 end_timestamp = 9;  // required for cumulative
 }
 
 // A set of points belonging to a metric.
 message PointSet {
-  required string metric_name;
-  repeated Point point;
+  string metric_name = 1; // required
+  repeated Point point = 2;
 }
 
 message MetricSet {
-  repeated Label label;  // Labels that apply to all metrics
-  repeated PointSet point_set;
+  repeated Label label = 1;  // Labels that apply to all metrics
+  repeated PointSet point_set = 2;
 
   // Descriptors of all metrics sent in point_set
   message MetricDescriptor {
-    required string name ;
+    string name = 1; // required
     enum ScalarType {
-       INT, FLOAT, STRING, ENUM
+      INT = 0;
+      FLOAT = 1;
+      STRING = 2;
+      ENUM = 3;
     }
     enum Kind {
-       GAUGE, CUMULATIVE, UNKNOWN;
+      GAUGE = 0;
+      CUMULATIVE = 1;
+      UNKNOWN = 2;
     }
     enum Type {
-       SCALAR, DISTRIBUTION, SUMMARY
+       SCALAR = 0;
+       DISTRIBUTION = 1;
+       SUMMARY = 2;
     }
-    ScalarType scalar_type;
-    Kind kind;
-    Type type;
+    ScalarType scalar_type = 2;
+    Kind kind = 3;
+    Type type = 4;
 
-    optional string description;
-     ...
-
+    string description = 5;
   }
-  repeated MetricDescriptor md;
+  repeated MetricDescriptor md = 3;
 }
+
 message EnumValue {
-  string value;
-  repeated string set_of_possible_values;
+  string value = 1;
+  repeated string set_of_possible_values = 2;
 }
+
 message DistributionValue {
-  int64 count;
-  double mean;
-  double sum_of_square_deviation;
+  int64 count = 1;
+  double mean = 2;
+  double sum_of_square_deviation = 3;
 
   message Range {
-    double/int min;
-    double/int max;
+    double min = 1;
+    double max = 2;
   }
 
-  optional Range range;
+  Range range = 4;
 
 
   // Buckets are optional.
   message BucketOptions {
     oneof options {
       // The linear bucket.
-      Linear linear_buckets;
+      Linear linear_buckets = 1;
 
       // The exponential buckets.
-      Exponential exponential_buckets;
+      Exponential exponential_buckets = 2;
 
       // The explicit buckets.
-      Explicit explicit_buckets;
+      Explicit explicit_buckets = 3;
     }
   }
-  BucketOptions bucket_options;
+  BucketOptions bucket_options = 5;
   // First and last buckets are underflow and overflow counts
   repeated int64 bucket_counts = 7;
+}
+
+message Linear {
+  // TODO
+}
+
+message Exponential {
+  // TODO
+}
+
+message Explicit {
+  // TODO
 }
