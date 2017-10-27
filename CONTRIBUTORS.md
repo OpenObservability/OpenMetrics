@@ -16,3 +16,5 @@ As we are a reasonably random bunch of people interested in the same thing, this
   Tech Lead for Census at Google
 * Dino Oliva
   Tech Lead for Census at Google
+* Pavel Trukhanov 
+  from okmeter.io monitoring. He's building a monitoring solution that should be able to aggregate all other monitorings in terms of metric collection. He's been working on different monitoring solutions since 2010. He wants community to have a united format for metrics as a first step to have many popular OSS systems and OSes to be monitoring-first products.
