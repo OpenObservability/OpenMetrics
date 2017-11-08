@@ -6,6 +6,8 @@ As we are a reasonably random bunch of people interested in the same thing, this
   Prometheus core developer, with over a decade of experience working with this style of monitoring. He wants to encourage a more modern way of doing metrics, and avoid the numerous anti-patterns we're left with due to previous styles of monitoring.
 * Paul Dix
   InfluxDB creator and CTO of InfluxData, the company behind InfluxDB. Interested in time series and events in addition to metrics and monitoring.
+* Lee Calcote
+  Head of Technology Strategy at SolarWinds. Produced next-gen IPMI spec (Redfish). Looking to assist with next-gen SNMP spec.
 * Morgan McLean
   Product Manager at Google for tracing, profiling, and debugging
 * Jeromy Carriere
