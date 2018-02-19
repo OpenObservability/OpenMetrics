@@ -5,7 +5,7 @@ data, influenced by the [Prometheus exposition
 format](https://prometheus.io/docs/instrumenting/exposition_formats/).
 
 Discussion of the standard is happening in the
-[issues](https://github.com/RichiH/OpenMetrics/issues) on this repository.
+[issues](https://github.com/RichiH/OpenMetrics/issues) on this repository and in bi-weekly meetings; invitation upon request and after basic vetting.
 
 ## Mailing list
 
