@@ -203,7 +203,7 @@ Prometheus:
    as naive, though.)
 3. Prometheus so far has failed to benefit from this item, as the internal data
    model is different from the protobuf description in both Prometheus 1.x
-   and 2.x (which is arguably eiter a shortcoming of Prometheus or of the
+   and 2.x (which is arguably either a shortcoming of Prometheus or of the
    protobuf representation in Go, see also the
    [section about the data model below](#implied-data-model)).
 
@@ -254,7 +254,7 @@ observations must have the same timestamp. Furthermore, data types are not
 appropriate anymore. The count of a bucket and the count of observations are
 supposed to be unsigned integers but are represented as floating point numbers
 in the text format. The value of the `le` label is supposed to be a floating
-point number but represented as an UTF-8 string. The protobuf format doesn not
+point number but is represented as an UTF-8 string. The protobuf format does not
 have any of these issues.
 
 A different aspect is that the representation of histograms as naive buckets is
@@ -280,7 +280,7 @@ follow the leaked internal data model, even after the internal data model of
 Prometheus has improved.
 
 There is the option of changing the text format to not break down complex
-metric type. A histogram sample could look like this:
+metric type. A _histogram_ sample could look like this:
 ```
 some_histogram{foo="bar"} {sum: 47.11, count: 42, 0.1: 1, 0.2: 5, 0.5: 12, 1: 37}
 ```
