@@ -1,0 +1,215 @@
+// Proto2 syntax (no tag numbers). Interpret "required" as
+// semantically required. Some optional fields are semantically
+// required depending on the values of the other fields (and indicated
+// by comments).
+
+message MetricSet {
+  // Each MetricPoints has one or more points from a single metric.
+  repeated MetricPoints metric_points;
+}
+
+// One or more timeseries for a single metric, where each timeseries has
+// one or more points.
+message MetricPoints {
+  required MetricDescriptor metric_descriptor;
+  repeated Timeseries timeseries;
+}
+
+message Timeseries {
+  repeated Label label;  // apply to all points.
+  // If there is more than one point, all must have a timestamp field
+  // and they must be in increasing order of timestamp.
+  repeated Point point;
+}
+
+message MetricDescriptor {
+  required string name;
+  optional string unit;
+
+  required Type type;
+
+  optional string description;
+
+  enum Type {
+    UNKNOWN = 0;  // double or int valued point
+    GAUGE = 1;    // double or int valued point
+    COUNTER = 2;  // double or int valued point.
+    STATE_SET = 3;
+    INFO = 4;  // provides information about the entity being monitored
+    CUMULATIVE_HISTOGRAM = 5;
+    GAUGE_HISTOGRAM = 6;
+    SUMMARY = 7;  // Summary quantiles are not recommended, since cannot be aggregated.
+  }
+  // Note: No bucketing is defined for a HISTOGRAM in the descriptor.
+  // It is an implementation detail of the backend whether it can handle
+  // changes in bucketing for a metric. Same for SUMMARY (quantiles are
+  // not defined here), and STATE_SET (the set of possible values is
+  // defined in each point).
+}
+
+message Label {
+  required string name;
+  required string value;
+}
+
+message Point {
+  oneof value {
+    double double_value;
+    int64 int_value;
+    StateSetValue state_set_value;
+    HistogramValue histogram_value;
+    SummaryValue summary_value;
+    InfoValue info_value;
+  }
+  // Iff COUNTER or CUMULATIVE_HISTOGRAM type. The cumulative value is over
+  // the time interval (start_timestamp, timestamp] where both timestamps
+  // are nanoseconds since the epoch.
+  // If start_timestamp is present and timestamp is absent,
+  // the backend assigned timestamp may be used to construct the time
+  // interval.
+  optional int64 start_timestamp;
+
+  // If not specified, the timestamp will be decided by the backend.
+  optional int64 timestamp;
+}
+
+message StateSetValue {
+  // Each state must have a unique name. Any number of states may be enabled.
+  repeated State states;
+  Message State {
+    required bool enabled;
+    required string name;
+  }
+}
+
+message InfoValue {
+  repeated Label info;
+}
+
+
+message HistogramValue {
+  // Equivalent wrt precision issues in comparison with mean as discussed in
+  // https://github.com/RichiH/OpenMetrics/issues/64
+  required double sum;
+
+  required int64 count;
+
+  // `BucketOptions` describes the bucket boundaries used to create a
+  // histogram. The buckets can be in a linear sequence, an
+  // exponential sequence, or each bucket can be specified explicitly.
+  // `BucketOptions` does not include the number of values in each bucket.
+  //
+  // A bucket has a 0 lower bound and an inclusive upper bound for the
+  // values that are counted for that bucket. That is, buckets are
+  // cumulative. The upper bound of successive buckets must be increasing.
+  // There is an implicit overflow bucket that extends up to +infinity.
+  message BucketOptions {
+    // Exactly one of these three fields must be set.
+    oneof options {
+      // The linear bucket.
+      Linear linear_buckets;
+
+      // The exponential buckets.
+      Exponential exponential_buckets;
+
+      // The explicit buckets.
+      Explicit explicit_buckets;
+    }
+
+    // Specifies a linear sequence of buckets that add the same constant width
+    // to the previous bucket (except the overflow bucket). This implies
+    // a constant absolute uncertainty on the specific value of a sample.
+    //
+    // There are `num_explicit_buckets` (N) buckets plus the overflow
+    // bucket. Bucket `i` (0 <= i < N) has upper bound : offset + (width * i).
+    // Note that when offset = 0, bucket 0 represents the interval [0, 0].
+    message Linear {
+      // Must be greater than 0.
+      required int32 num_explicit_buckets;
+
+      // Must be greater than 0.
+      required double width;
+
+      // Must be >= 0.
+      required double offset;
+    }
+
+    // Specifies an exponential sequence of buckets that have an upper bound
+    // that is proportional to the value of the upper bound of the previous
+    // bucket. This implies a constant relative uncertainty on the specific
+    // value of a sample.
+    //
+    // There are `num_exponential_buckets` + 1 (N) buckets plus the overflow
+    // bucket.
+    // Bucket 0 represents the interval [0, 0].
+    // Bucket `i` (1 <= i < N) has upper bound :
+    //   scale * (growth_factor ^ (i - 1)).
+    message Exponential {
+      // Must be greater than 0.
+      required int32 num_exponential_buckets;
+
+      // Must be greater than 1.
+      required double growth_factor;
+
+      // Must be greater than 0.
+      required double scale;
+    }
+
+    // Specifies a set of buckets with arbitrary upper-bounds
+    //
+    // There are `size(bounds)` (N) explicit buckets plus the overflow bucket.
+    // Bucket `i` (0 <= i < N) has upper bound: bounds[i].
+    // The `bounds` field must contain at least one element.
+    message Explicit {
+      // The values must be monotonically increasing and >= 0.
+      repeated double bounds;
+    }
+
+  }
+  required BucketOptions bucket_options;
+
+  // The number of values in each bucket of the histogram, as described in
+  // `bucket_options`.
+  //
+  // `bucket_counts` will typically contain N + 1 values. If you supply fewer
+  // values, the remaining values are assumed to be 0.
+  //
+  // The order of the values in `bucket_counts` follows the bucket numbering
+  // schemes described for the three bucket types.
+
+
+
+  repeated BucketCount bucket_counts;
+  message BucketCount {
+    // Count is the number of values for a bucket of the histogram.
+    required int64 count;
+
+    // An optional example of a value that fell into this bucket.
+    optional Exemplar exemplar;
+  }
+  message Exemplar {
+    // The value of the example.
+    required double value;
+
+    // The timestamp of the example. Nanoseconds since the epoch.
+    required int64 timestamp;
+
+    // Additional information about the example value (e.g. trace id, timestamp)
+    repeated Label label;
+  }
+}
+
+message SummaryValue {
+  // Sum and count are optional since some systems (e.g. DropWizard) don’t
+  // expose them. The start_timestamp only applies to the sum and count.
+  // The quantiles can be reset at arbitrary unknown times.
+  optional double sum;
+  optional int64 count;
+  repeated Quantile quantile;
+
+  message Quantile {
+    required double quantile;  // must be in the interval (0.0, 1.0]
+    required double value;
+  }
+}
+
