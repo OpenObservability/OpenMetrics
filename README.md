@@ -1,5 +1,7 @@
 # OpenMetrics
 
+![](images/logo/logo.svg)
+
 OpenMetrics is a working group to determine a standard for exposing metrics
 data, influenced by the [Prometheus exposition
 format](https://prometheus.io/docs/instrumenting/exposition_formats/).
