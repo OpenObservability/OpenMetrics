@@ -1,3 +1,6 @@
+
+![OpenMetrics Logo](images/logo/openmetrics.png)
+
 # OpenMetrics
 
 OpenMetrics is a working group to determine a standard for exposing metrics
