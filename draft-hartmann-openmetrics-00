@@ -34,6 +34,32 @@ UTF-8 compresses well, and protobuf is already binary.
 
 ## Text format
 
+Metric names MUST appear as a group.
+A group MAY have intial lines with metadata, starting with `# $keyword` and MUST have at least one line with metric data.
+
+ABNF as per RFC 5234, UTF8-char as per RFC 3629.
+
+group = *metadata 1*metricdata
+
+metadata = # SP ("HELP" / "TYPE" / TODO) SP metadata-text CRLF
+
+metadata-text = UTF8-char *(UTF8-char / SP) # TODO - how to do UTF-8?
+
+metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar CRLF
+
+metricname = 1*(ALPHA / DIGIT / "_")
+
+labelset = ( "" / "{}" / labelset-labels)
+
+labelset-labels = { (1*UTF8-char "=" DQUOTE 1*UTF8-char DQUOTE) *("," 1*UTF8-char "=" DQUOTE 1*UTF8-char DQUOTE) }
+
+datapoint = 1*DIGIT *1("." *DIGIT)
+
+timestamp = 1*DIGIT # TODO adapt to timestamp discussion
+
+exemplar = "#" SP 1*(UTF8-char / SP)
+
+
 
 TODO more than one data point per time series -> timestamps required
 
