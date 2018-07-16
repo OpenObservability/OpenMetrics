@@ -1,0 +1,64 @@
+# Rationale
+
+The monitoring world is fragmented and there is no up-to-date standard.
+The closest to an universal monitoring standard we have is SNMP.
+While it is reasonably well-supported in the networking world, it failed to gain wide adoption beyond this field.
+SNMP also carries over many engineering trade-offs which made sense at the time, but are not matching well to today's trade-offs; a prime example would be the need to support ASN.1 with its many intricacies.
+
+While there have been other efforts, none of them gained any wide-spread traction.
+Furthermore, most standardization attempts have been foiled by trying to establish themselves in a niche and expanding from there.
+
+More and more fields of IT are being swept up by commoditization, currently aka foo-as-code.
+HTTP endpoints are replacing TCP/IP-based services, an UTF-8 has established itself as the universal non-binary encoding.
+Finally, metrics-based monitoring is overhauling large parts of the monitoring landscape due to their scalability and adaptability.
+
+Given all this, OpenMetrics is an effort to establish a new and universal standard.
+Based on the Prometheus exposition format which already saw massive adoption with more than 300 exporters, TODO links TODO more content.
+This extensive support with TODO different implementations of data ingestors by competing companies and projects shows that there's already an established consensus which is merely refined and made offical with the help of this document.
+
+# Data transmission
+
+There are two wire formats specified in OpenMetrics: The text format and the protobuf format.
+All client implementations MUST be able to emit text format; they MAY also emit protobuf if negotiated.
+All server implementations MUST be able to ingest text format; they MAY also ingest protobuf if negotiated.
+All implementations MUST default to the text format.
+
+TODO rationale why text is default
+
+# Wire formats
+
+Special care has been taken to make the wire formats efficient.
+The three main considerations are CPU time, RAM usage, and network utilization, in this order.
+OpenMetrics is a type 3 grammar, making writing quick and small parsers possible.
+UTF-8 compresses well, and protobuf is already binary.
+
+## Text format
+
+
+TODO more than one data point per time series -> timestamps required
+
+## protobuf format
+
+# Security Considerations
+
+# IANA Considerations
+
+TODO Ports, but probably only one for emitting & receiving
+
+TODO MIME / content types for plain text & proto
+
+
+# general TODOs
+
+TODO push vs pull
+
+TODO versioning
+
+TODO test suite & reference implementations
+
+TODO appendix with supporters
+
+TODO labels / n-dimensional matrices vs trees?
+
+TODO metric names unique with a certain label set
+
