@@ -23,7 +23,7 @@ message Timeseries {
 }
 
 message MetricDescriptor {
-  required string name;
+  required string name; // name must be unique within a MetricSet
   optional string unit;
 
   required Type type;
@@ -65,7 +65,7 @@ message Point {
   // the time interval (start_timestamp, timestamp] where both timestamps
   // are nanoseconds since the epoch.
   // If start_timestamp is present and timestamp is absent,
-  // the backend assigned timestamp may be used to construct the time
+  // the ingestor-assigned timestamp may be used to construct the time
   // interval.
   optional int64 start_timestamp;
 
@@ -88,8 +88,6 @@ message InfoValue {
 
 
 message HistogramValue {
-  // Equivalent wrt precision issues in comparison with mean as discussed in
-  // https://github.com/RichiH/OpenMetrics/issues/64
   required double sum;
 
   required int64 count;
@@ -208,7 +206,7 @@ message SummaryValue {
   repeated Quantile quantile;
 
   message Quantile {
-    required double quantile;  // must be in the interval (0.0, 1.0]
+    required double quantile;  // must be 0 <= quantile <= 1
     required double value;
   }
 }
