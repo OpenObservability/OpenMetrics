@@ -9,7 +9,7 @@ While there have been other efforts, none of them gained any wide-spread tractio
 Furthermore, most standardization attempts have been foiled by trying to establish themselves in a niche and expanding from there.
 
 More and more fields of IT are being swept up by commoditization, currently aka foo-as-code.
-HTTP endpoints are replacing TCP/IP-based services, an UTF-8 has established itself as the universal non-binary encoding.
+HTTP endpoints are replacing TCP/IP-based services, and UTF-8 has established itself as the universal non-binary encoding.
 Finally, metrics-based monitoring is overhauling large parts of the monitoring landscape due to their scalability and adaptability.
 
 Given all this, OpenMetrics is an effort to establish a new and universal standard.
