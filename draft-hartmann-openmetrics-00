@@ -4,6 +4,7 @@ The monitoring world is fragmented and there is no up-to-date standard.
 The closest to an universal monitoring standard we have is SNMP.
 While it is reasonably well-supported in the networking world, it failed to gain wide adoption beyond this field.
 SNMP also carries over many engineering trade-offs which made sense at the time, but are not matching well to today's trade-offs; a prime example would be the need to support ASN.1 with its many intricacies.
+For large datasets, it also carries a signifcant communication overhead.
 
 While there have been other efforts, none of them gained any wide-spread traction.
 Furthermore, most standardization attempts have been foiled by trying to establish themselves in a niche and expanding from there.
@@ -12,7 +13,7 @@ More and more fields of IT are being swept up by commoditization, currently aka 
 HTTP endpoints are replacing TCP/IP-based services, and UTF-8 has established itself as the universal non-binary encoding.
 Finally, metrics-based monitoring is overhauling large parts of the monitoring landscape due to their scalability and adaptability.
 
-Given all this, OpenMetrics is an effort to establish a new and universal standard.
+Given all this, OpenMetrics is an effort to establish a new and universal standard for metrics-based monitoring.
 Based on the Prometheus exposition format which already saw massive adoption with more than 300 exporters, TODO links TODO more content.
 This extensive support with TODO different implementations of data ingestors by competing companies and projects shows that there's already an established consensus which is merely refined and made offical with the help of this document.
 
@@ -31,15 +32,13 @@ TODO rationale why text is default
 
 # Wire formats
 
-Special care has been taken to make the wire formats efficient.
-The three main considerations are CPU time, RAM usage, and network utilization, in this order.
+Special care has been taken to make the wire formats ease to generate, to ingest, and to understand..
 OpenMetrics is a type 3 grammar, making writing quick and small parsers possible.
 UTF-8 compresses well, and protobuf is already binary.
 
 ## Text format
 
 Metric names MUST appear as a group.
-A group MAY have intial lines with metadata, starting with `# $keyword` and MUST have at least one line with metric data.
 
 ### ABNF
 
@@ -47,13 +46,13 @@ ABNF as per RFC 5234, UTF8-char as per RFC 3629.
 
 group = *metadata 1*metricdata
 
-metadata = # SP ("HELP" / "TYPE" / TODO) SP metadata-text CRLF
+metadata = # SP ("HELP" / "TYPE" / TODO) SP metadata-text LF
 
 metadata-text = UTF8-char *(UTF8-char / SP) # TODO - how to do UTF-8?
 
-metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar CRLF
+metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar LF
 
-metricname = 1*(ALPHA / DIGIT / "_")
+metricname = ALPHA *(ALPHA / DIGIT / "_")
 
 labelset = ( "" / "{}" / labelset-labels)
 
