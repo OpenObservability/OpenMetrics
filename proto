@@ -190,7 +190,7 @@ message HistogramValue {
     required double value;
 
     // The timestamp of the example. Nanoseconds since the epoch.
-    required int64 timestamp;
+    optional int64 timestamp;
 
     // Additional information about the example value (e.g. trace id, timestamp)
     repeated Label label;
