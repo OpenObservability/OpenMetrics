@@ -16,6 +16,10 @@ Given all this, OpenMetrics is an effort to establish a new and universal standa
 Based on the Prometheus exposition format which already saw massive adoption with more than 300 exporters, TODO links TODO more content.
 This extensive support with TODO different implementations of data ingestors by competing companies and projects shows that there's already an established consensus which is merely refined and made offical with the help of this document.
 
+# Metric naming
+
+TODO suffices, etc
+
 # Data transmission
 
 There are two wire formats specified in OpenMetrics: The text format and the protobuf format.
@@ -37,6 +41,8 @@ UTF-8 compresses well, and protobuf is already binary.
 Metric names MUST appear as a group.
 A group MAY have intial lines with metadata, starting with `# $keyword` and MUST have at least one line with metric data.
 
+### ABNF
+
 ABNF as per RFC 5234, UTF8-char as per RFC 3629.
 
 group = *metadata 1*metricdata
@@ -53,12 +59,25 @@ labelset = ( "" / "{}" / labelset-labels)
 
 labelset-labels = { (1*UTF8-char "=" DQUOTE 1*UTF8-char DQUOTE) *("," 1*UTF8-char "=" DQUOTE 1*UTF8-char DQUOTE) }
 
-datapoint = 1*DIGIT *1("." *DIGIT)
+datapoint = 1*DIGIT *1("." *DIGIT *1( "e" ( "+" / "-" ) 2DIGIT ) )
 
 timestamp = 1*DIGIT # TODO adapt to timestamp discussion
 
-exemplar = "#" SP 1*(UTF8-char / SP)
+exemplar = "#" SP 1*(UTF8-char / SP) # put in length limit
 
+### Examples
+
+````
+# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# TYPE go_gc_duration_seconds summary
+go_gc_duration_seconds{quantile="0"} 4.9797e-05
+go_gc_duration_seconds{quantile="0.25"} 9.026e-05
+go_gc_duration_seconds{quantile="0.5"} 0.000109604
+go_gc_duration_seconds{quantile="0.75"} 0.00016786
+go_gc_duration_seconds{quantile="1"} 0.011062186
+go_gc_duration_seconds_sum 9241.311909524
+go_gc_duration_seconds_count 1.2992713e+07
+````
 
 
 TODO more than one data point per time series -> timestamps required
