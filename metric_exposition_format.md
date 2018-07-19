@@ -55,7 +55,7 @@ Finally a summary, which has a complex representation, too:
 - Metric names are `[a-zA-Z_][a-zA-Z0-9_]*`
 - Label names are `[a-zA-Z0-9_]*`
 - Label values are full utf-8, null bytes are permitted
-- Metrics names must not contain colons, these are for end user use for
+- Metrics names exposed by exporters must not contain colons, these are for end user use for
   aggregation by convention
 - Counter metrics end in _total by convention, counters start at 0 and only go
   up
