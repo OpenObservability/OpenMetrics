@@ -1,0 +1,27 @@
+{{- $fontFace := .Site.Params.font.face }}
+{{- $fontSizes := .Site.Params.font.sizes }}
+@charset "utf-8"
+
+@import url('https://fonts.googleapis.com/css?family={{ replace $fontFace " " "+" }}:{{ delimit $fontSizes "," }}')
+
+@import "sass/utilities/initial-variables"
+@import "sass/utilities/functions"
+
+$navbar-base-height: 5rem
+
+$red: #c42227
+$primary: $red
+$family-sans-serif: "{{ $fontFace }}", sans-serif
+$navbar-burger-color: $primary !important
+$navbar-height: $navbar-base-height
+$navbar-item-img-max-height: $navbar-base-height * .7
+
+@import "sass/utilities/derived-variables"
+
+@import "bulma"
+
+.is-main-logo
+  +desktop
+    width: 30%
+  +touch
+    width: 70%

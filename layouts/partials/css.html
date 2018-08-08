@@ -1,0 +1,15 @@
+{{- $inServerMode := .Site.IsServer }}
+{{- $sass := "sass/style.sass" }}
+{{- $target := "css/style.css" }}
+{{- $bulma := "node_modules/bulma" }}
+{{- $template := "sass/style.sass" }}
+{{- $cssDevOpts := (dict "targetPath" $target "enableSourceMap" true "includePaths" (slice $bulma)) }}
+{{- $cssProdOpts := (dict "targetPath" $target "outputMode" "compressed" "includePaths" (slice $bulma)) }}
+{{- $cssOpts := cond $inServerMode $cssDevOpts $cssProdOpts }}
+{{- $css := resources.Get $sass | resources.ExecuteAsTemplate $template . | toCSS $cssOpts }}
+{{- if $inServerMode }}
+<link rel="stylesheet" href="{{ $css.Permalink }}">
+{{- else }}
+{{- $prodCss := $css | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $prodCss.Permalink }}" integrity="{{ $prodCss.Data.Integrity }}">
+{{- end }}

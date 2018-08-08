@@ -1,0 +1,11 @@
+title: OpenMetrics
+baseurl: https://openmetrics.io
+languagecode: en
+disableKinds: [taxonomy, taxonomyTerm]
+
+params:
+  description: An effort to create an open standard for transmitting metrics at scale
+  features: OpenMetrics will support both text representation and [Protocol Buffers](https://developers.google.com/protocol-buffers/)
+  font:
+    face: Open Sans
+    sizes: [300, 400, 600, 700]
