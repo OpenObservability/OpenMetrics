@@ -15,6 +15,7 @@ $family-sans-serif: "{{ $fontFace }}", sans-serif
 $navbar-burger-color: $primary !important
 $navbar-height: $navbar-base-height
 $navbar-item-img-max-height: $navbar-base-height * .7
+$link: $primary
 
 @import "sass/utilities/derived-variables"
 
@@ -25,3 +26,10 @@ $navbar-item-img-max-height: $navbar-base-height * .7
     width: 30%
   +touch
     width: 70%
+
+=bg-image($url)
+  background-image: url($url)
+
+.hero-body
+  background-color: $white-ter
+  +bg-image("/images/hero-bg.png")
