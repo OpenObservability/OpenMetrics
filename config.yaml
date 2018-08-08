@@ -1,5 +1,5 @@
 title: OpenMetrics
-baseurl: https://openmetrics.io
+baseurl: /
 languagecode: en
 disableKinds: [taxonomy, taxonomyTerm]
 
