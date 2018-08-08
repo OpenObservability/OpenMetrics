@@ -10,3 +10,9 @@ command = "hugo --enableGitInfo -b $DEPLOY_PRIME_URL"
 
 [context.deploy-preview.environment]
 HUGO_VERSION = "0.46"
+
+[context.branch-deploy]
+command = "hugo --enableGitInfo -b $DEPLOY_PRIME_URL"
+
+[context.branch-deploy.environment]
+HUGO_VERSION = "0.46"
