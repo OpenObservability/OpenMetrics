@@ -11,6 +11,7 @@ $navbar-base-height: 5rem
 
 $red: #c42227
 $primary: $red
+$cncf-blue: #426cab
 $family-sans-serif: "{{ $fontFace }}", sans-serif
 $navbar-burger-color: $primary !important
 $navbar-height: $navbar-base-height
@@ -21,15 +22,25 @@ $link: $primary
 
 @import "bulma"
 
-.is-main-logo
+%logo
   +desktop
     width: 30%
   +touch
     width: 70%
 
+.is-cncf-logo
+  @extend %logo
+  margin-top: 1.5rem
+
+.is-main-logo
+  @extend %logo
+
+.has-text-cncf-blue
+  color: $cncf-blue
+
 =bg-image($url)
   background-image: url($url)
 
-.hero-body
+.hero--main
   background-color: $white-ter
   +bg-image("/images/hero-bg.png")
