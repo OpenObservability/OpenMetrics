@@ -8,8 +8,8 @@
 {{- $cssOpts := cond $inServerMode $cssDevOpts $cssProdOpts }}
 {{- $css := resources.Get $sass | resources.ExecuteAsTemplate $template . | toCSS $cssOpts }}
 {{- if $inServerMode }}
-<link rel="stylesheet" href="{{ $css.Permalink }}">
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">
 {{- else }}
 {{- $prodCss := $css | minify | fingerprint }}
-<link rel="stylesheet" href="{{ $prodCss.Permalink }}" integrity="{{ $prodCss.Data.Integrity }}">
+<link rel="stylesheet" href="{{ $prodCss.RelPermalink }}" integrity="{{ $prodCss.Data.Integrity }}">
 {{- end }}
