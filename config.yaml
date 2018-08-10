@@ -1,0 +1,13 @@
+title: The OpenMetrics project — Creating a standard for exposing metrics data
+baseurl: https://openmetrics.io
+languagecode: en
+disableKinds: [taxonomy, taxonomyTerm]
+
+params:
+  description: |
+    An effort to create an open standard for transmitting metrics at scale, with support for both [text representation](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format) and [Protocol Buffers](https://developers.google.com/protocol-buffers/).
+    <br /><br />
+    **Coming soon**
+  font:
+    face: Noto Sans
+    sizes: [300, 400, 600, 700]
