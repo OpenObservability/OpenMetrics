@@ -1,5 +1,4 @@
-{{- $description := .Site.Params.description }}
-{{- $featuresText := .Site.Params.features | markdownify }}
+{{- $description := .Site.Params.description | markdownify }}
 <section class="hero is-fullheight has-text-centered hero--main">
   <div class="hero-body">
     <div class="container">
@@ -8,9 +7,6 @@
       <h2 class="subtitle is-size-3 is-size-4-touch">
         {{ $description }}
       </h2>
-      <span class="is-size-4 is-size-6-touch">
-        {{ $featuresText }}
-      </span>
     </div>
   </div>
 </section>

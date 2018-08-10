@@ -5,8 +5,9 @@ disableKinds: [taxonomy, taxonomyTerm]
 
 params:
   description: |
-    An effort to create an open standard for transmitting metrics at scale. Coming soon.
-  features: OpenMetrics will support both [text representation](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format) and [Protocol Buffers](https://developers.google.com/protocol-buffers/)
+    An effort to create an open standard for transmitting metrics at scale, with support for both [text representation](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format) and [Protocol Buffers](https://developers.google.com/protocol-buffers/).
+    <br /><br />
+    **Coming soon**
   font:
     face: Noto Sans
     sizes: [300, 400, 600, 700]
