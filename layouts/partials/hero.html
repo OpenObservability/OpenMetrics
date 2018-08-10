@@ -1,8 +1,8 @@
 {{- $description := .Site.Params.description | markdownify }}
-<section class="hero is-fullheight has-text-centered hero--main">
-  <div class="hero-body">
+<section class="hero is-fullheight has-text-centered">
+  <div class="hero-body hero--main">
     <div class="container">
-      <img class="is-main-logo title is-spaced" src="/images/logo/openmetrics.png" alt="Bulma: a modern CSS framework based on Flexbox">
+      <img class="is-main-logo title is-spaced" src="{{ "/images/logo/openmetrics.png" | relURL }}" alt="OpenMetrics logo">
 
       <h2 class="subtitle is-size-3 is-size-4-touch">
         {{ $description }}
