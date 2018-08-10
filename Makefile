@@ -3,3 +3,6 @@ get-sass:
 
 build: get-sass
 	hugo
+
+dev:
+	hugo server --disableFastRender
