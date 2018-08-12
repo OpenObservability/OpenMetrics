@@ -4,7 +4,7 @@
 # for the website are in the /website folder.
 [build]
 base    = "website"
-publish = "public"
+publish = "website/public"
 command = "make build"
 
 [build.environment]
