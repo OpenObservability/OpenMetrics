@@ -1,3 +1,4 @@
+{{- $pageType := cond (.IsHome) "home" .Section }}
 <!DOCTYPE html>
 <html lang="{{ .Site.LanguageCode }}">
   <head>
@@ -5,7 +6,7 @@
     <title>{{ block "title" . }}{{ .Site.Title  }}{{ end }}</title>
     {{- partial "css.html" . }}
   </head>
-  <body>
+  <body class="page {{ $pageType }}">
     {{ block "main" . }}
     {{ partial "hero.html" . }}
     {{ partial "cncf.html" . }}

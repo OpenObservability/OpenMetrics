@@ -41,6 +41,11 @@ $link: $primary
 =bg-image($url)
   background-image: url($url)
 
-.hero--main
-  background-color: $white-ter
-  +bg-image("/images/hero-bg.png")
+.page
+  &.home
+    .has-background-image
+      background-color: $white-ter
+      +bg-image("/images/hero-bg.png")
+
+    .hero-foot
+      margin: 1rem 4rem
