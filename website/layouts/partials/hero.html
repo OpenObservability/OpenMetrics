@@ -1,19 +1,21 @@
 {{- $description := .Site.Params.description }}
 {{- $subdescription := .Site.Params.subdescription }}
 <section class="hero is-fullheight has-text-centered">
-  <div class="hero-body hero--main">
+  <div class="hero-body has-background-image">
     <div class="container">
       <img class="is-main-logo title is-spaced" src="{{ "/images/logo/openmetrics.png" | relURL }}" alt="OpenMetrics logo">
 
       <h2 class="subtitle is-size-3 is-size-4-touch">
         {{ $description | markdownify }}
       </h2>
+    </div>
+  </div>
 
-      <br />
-
-      <h4 class="subtitle is-size-5 is-size-6-touch">
+  <div class="hero-foot">
+    <div class="container">
+      <span class="is-size-5 is-size-6-touch">
         {{ $subdescription | markdownify }}
-      </h4>
+      </span>
     </div>
   </div>
 </section>
