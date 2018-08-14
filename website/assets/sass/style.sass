@@ -1,18 +1,18 @@
-{{- $fontFace := .Site.Params.font.face }}
-{{- $fontSizes := .Site.Params.font.sizes }}
 @charset "utf-8"
-
-@import url('https://fonts.googleapis.com/css?family={{ replace $fontFace " " "+" }}:{{ delimit $fontSizes "," }}')
 
 @import "sass/utilities/initial-variables"
 @import "sass/utilities/functions"
+
+@font-face
+  font-family: "Gotham"
+  src: url(/fonts/Gotham-Book.otf)
 
 $navbar-base-height: 5rem
 
 $red: #c42227
 $primary: $red
 $cncf-blue: #426cab
-$family-sans-serif: "{{ $fontFace }}", sans-serif
+$family-sans-serif: "Gotham", sans-serif
 $navbar-burger-color: $primary !important
 $navbar-height: $navbar-base-height
 $navbar-item-img-max-height: $navbar-base-height * .7
