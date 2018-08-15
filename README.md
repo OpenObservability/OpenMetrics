@@ -1,5 +1,5 @@
 
-![OpenMetrics Logo](/static/images/logo/logo-with-text.png)
+![OpenMetrics Logo](website/static/images/logo/logo-with-text.png)
 
 # OpenMetrics
 
