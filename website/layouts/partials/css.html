@@ -13,4 +13,5 @@
 {{- $prodCss := $css | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $prodCss.RelPermalink }}" integrity="{{ $prodCss.Data.Integrity }}">
 {{- end }}
-<link rel="shortcut icon" href="{{ "/favicon.png" | relURL }}">
+{{- $favicon := .Site.Params.favicon }}
+<link rel="shortcut icon" href="{{ $favicon | relURL }}">
