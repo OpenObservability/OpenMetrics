@@ -5,13 +5,13 @@
 [build]
 base    = "website"
 publish = "website/public"
-command = "make build"
+command = "make netlify-production-build"
 
 [build.environment]
 HUGO_VERSION = "0.46"
 
 [context.deploy-preview]
-command = "hugo --enableGitInfo -b $DEPLOY_PRIME_URL"
+command = "make netlify-staging-build"
 
 [context.branch-deploy]
-command = "hugo --enableGitInfo -b $DEPLOY_PRIME_URL"
+command = "hugo netlify-staging-build"

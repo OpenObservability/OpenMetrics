@@ -6,7 +6,7 @@
     <title>{{ block "title" . }}{{ .Site.Title  }}{{ end }}</title>
     {{- partial "css.html" . }}
   </head>
-  <body class="page {{ $pageType }}">
+  <body class="page {{ $pageType }} has-background-black">
     {{ block "main" . }}
     {{ partial "hero.html" . }}
     {{ partial "cncf.html" . }}
