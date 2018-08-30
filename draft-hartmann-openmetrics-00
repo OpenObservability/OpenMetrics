@@ -17,6 +17,13 @@ Given all this, OpenMetrics is an effort to establish a new and universal standa
 Based on the Prometheus exposition format which already saw massive adoption with more than 300 exporters, TODO links TODO more content.
 This extensive support with TODO different implementations of data ingestors by competing companies and projects shows that there's already an established consensus which is merely refined and made offical with the help of this document.
 
+# Metrics and time series
+
+Metrics are a specific kind of system data.
+All system states are expressed as numerical values; counts of things, ENUMs, and boolean states being common examples.
+
+TODO what are metrics, how do they differ from other data
+
 # Metric naming
 
 TODO suffices, etc
@@ -34,31 +41,39 @@ TODO rationale why text is default
 
 Special care has been taken to make the wire formats ease to generate, to ingest, and to understand..
 OpenMetrics is a type 3 grammar, making writing quick and small parsers possible.
-UTF-8 compresses well, and protobuf is already binary.
+Text compresses well, and protobuf is already binary.
 
 ## Text format
 
 Metric names MUST appear as a group.
+If a metricname has appeared in a group before it MUST NOT be repeated after that group finishes.
+
 
 ### ABNF
 
 ABNF as per RFC 5234, UTF8-char as per RFC 3629.
 
-group = *metadata 1*metricdata
+data = *group
 
-metadata = # SP ("HELP" / "TYPE" / TODO) SP metadata-text LF
+group = *metadata *metricdata
 
-metadata-text = UTF8-char *(UTF8-char / SP) # TODO - how to do UTF-8?
+metadata = ( "" / # SP ( "HELP" / "TYPE" / "UNIT" ) SP metadata-text LF )
+
+metadata-text = UTF8-char *(UTF8-char / SP)
 
 metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar LF
 
-metricname = ALPHA *(ALPHA / DIGIT / "_")
+metricname = ( ALPHA / ":" ) *( ALPHA / DIGIT / "_" / ":" )
 
 labelset = ( "" / "{}" / labelset-labels)
 
-labelset-labels = { (1*UTF8-char "=" DQUOTE 1*UTF8-char DQUOTE) *("," 1*UTF8-char "=" DQUOTE 1*UTF8-char DQUOTE) }
+labelname = ALPHA *( ALPHA / DIGIT / "_" )
 
-datapoint = 1*DIGIT *1("." *DIGIT *1( "e" ( "+" / "-" ) 2DIGIT ) )
+labelset-labels = { ( labelname "=" DQUOTE 1*UTF8-char DQUOTE) *("," labelname "=" DQUOTE 1*UTF8-char DQUOTE) }
+
+float = 1*DIGIT *1( "." 1*DIGIT *1( "e" ( "+" / "-" ) 1*3DIGIT ) )
+
+datapoint = ( float / "+Inf" / "-Inf" / "NaN" )# TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r213579928
 
 timestamp = 1*DIGIT # TODO adapt to timestamp discussion
 
@@ -69,6 +84,7 @@ exemplar = "#" SP 1*(UTF8-char / SP) # put in length limit
 ````
 # HELP go_gc_duration_seconds A summary of the GC invocation durations.
 # TYPE go_gc_duration_seconds summary
+# UNIT seconds
 go_gc_duration_seconds{quantile="0"} 4.9797e-05
 go_gc_duration_seconds{quantile="0.25"} 9.026e-05
 go_gc_duration_seconds{quantile="0.5"} 0.000109604
