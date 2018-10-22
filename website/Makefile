@@ -8,4 +8,4 @@ netlify-staging-build: get-sass
 	hugo -b $(DEPLOY_PRIME_URL)
 
 dev:
-	hugo server --disableFastRender
+	hugo server --disableFastRender --ignoreCache

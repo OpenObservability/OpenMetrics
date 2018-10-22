@@ -1,0 +1,17 @@
+{{- $docs := where .Site.Pages "Section" "docs" }}
+{{- $currentUrl := .URL }}
+<nav class="tabs">
+  <div class="container">
+    <ul>
+      {{- range $docs }}
+      {{- $isCurrentPage := eq .URL $currentUrl }}
+      {{- $title := cond (isset .Params "short") .Params.short .Title }}
+      <li{{ if $isCurrentPage }} class="is-active"{{ end }}>
+        <a href="{{ .URL }}">
+          {{ $title }}
+        </a>
+      </li>
+      {{- end }}
+    </ul>
+  </div>
+</nav>

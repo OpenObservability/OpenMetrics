@@ -6,10 +6,13 @@
     <title>{{ block "title" . }}{{ .Site.Title  }}{{ end }}</title>
     {{- partial "css.html" . }}
   </head>
-  <body class="page {{ $pageType }} has-background-black">
-    {{ block "main" . }}
-    {{ partial "hero.html" . }}
-    {{ partial "cncf.html" . }}
-    {{ end }}
+  <body class="page is-{{ $pageType }}-page has-navbar-fixed-top">
+    {{ partial "navbar.html" . }}
+
+    <main class="main">
+      {{ block "main" . }}{{ end }}
+    </main>
+
+    {{ partial "footer.html" . }}
   </body>
 </html>

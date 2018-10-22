@@ -18,6 +18,7 @@ $navbar-height: $navbar-base-height
 $navbar-item-img-max-height: $navbar-base-height * .7
 $link: $primary
 $strong-color: $cncf-blue
+$section-padding: 1.5rem 0
 
 @import "sass/utilities/derived-variables"
 
@@ -43,10 +44,13 @@ $strong-color: $cncf-blue
   background-image: url($url)
 
 .page
-  &.home
-    .has-background-image
-      background-color: $white-ter
-      +bg-image("/images/hero-bg.png")
+  display: flex
+  flex-direction: column
+  min-height: 100vh
 
-    .hero-foot
-      margin: 1rem 4rem
+  .main
+    flex: 1
+
+  &.is-home-page
+    .has-background-image
+      +bg-image("/images/hero-bg.png")

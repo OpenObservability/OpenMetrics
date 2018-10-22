@@ -1,0 +1,18 @@
+{{- $navbarLogo := "images/logo/logo-with-text.png" | relURL }}
+<nav class="navbar is-fixed-top has-shadow">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="{{ .Site.BaseURL }}">
+        <img src="{{ $navbarLogo }}">
+      </a>
+    </div>
+
+    <div class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item has-text-weight-bold" href="/docs">
+          Docs
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>

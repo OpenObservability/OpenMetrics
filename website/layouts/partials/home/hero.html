@@ -1,0 +1,23 @@
+{{- $description    := .Site.Params.description | markdownify}}
+{{- $subdescription := .Site.Params.subdescription | markdownify }}
+<section class="hero is-medium has-text-centered">
+  <div class="hero-body has-background-image">
+    <div class="container">
+      <img class="is-main-logo title is-spaced" src="{{ "/images/logo/logo-with-text.png" | relURL }}" alt="OpenMetrics logo">
+
+      <h2 class="subtitle is-size-3 is-size-4-touch">
+        {{ $description }}
+      </h2>
+    </div>
+  </div>
+
+  <div class="hero-footer">
+    <section class="section has-background-black has-text-white-bis">
+      <div class="container">
+        <span class="is-size-4 is-size-5-mobile">
+          {{ $subdescription }}
+        </span>
+      </div>
+    </section>
+  </div>
+</section>
