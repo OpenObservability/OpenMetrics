@@ -1,10 +1,10 @@
 get-sass:
 	yarn
 
-netlify-production-build: get-sass
+netlify-production-build:
 	hugo
 
-netlify-staging-build: get-sass
+netlify-staging-build:
 	hugo -b $(DEPLOY_PRIME_URL)
 
 dev:
