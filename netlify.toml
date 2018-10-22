@@ -8,7 +8,7 @@ publish = "website/public"
 command = "make netlify-production-build"
 
 [build.environment]
-HUGO_VERSION = "0.46"
+HUGO_VERSION = "0.49.2"
 
 [context.deploy-preview]
 command = "make netlify-staging-build"
