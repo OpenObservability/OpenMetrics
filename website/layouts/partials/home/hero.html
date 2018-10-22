@@ -1,7 +1,19 @@
 {{- $description    := .Site.Params.description | markdownify}}
 {{- $subdescription := .Site.Params.subdescription | markdownify }}
-<section class="hero is-medium has-text-centered">
-  <div class="hero-body has-background-image">
+<section class="hero is-fullheight has-text-centered has-background-image">
+  <div class="container">
+    <nav class="navbar">
+      <div class="navbar-menu">
+        <div class="navbar-end">
+          <a class="navbar-item has-text-weight-bold" href="/docs">
+            Docs
+          </a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="hero-body">
     <div class="container">
       <img class="is-main-logo title is-spaced" src="{{ "/images/logo/logo-with-text.png" | relURL }}" alt="OpenMetrics logo">
 

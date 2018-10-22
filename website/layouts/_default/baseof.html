@@ -1,3 +1,4 @@
+{{- $isHome   := .IsHome }}
 {{- $pageType := cond (.IsHome) "home" .Section }}
 <!DOCTYPE html>
 <html lang="{{ .Site.LanguageCode }}">
@@ -6,9 +7,7 @@
     <title>{{ block "title" . }}{{ .Site.Title  }}{{ end }}</title>
     {{- partial "css.html" . }}
   </head>
-  <body class="page is-{{ $pageType }}-page has-navbar-fixed-top">
-    {{ partial "navbar.html" . }}
-
+  <body class="page is-{{ $pageType }}-page{{ if not $isHome }} has-navbar-fixed-top{{ end }}">
     <main class="main">
       {{ block "main" . }}{{ end }}
     </main>
