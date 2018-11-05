@@ -1,0 +1,270 @@
+syntax = "proto3";
+
+package openmetrics;
+
+// This is a description of the OpenMetrics data model in a proto
+// form. Additionally, it serves as the proto wire format.
+//
+// Interpret "required" as semantically required. Some fields are
+// semantically required depending on the values of the other fields
+// (and indicated by comments).
+
+// The top-level message sent on the wire.
+message MetricSet {
+  // Each MetricPoints has one or more points from a single metric.
+  repeated MetricPoints metric_points = 1;
+}
+
+// One or more timeseries for a single metric, where each timeseries has
+// one or more points.
+message MetricPoints {
+  // Required.
+  MetricDescriptor metric_descriptor = 1;
+
+  repeated Timeseries timeseries = 2;
+}
+
+// A single timeseries.
+message Timeseries {
+  // Labels applying to all points.
+  repeated Label label = 1;
+
+  // If there is more than one point, all must have a timestamp field
+  // and they must be in increasing order of timestamp.
+  // If there is only one point and has no timestamp field, the receiver
+  // will assign a timestamp.
+  repeated Point point = 2;
+}
+
+// The descriptor of a metric.
+message MetricDescriptor {
+  // Required.
+  // Names must match the regex [a-zA-Z_:][a-zA-Z0-9_:]* however colons are
+  // reserved for monitoring system use, and names beginning with
+  // underscores are reserved for monitoring-system internal use.
+  string name = 1;
+
+  // TODO: Format?
+  // STATE_SETs and INFO types must not have a unit.
+  string unit = 2;
+
+  // Required.
+  Type type = 3;
+
+  string description = 4;
+
+  enum Type {
+    UNKNOWN = 0;  // double or int valued point
+    GAUGE = 1;    // double or int valued point
+    COUNTER = 2;  // double or int valued point.
+    STATE_SET = 3;
+    INFO = 4;  // provides information about the entity being monitored
+    CUMULATIVE_HISTOGRAM = 5;
+    GAUGE_HISTOGRAM = 6;
+    // Summary quantiles are not recommended, since they cannot be
+    // aggregated.
+    SUMMARY = 7;
+  }
+  // Note: No bucketing is defined for a HISTOGRAM in the descriptor.
+  // It is an implementation detail of the backend whether it can handle
+  // changes in bucketing for a metric. Same for SUMMARY (quantiles are
+  // not defined here), and STATE_SET (the set of possible values is
+  // defined in each point).
+}
+
+// A name-value pair. These are used in multiple places: identifying
+// timeseries, value of INFO metrics, and exemplars in Histograms.
+message Label {
+  // Required.
+  string name = 1;
+
+  // Required.
+  string value = 2;
+}
+
+message Timestamp {
+  // Required.
+  int64 seconds = 1;  // Seconds since the epoch. Negative values are permitted
+
+  uint32 nanoseconds = 2;
+}
+
+// A point in a timeseries.
+message Point {
+  oneof value {
+    double double_value = 1;
+    int64 int_value = 2;
+    HistogramValue histogram_value = 3;
+    StateSetValue state_set_value = 4;
+    InfoValue info_value = 5;
+    SummaryValue summary_value = 6;
+  }
+  // Required for COUNTER, SUMMARY or CUMULATIVE_HISTOGRAM type.
+  //
+  // The cumulative value is over
+  // the time interval (start_timestamp, timestamp].
+  // If start_timestamp is present and timestamp is absent,
+  // the backend assigned timestamp may be used to construct the time
+  // interval.
+  Timestamp start_timestamp = 7;
+
+  // If not specified, the timestamp will be decided by the backend.
+  Timestamp timestamp = 8;
+}
+
+// Value for CUMULATIVE_HISTOGRAM or GAUGE_HISTOGRAM point.
+message HistogramValue {
+  // Required.
+  double sum = 1;
+
+  // Required.
+  int64 count = 2;
+
+  // Required.
+  BucketOptions bucket_options = 3;
+
+  // `BucketOptions` describes the bucket boundaries used to create a
+  // histogram. The buckets can be in a linear sequence, an
+  // exponential sequence, or each bucket can be specified explicitly.
+  // `BucketOptions` does not include the number of values in each bucket.
+  //
+  // A bucket has a 0 lower bound and an inclusive upper bound for the
+  // values that are counted for that bucket. That is, buckets are
+  // cumulative. The upper bound of successive buckets must be increasing.
+  // There is an implicit overflow bucket that extends up to +infinity.
+  message BucketOptions {
+    // Exactly one of these three fields must be set.
+    oneof options {
+      // The linear bucket.
+      Linear linear_buckets = 1;
+
+      // The exponential buckets.
+      Exponential exponential_buckets = 2;
+
+      // The explicit buckets.
+      Explicit explicit_buckets = 3;
+    }
+
+    // Specifies a linear sequence of buckets that add the same constant width
+    // to the previous bucket (except the overflow bucket). This implies
+    // a constant absolute uncertainty on the specific value of a sample.
+    //
+    // There are `num_explicit_buckets` (N) buckets plus the overflow
+    // bucket. Bucket `i` (0 <= i < N) has upper bound : offset + (width * i).
+    // Note that when offset = 0, bucket 0 represents the interval [0, 0].
+    message Linear {
+      // Required.
+      // Must be greater than 0.
+      int32 num_explicit_buckets = 1;
+
+      // Required.
+      // Must be greater than 0.
+      double width = 2;
+
+      // Required.
+      // Must be >= 0.
+      double offset = 3;
+    }
+
+    // Specifies an exponential sequence of buckets that have an upper bound
+    // that is proportional to the value of the upper bound of the previous
+    // bucket. This implies a constant relative uncertainty on the specific
+    // value of a sample.
+    //
+    // There are `num_exponential_buckets` + 1 (N) buckets plus the overflow
+    // bucket.
+    // Bucket 0 represents the interval [0, 0].
+    // Bucket `i` (1 <= i < N) has upper bound :
+    //   scale * (growth_factor ^ (i - 1)).
+    message Exponential {
+      // Required.
+      // Must be greater than 0.
+      int32 num_exponential_buckets = 1;
+
+      // Required.
+      // Must be greater than 1.
+      double growth_factor = 2;
+
+      // Required.
+      // Must be greater than 0.
+      double scale = 3;
+    }
+
+    // Specifies a set of buckets with arbitrary upper-bounds
+    //
+    // There are `size(bounds)` (N) explicit buckets plus the overflow bucket.
+    // Bucket `i` (0 <= i < N) has upper bound: bounds[i].
+    // The `bounds` field must contain at least one element.
+    message Explicit {
+      // The values must be monotonically increasing and >= 0.
+      repeated double bounds = 1;
+    }
+
+  }
+
+  // The number of values in each bucket of the histogram, as described in
+  // `bucket_options`.
+  //
+  // `bucket_counts` will typically contain N + 1 values. If you supply fewer
+  // values, the remaining values are assumed to be 0.
+  //
+  // The order of the values in `bucket_counts` follows the bucket numbering
+  // schemes described for the three bucket types.
+  repeated BucketCount bucket_counts = 4;
+  message BucketCount {
+    // Required.
+    // Count is the number of values for a bucket of the histogram.
+    int64 count = 1;
+
+    // An example of a value that fell into this bucket.
+    Exemplar exemplar = 2;
+    message Exemplar {
+      // Required.
+      // The value of the example.
+      double value = 1;
+
+      // The timestamp of the example. Optional but SHOULD set it.
+      Timestamp timestamp = 2;
+
+      // Additional information about the example value // (e.g. trace id).
+      repeated Label label = 3;
+    }
+  }
+}
+
+// Value for STATE_SET point.
+message StateSetValue {
+  // Each state must have a unique name. Any number of states may be enabled.
+  repeated State states = 1;
+
+  message State {
+    // Required.
+    bool enabled = 1;
+
+    // Required.
+    string name = 2;
+  }
+}
+
+// Value for INFO point.
+message InfoValue {
+  repeated Label info = 1;
+}
+
+// Value for SUMMARY point.
+message SummaryValue {
+  // Sum and count are optional since some systems (e.g. DropWizard) do not
+  // expose them. The start_timestamp only applies to the sum and count.
+  // The quantiles can be reset at arbitrary unknown times.
+
+  double sum = 1;
+  int64 count = 2;
+
+  repeated Quantile quantile = 3;
+  message Quantile {
+    // Required.
+    // Must be in the interval (0.0, 1.0].
+    double quantile = 1;
+    double value = 2;
+  }
+}
