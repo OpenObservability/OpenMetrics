@@ -1,4 +1,3 @@
-# TODO OM 1.0 must ease in the momentum of Proemtheus format, which is wider than just Prometheus itself
 
 
 # Rationale
@@ -126,29 +125,29 @@ While currently most implementations of the Prometheus exposition format are usi
 Metric exposition should be independent of production services; as such, ports like TCP/80, TCP/443, and TCP/8080 are not suitable for the use for OpenMetrics.
 The port assigend by IANA for clients exposing data is XXX.
 
-# TODO discuss this - 
+# TODO discuss this - https://github.com/OpenObservability/OpenMetrics/issues/123
 If more than one metric endpoint needs to be reachable at a common IP address, operators SHOULD consider using a reverse proxy to reach endpoints on localhost addresses and ports.
 To ease multiplexing, endpoints SHOULD carry their own name in their path, i.e. `/node_exporter/metrics`.
 
 
-TODO Ports, but probably only one for emitting & receiving
-
-TODO MIME / content types for plain text & proto
-
+OpenMetrics would like to register two MIME types, `application/openmetrics-text` and `application/openmetrics-proto`.
+NOTE TO EDITORS: Feedback appreciated.
 
 # general TODOs
 
-TODO push vs pull
+# TODO OM 1.0 must ease in the momentum of Proemtheus format, which is wider than just Prometheus itself
 
-TODO versioning
+# TODO push vs pull
 
-TODO test suite & reference implementations
+# TODO versioning
 
-TODO appendix with supporters
+# TODO test suite & reference implementations
 
-TODO labels / n-dimensional matrices vs trees?
+# TODO appendix with supporters
 
-TODO metric names unique with a certain label set
+# TODO labels / n-dimensional matrices vs trees?
+
+# TODO metric names unique with a certain label set
 
 # References
 
