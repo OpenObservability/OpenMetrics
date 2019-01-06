@@ -64,7 +64,7 @@ group = *metadata *metricdata
 
 metadata = ( "" / # SP ( "HELP" / "TYPE" / "UNIT" ) SP metadata-text LF )
 
-metadata-text = UTF8-char *(UTF8-char / SP)
+metadata-text = *(UTF8-char / SP)
 
 metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar LF
 
