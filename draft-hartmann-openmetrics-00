@@ -119,7 +119,7 @@ promhttp_metric_handler_requests_total{code="200"} 27401 1546777666
 
 # Security Considerations
 
-Authentication, authorization, and accounting SHOULD be handled outside of OpenMetrics.
+Implementors MAY choose to offer authentication, authorization, and accounting; if they so choose, this SHOULD be handled outside of OpenMetrics.
 #TODO should we require TLS 1.2 at a mimimum? # https://github.com/OpenObservability/OpenMetrics/issues/61
 All client implementations SHOULD be able to secure their HTTP traffic with TLS 1.2 or later.
 If a client implementation does not support encryption, operators SHOULD use reverse proxies, firewalling, and/or ACLs for AAA.
