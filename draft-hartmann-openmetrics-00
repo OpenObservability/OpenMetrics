@@ -116,10 +116,20 @@ promhttp_metric_handler_requests_total{code="200"} 27401 1546777666
 Authentication, authorization, and accounting SHOULD be handled outside of OpenMetrics.
 #TODO should we require TLS 1.2 at a mimimum? # https://github.com/OpenObservability/OpenMetrics/issues/61
 All client implementations SHOULD be able to secure their HTTP traffic with TLS 1.2 or later.
+If a client implementation does not support encryption, operators SHOULD use reverse proxies, firewalling, and/or ACLs for AAA.
 All server implementations MUST be able to ingest data from endpoints secured with TLS 1.2 or later.
-
+All implementations MUST use TLS to transmit data where possible.
 
 # IANA Considerations
+
+While currently most implementations of the Prometheus exposition format are using non-registered ports[Prometheus ports], OpenMetrics can be found at a well-defined port.
+Metric exposition should be independent of production services; as such, ports like TCP/80, TCP/443, and TCP/8080 are not suitable for the use for OpenMetrics.
+The port assigend by IANA for clients exposing data is XXX.
+
+# TODO discuss this - 
+If more than one metric endpoint needs to be reachable at a common IP address, operators SHOULD consider using a reverse proxy to reach endpoints on localhost addresses and ports.
+To ease multiplexing, endpoints SHOULD carry their own name in their path, i.e. `/node_exporter/metrics`.
+
 
 TODO Ports, but probably only one for emitting & receiving
 
@@ -140,3 +150,6 @@ TODO labels / n-dimensional matrices vs trees?
 
 TODO metric names unique with a certain label set
 
+# References
+
+[Prometheus ports]  https://github.com/prometheus/prometheus/wiki/Default-port-allocations
