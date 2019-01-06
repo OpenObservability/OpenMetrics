@@ -1,10 +1,13 @@
+# TODO OM 1.0 must ease in the momentum of Proemtheus format, which is wider than just Prometheus itself
+
+
 # Rationale
 
 The monitoring world is fragmented and there is no up-to-date standard.
-The closest to an universal monitoring standard we have is SNMP.
-While it is reasonably well-supported in the networking world, it failed to gain wide adoption beyond this field.
-SNMP also carries over many engineering trade-offs which made sense at the time, but are not matching well to today's trade-offs; a prime example would be the need to support ASN.1 with its many intricacies.
-For large datasets, it also carries a signifcant communication overhead.
+The closest to an universal monitoring standard we as an industry have is SNMP.
+While it is well-supported in the networking world, it failed to gain common adoption beyond this field.
+SNMP also carries over many engineering trade-offs which made sense at the time, but are not matching well to today's challenges; a prime example would be the need to support ASN.1 with its many intricacies.
+Security has been an afterthought and is not easily supported in SNMP as evidenced by the prevalence of SNMPv2 in the industry even though SNMPv3 would offer security benefits.
 
 While there have been other efforts, none of them gained any wide-spread traction.
 Furthermore, most standardization attempts have been foiled by trying to establish themselves in a niche and expanding from there.
@@ -21,8 +24,11 @@ This extensive support with TODO different implementations of data ingestors by 
 
 Metrics are a specific kind of system data.
 All system states are expressed as numerical values; counts of things, ENUMs, and boolean states being common examples.
+Contrary to singular events which carry a specific time of when they happenend, metrics tend to aggregate data.
+While this equals a loss in information resolution, the reduction in overhead more than makes up for this.
 
-TODO what are metrics, how do they differ from other data
+Time series are used to store the change of information over time.
+While time series can support arbitrary strings or binary data, this document focuses on numeric data, i.e. metrics.
 
 # Metric naming
 
@@ -35,8 +41,6 @@ All client implementations MUST be able to emit text format; they MAY also emit 
 All server implementations MUST be able to ingest text format; they MAY also ingest protobuf if negotiated.
 All implementations MUST default to the text format.
 
-TODO rationale why text is default
-
 # Wire formats
 
 Special care has been taken to make the wire formats ease to generate, to ingest, and to understand..
@@ -47,6 +51,7 @@ Text compresses well, and protobuf is already binary.
 
 Metric names MUST appear as a group.
 If a metricname has appeared in a group before it MUST NOT be repeated after that group finishes.
+
 
 
 ### ABNF
