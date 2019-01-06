@@ -31,6 +31,7 @@ While time series can support arbitrary strings or binary data, this document fo
 
 # Metric naming
 
+# TODO namespaces - https://github.com/OpenObservability/OpenMetrics/issues/2
 # TODO suffices, etc
 
 # Data transmission
@@ -86,6 +87,12 @@ timestamp = 1*DIGIT
 
 # TODO put in length limit
 exemplar = "#" SP 1*(UTF8-char / SP)
+
+### Special metric types
+
+#### Histograms
+
+#### State sets
 
 ### Examples
 
