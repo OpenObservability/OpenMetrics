@@ -32,7 +32,7 @@ While time series can support arbitrary strings or binary data, this document fo
 
 # Metric naming
 
-TODO suffices, etc
+# TODO suffices, etc
 
 # Data transmission
 
@@ -45,7 +45,7 @@ All implementations MUST default to the text format.
 
 Special care has been taken to make the wire formats ease to generate, to ingest, and to understand..
 OpenMetrics is a type 3 grammar, making writing quick and small parsers possible.
-Text compresses well, and protobuf is already binary.
+Text compresses well, and protobuf is already binary and well-compressed.
 
 ## Text format
 
@@ -58,7 +58,7 @@ If a metricname has appeared in a group before it MUST NOT be repeated after tha
 
 ABNF as per RFC 5234, UTF8-char as per RFC 3629.
 
-data = *group
+data = *group LF EOF
 
 group = *metadata *metricdata
 
@@ -68,21 +68,25 @@ metadata-text = UTF8-char *(UTF8-char / SP)
 
 metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar LF
 
+#TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r203009500
 metricname = ( ALPHA / ":" ) *( ALPHA / DIGIT / "_" / ":" )
 
 labelset = ( "" / "{}" / labelset-labels)
 
+labelset-labels = { ( labelname "=" DQUOTE 1*UTF8-char DQUOTE) *("," labelname "=" DQUOTE 1*UTF8-char DQUOTE) }
+
 labelname = ALPHA *( ALPHA / DIGIT / "_" )
 
-labelset-labels = { ( labelname "=" DQUOTE 1*UTF8-char DQUOTE) *("," labelname "=" DQUOTE 1*UTF8-char DQUOTE) }
+# TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r213579928
+datapoint = ( float / "+Inf" / "-Inf" / "NaN" )
 
 float = 1*DIGIT *1( "." 1*DIGIT *1( "e" ( "+" / "-" ) 1*3DIGIT ) )
 
-datapoint = ( float / "+Inf" / "-Inf" / "NaN" )# TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r213579928
+# TODO adapt to timestamp discussion
+timestamp = 1*DIGIT
 
-timestamp = 1*DIGIT # TODO adapt to timestamp discussion
-
-exemplar = "#" SP 1*(UTF8-char / SP) # put in length limit
+# TODO put in length limit
+exemplar = "#" SP 1*(UTF8-char / SP)
 
 ### Examples
 
@@ -99,12 +103,21 @@ go_gc_duration_seconds_sum 9241.311909524
 go_gc_duration_seconds_count 1.2992713e+07
 ````
 
-
-TODO more than one data point per time series -> timestamps required
+If exposing the same metric more than once, every instance MUST be exposed with a timestamp.
+```
+promhttp_metric_handler_requests_total{code="200"} 27205 1546777500
+promhttp_metric_handler_requests_total{code="200"} 27401 1546777666
+```
 
 ## protobuf format
 
 # Security Considerations
+
+Authentication, authorization, and accounting SHOULD be handled outside of OpenMetrics.
+#TODO should we require TLS 1.2 at a mimimum? # https://github.com/OpenObservability/OpenMetrics/issues/61
+All client implementations SHOULD be able to secure their HTTP traffic with TLS 1.2 or later.
+All server implementations MUST be able to ingest data from endpoints secured with TLS 1.2 or later.
+
 
 # IANA Considerations
 
