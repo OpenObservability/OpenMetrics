@@ -124,7 +124,7 @@ Implementors MAY choose to offer authentication, authorization, and accounting; 
 All client implementations SHOULD be able to secure their HTTP traffic with TLS 1.2 or later.
 If a client implementation does not support encryption, operators SHOULD use reverse proxies, firewalling, and/or ACLs for AAA.
 All server implementations MUST be able to ingest data from endpoints secured with TLS 1.2 or later.
-All implementations MUST use TLS to transmit data where possible.
+All implementations SHOULD use TLS to transmit data.
 
 # IANA Considerations
 
