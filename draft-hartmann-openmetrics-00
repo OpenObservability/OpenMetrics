@@ -133,8 +133,8 @@ Implementors MAY choose to offer authentication, authorization, and accounting; 
 #TODO should we require TLS 1.2 at a mimimum? # https://github.com/OpenObservability/OpenMetrics/issues/61
 All exposer implementations SHOULD be able to secure their HTTP traffic with TLS 1.2 or later.
 If a exposer implementation does not support encryption, operators SHOULD use reverse proxies, firewalling, and/or ACLs for AAA.
-All scraper implementations MUST be able to ingest data from HTTP endpoints secured with TLS 1.2 or later.
-Scraper implementations SHOULD be able to ingest data from HTTP without TLS.
+All ingester implementations MUST be able to ingest data from HTTP endpoints secured with TLS 1.2 or later.
+Ingester implementations SHOULD be able to ingest data from HTTP without TLS.
 All implementations SHOULD use TLS to transmit data.
 
 # IANA Considerations
