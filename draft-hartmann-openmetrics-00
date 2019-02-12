@@ -131,9 +131,10 @@ promhttp_metric_handler_requests_total{code="200"} 27401 1546777666
 
 Implementors MAY choose to offer authentication, authorization, and accounting; if they so choose, this SHOULD be handled outside of OpenMetrics.
 #TODO should we require TLS 1.2 at a mimimum? # https://github.com/OpenObservability/OpenMetrics/issues/61
-All client implementations SHOULD be able to secure their HTTP traffic with TLS 1.2 or later.
-If a client implementation does not support encryption, operators SHOULD use reverse proxies, firewalling, and/or ACLs for AAA.
-All server implementations MUST be able to ingest data from HTTP endpoints secured with TLS 1.2 or later.
+All exposer implementations SHOULD be able to secure their HTTP traffic with TLS 1.2 or later.
+If a exposer implementation does not support encryption, operators SHOULD use reverse proxies, firewalling, and/or ACLs for AAA.
+All scraper implementations MUST be able to ingest data from HTTP endpoints secured with TLS 1.2 or later.
+Scraper implementations SHOULD be able to ingest data from HTTP without TLS.
 All implementations SHOULD use TLS to transmit data.
 
 # IANA Considerations
