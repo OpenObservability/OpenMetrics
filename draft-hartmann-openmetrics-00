@@ -66,19 +66,27 @@ metadata = ( "" / # SP ( "HELP" / "TYPE" / "UNIT" ) SP metadata-text LF )
 
 metadata-text = *(UTF8-char / SP)
 
+# TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r248005922
 metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar LF
 
-#TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r203009500
-metricname = ( ALPHA / ":" ) *( ALPHA / DIGIT / "_" / ":" )
+metricname-namespace = ( ALPHA / "_" / ":" ) *( ALPHA / DIGIT / "_" / ":" ) ( ALPHA / DIGIT / ":" )
+
+metricname-namespace-suffix = "__"
+
+metricname-suffix = ( ALPHA / ":" ) *( ALPHA / DIGIT / "_" / ":" )
+
+metricname-standalone = ( ALPHA / "__" / "_" / ":" ) *( ALPHA / DIGIT / "_" / ":" )
+
+metricname = ( metricname-namespace metricname-namespace-suffix metricname-suffix / metricname-standalone )
 
 labelset = ( "" / "{}" / labelset-labels)
 
 labelset-labels = { ( labelname "=" DQUOTE 1*UTF8-char DQUOTE) *("," labelname "=" DQUOTE 1*UTF8-char DQUOTE) }
 
-labelname = ALPHA *( ALPHA / DIGIT / "_" )
+labelname = ( ALPHA / "_" ) *( ALPHA / DIGIT / "_" / )
 
 # TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r213579928
-datapoint = ( float / "+Inf" / "-Inf" / "NaN" )
+datapoint = ( float / "+Inf" / "-Inf" / "-Infinity" / "NaN" )
 
 float = 1*DIGIT *1( "." 1*DIGIT *1( "e" ( "+" / "-" ) 1*3DIGIT ) )
 
@@ -123,7 +131,7 @@ Implementors MAY choose to offer authentication, authorization, and accounting; 
 #TODO should we require TLS 1.2 at a mimimum? # https://github.com/OpenObservability/OpenMetrics/issues/61
 All client implementations SHOULD be able to secure their HTTP traffic with TLS 1.2 or later.
 If a client implementation does not support encryption, operators SHOULD use reverse proxies, firewalling, and/or ACLs for AAA.
-All server implementations MUST be able to ingest data from endpoints secured with TLS 1.2 or later.
+All server implementations MUST be able to ingest data from HTTP endpoints secured with TLS 1.2 or later.
 All implementations SHOULD use TLS to transmit data.
 
 # IANA Considerations
