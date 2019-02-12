@@ -69,13 +69,15 @@ metadata-text = *(UTF8-char / SP)
 # TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r248005922
 metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar LF
 
-metricname-namespace = ( ALPHA / "_" / ":" ) *( ALPHA / DIGIT / "_" / ":" ) ( ALPHA / DIGIT / ":" )
+metricname-inline = *( ( ALPHA / DIGIT / ":" ) / ( ALPHA / DIGIT / "_" / ":" ) )
+
+metricname-namespace = *( ALPHA / "_" / ":" ) *metricname-inline ( ALPHA / DIGIT / ":" )
 
 metricname-namespace-suffix = "__"
 
-metricname-suffix = ( ALPHA / ":" ) *( ALPHA / DIGIT / "_" / ":" )
+metricname-suffix = ( ALPHA / ":" ) *metricname-inline
 
-metricname-standalone = ( ALPHA / "__" / "_" / ":" ) *( ALPHA / DIGIT / "_" / ":" )
+metricname-standalone = ( ALPHA / "__" / "_" / ":" ) *metricname-inline
 
 metricname = ( metricname-namespace metricname-namespace-suffix metricname-suffix / metricname-standalone )
 
