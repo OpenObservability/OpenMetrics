@@ -67,11 +67,11 @@ metadata = ( "" / # SP ( "HELP" / "TYPE" / "UNIT" ) SP metadata-text LF )
 metadata-text = *(UTF8-char / SP)
 
 # TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r248005922
-metricdata = metricname labelset SP datapoint *1(SP timestamp) *1exemplar LF
+metricdata = metricname labelset SP datapoint *1(SP timestamp) [ exemplar ] LF
 
-metricname-inline = ( ALPHA / DIGIT / ":" ) *( ALPHA / DIGIT / "_" / ":" )
+metricname-inline = ( ALPHA / DIGIT / ":" ) [ ( ALPHA / DIGIT / "_" / ":" ) ]
 
-metricname-namespace = *( ALPHA / "_" / ":" ) *metricname-inline ( ALPHA / DIGIT / ":" )
+metricname-namespace = [ ( ALPHA / "_" / ":" ) ] *metricname-inline ( ALPHA / DIGIT / ":" )
 
 metricname-namespace-suffix = "__"
 
@@ -90,7 +90,7 @@ labelname = ( ALPHA / "_" ) *( ALPHA / DIGIT / "_" / )
 # TODO https://github.com/OpenObservability/OpenMetrics/pull/93#discussion_r213579928
 datapoint = ( float / "+Inf" / "-Inf" / "-Infinity" / "NaN" )
 
-float = 1*DIGIT *1( "." 1*DIGIT *1( "e" ( "+" / "-" ) 1*3DIGIT ) )
+float = 1*DIGIT [ ( "." 1*DIGIT *1( "e" ( "+" / "-" ) 1*3DIGIT ) ) ]
 
 # TODO adapt to timestamp discussion
 timestamp = 1*DIGIT
