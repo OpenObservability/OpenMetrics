@@ -75,11 +75,11 @@ metricname-namespace = [ ( ALPHA / "_" / ":" ) ] *metricname-inline ( ALPHA / DI
 
 metricname-namespace-suffix = "__"
 
-metricname-suffix = ( ALPHA / ":" ) *metricname-inline
+metricname-namespaced = ( ALPHA / ":" ) *metricname-inline
 
-metricname-standalone = ( ALPHA / "__" / "_" / ":" ) *metricname-inline
+metricname-standalone = ( ALPHA / "_" / ":" ) *metricname-inline
 
-metricname = ( metricname-namespace metricname-namespace-suffix metricname-suffix / metricname-standalone )
+metricname = ( [ metricname-namespace ] metricname-namespace-suffix metricname-namespaced / metricname-standalone )
 
 labelset = ( "" / "{}" / labelset-labels)
 
