@@ -295,7 +295,7 @@ The text format is needlessly verbose for _histograms_ and _summaries_. The
 impact is particularly high in a use-case with many buckets on a highly
 dimensional metric. Since the data is mostly redundant, it compresses nicely. In
 the Prometheus context, scrapes are gzip-compressed by default, which results
-in no noticable size difference between text and protobuf scrapes. However,
+in no noticeable size difference between text and protobuf scrapes. However,
 there are scenarios where the resources needed for compression might be a
 relevant burden. The most likely case is a resource-tight monitoring
 target. But with the dramatic improvements in ingestion performance featured by
