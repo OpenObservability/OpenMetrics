@@ -101,11 +101,6 @@ func runTests(dir string, opts runTestsOptions) (runTestsResults, error) {
 	return results, err
 }
 
-type testResult struct {
-	cmd *exec.Cmd
-	err error
-}
-
 type testDef struct {
 	Parse   parseDef   `json:"parse"`
 	Outcome outcomeDef `json:"outcome"`

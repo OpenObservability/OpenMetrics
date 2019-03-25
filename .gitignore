@@ -8,5 +8,5 @@ node_modules/
 public/
 
 # Binaries
-openmetricstest
+tests/openmetricstest/openmetricstest
 
