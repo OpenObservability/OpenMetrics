@@ -9,60 +9,108 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strings"
+	"path/filepath"
 )
+
+type code int
 
 const (
 	testFileName = "test.json"
+
+	exitOK code = iota
+	exitUsage
+	exitFailures
 )
 
 var (
-	testDataDirArg       = flag.String("testdata_dir", "testdata", "testdata directory to use")
-	cmdTestParserTextArg = flag.String("cmd_test_parser_text", "", "command to run to test parser in text mode")
+	testDataDirArg       = flag.String("testdata-dir", "testdata", "testdata directory to use")
+	cmdTestParserTextArg = flag.String("cmd-parser-text", "", "command to run to test parser in text mode")
 )
 
 func main() {
 	flag.Parse()
 
-	testDataDir := strings.TrimSpace(*testDataDirArg)
-	cmdTestParserText := strings.TrimSpace(*cmdTestParserTextArg)
+	testDataDir := *testDataDirArg
+	cmdTestParserText := *cmdTestParserTextArg
 
 	if cmdTestParserText == "" {
 		flag.Usage()
-		os.Exit(1)
+		os.Exit(int(exitUsage))
 		return
 	}
 
-	runTests(testDataDir, runTestsOptions{
+	r, err := runTests(testDataDir, runTestsOptions{
 		cmdTestParserText: cmdTestParserText,
 	})
+	if err != nil {
+		log.Fatalf("failed to run tests: %v", err)
+	}
+
+	var success, failed, failures int
+	for _, elem := range r.tests {
+		if len(elem.failures) == 0 {
+			success++
+		} else {
+			failed++
+		}
+		failures += len(elem.failures)
+	}
+
+	result := fmt.Sprintf("passed=%d, failed=%d, total_failures=%d\n",
+		success, failed, failures)
+	if failures == 0 {
+		log.Println("OK", result)
+	} else {
+		log.Println("FAILED", result)
+	}
 }
 
 type runTestsOptions struct {
 	cmdTestParserText string
 }
 
-func runTests(dir string, opts runTestsOptions) {
-	files, err := ioutil.ReadDir(dir)
-	if err != nil {
-		log.Fatalf("cannot read testdata dir: %v", err)
-	}
+type runTestsResults struct {
+	tests []runTestResult
+}
 
-	for _, file := range files {
-		if file.Name() == testFileName {
-			runTest(dir, opts)
-			continue
+type runTestResult struct {
+	name     string
+	failures []testFailure
+}
+
+type testFailure struct {
+	name string
+	err  error
+}
+
+func runTests(dir string, opts runTestsOptions) (runTestsResults, error) {
+	var results runTestsResults
+	err := filepath.Walk(".", func(filePath string, file os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("cannot read path=%s: %v", filePath, err)
 		}
-		if file.IsDir() {
-			// Recurse
-			runTests(path.Join(dir, file.Name()), opts)
+		if file.Name() != testFileName {
+			return nil
 		}
-	}
+
+		// Normalize the enclosing directory
+		fileDir, _ := path.Split(filePath)
+
+		result, err := runTest(fileDir, opts)
+		results.tests = append(results.tests, result)
+		return err
+	})
+	return results, err
+}
+
+type testResult struct {
+	cmd *exec.Cmd
+	err error
 }
 
 type testDef struct {
-	Parse   []parseDef   `json:"parse"`
-	Outcome []outcomeDef `json:"outcome"`
+	Parse   parseDef   `json:"parse"`
+	Outcome outcomeDef `json:"outcome"`
 }
 
 type parseDef struct {
@@ -71,76 +119,99 @@ type parseDef struct {
 }
 
 type outcomeDef struct {
-	CanParse *canParseDef `json:"canParse"`
+	ParseResult *parseResultDef `json:"parseResult"`
 }
 
-type canParseDef struct {
-	Result bool `json:"result"`
+type parseResultDef struct {
+	Valid bool `json:"valid"`
 }
 
-func runTest(dir string, opts runTestsOptions) {
+// validator returns the concrete validator for this test result definition
+func (d parseResultDef) validator() testResultValidator {
+	return parseResultValidator{def: d}
+}
+
+func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
+	result := runTestResult{
+		name: path.Base(dir),
+	}
 	testFile := path.Join(dir, testFileName)
 	data, err := ioutil.ReadFile(testFile)
 	if err != nil {
-		log.Fatalf("cannot read test file: %v", err)
+		return result, fmt.Errorf("cannot read test file: %v", err)
 	}
 
 	var test testDef
 	if err := json.Unmarshal(data, &test); err != nil {
-		log.Fatalf("cannot parse test file: %v", err)
+		return result, fmt.Errorf("cannot parse test file: %v", err)
 	}
 
-	for _, step := range test.Parse {
-		log.Println("running test: ", dir)
+	log.Println("RUN test:", result.name)
 
-		inputFile := path.Join(dir, step.File)
-		input, err := ioutil.ReadFile(inputFile)
+	inputFile := path.Join(dir, test.Parse.File)
+	input, err := ioutil.ReadFile(inputFile)
+	if err != nil {
+		return result, fmt.Errorf("cannot read test input: file=%s, err=%v", inputFile, err)
+	}
+
+	switch test.Parse.Type {
+	case "text":
+		testCmd := opts.cmdTestParserText
+		cmd := exec.Command(testCmd)
+
+		stdin, err := cmd.StdinPipe()
 		if err != nil {
-			log.Fatalf("cannot read test input: file=%s, err=%v", inputFile, err)
+			return result, fmt.Errorf("cannot access stdin: %v", err)
 		}
 
-		switch step.Type {
-		case "text":
-			testCmd := opts.cmdTestParserText
-			cmd := exec.Command(testCmd)
-
-			stdin, err := cmd.StdinPipe()
-			if err != nil {
-				log.Fatalf("cannot access stdin: %v", err)
-			}
-
-			if err := cmd.Start(); err != nil {
-				log.Fatalf("cannot start cmd: %v", err)
-			}
-
-			if _, err := stdin.Write(input); err != nil {
-				log.Fatalf("cannot write input: %v", err)
-			}
-
-			if err := validateTestOutcome(test, cmd); err != nil {
-				log.Fatalf("failed test: test=%s, err=%v", dir, err)
-			}
-
-			log.Println("passed test: ", dir)
-		default:
-			log.Fatalf("unknown type: %s", step.Type)
+		if err := cmd.Start(); err != nil {
+			return result, fmt.Errorf("cannot start cmd: %v", err)
 		}
+
+		if _, err := stdin.Write(input); err != nil {
+			return result, fmt.Errorf("cannot write input: %v", err)
+		}
+
+		// Run validators on result and collect failures
+		result.failures = validateResult(test, cmd)
+
+		if len(result.failures) > 0 {
+			fmt.Println("FAIL test:", result.name)
+			return result, nil
+		}
+
+		log.Println("PASS test:", result.name)
+	default:
+		return result, fmt.Errorf("parse type unknown: %s", test.Parse.Type)
 	}
+
+	return result, nil
 }
 
-func validateTestOutcome(test testDef, cmd *exec.Cmd) error {
-	cmdErr := cmd.Wait()
-	for _, outcome := range test.Outcome {
-		switch {
-		case outcome.CanParse != nil:
-			def := outcome.CanParse
-			if def.Result && cmdErr != nil {
-				return fmt.Errorf("expecting no parse error, found error: %v", cmdErr)
-			} else if !def.Result && cmdErr == nil {
-				return fmt.Errorf("expecting parse error, but none encountered")
-			}
-		}
+func validateResult(test testDef, cmd *exec.Cmd) []testFailure {
+	result := testResult{
+		cmd: cmd,
+		err: cmd.Wait(),
 	}
 
-	return nil
+	var failures []testFailure
+	validate := func(v testResultValidator) {
+		if err := v.ValidateResult(result); err != nil {
+			log.Println(v.Name(), "error:", err)
+			failures = append(failures, testFailure{
+				name: v.Name(),
+				err:  err,
+			})
+			return
+		}
+		log.Println(v.Name(), "ok")
+	}
+
+	if d := test.Outcome.ParseResult; d != nil {
+		validate(d.validator())
+	}
+
+	// Future definitions should append any errors to result
+
+	return failures
 }

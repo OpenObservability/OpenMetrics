@@ -1,15 +1,9 @@
 {
-  "parse": [
-    {
-      "type": "text",
-      "file": "metrics.txt"
-    }
-  ],
-  "outcome": [
-    {
-      "canParse": {
-        "result": true
-      }
-    }
-  ]
+  "parse": {
+    "type": "text",
+    "file": "metrics.txt"
+  },
+  "outcome": {
+    "parseResult": {"valid": true}
+  }
 }
