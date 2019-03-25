@@ -23,7 +23,7 @@ const (
 )
 
 var (
-	testDataDirArg       = flag.String("testdata-dir", "testdata", "testdata directory to use")
+	testDataDirArg       = flag.String("testdata-dir", "./tests/testdata", "testdata directory to use")
 	cmdTestParserTextArg = flag.String("cmd-parser-text", "", "command to run to test parser in text mode")
 )
 
@@ -93,10 +93,8 @@ func runTests(dir string, opts runTestsOptions) (runTestsResults, error) {
 			return nil
 		}
 
-		// Normalize the enclosing directory
-		fileDir, _ := path.Split(filePath)
-
-		result, err := runTest(fileDir, opts)
+		testDir, _ := path.Split(filePath)
+		result, err := runTest(testDir, opts)
 		results.tests = append(results.tests, result)
 		return err
 	})
@@ -176,7 +174,7 @@ func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
 		result.failures = validateResult(test, cmd)
 
 		if len(result.failures) > 0 {
-			fmt.Println("FAIL test:", result.name)
+			log.Println("FAIL test:", result.name)
 			return result, nil
 		}
 
@@ -197,7 +195,8 @@ func validateResult(test testDef, cmd *exec.Cmd) []testFailure {
 	var failures []testFailure
 	validate := func(v testResultValidator) {
 		if err := v.ValidateResult(result); err != nil {
-			log.Println(v.Name(), "error:", err)
+			log.Println(v.Name(), "error:")
+			log.Println(">", err)
 			failures = append(failures, testFailure{
 				name: v.Name(),
 				err:  err,
