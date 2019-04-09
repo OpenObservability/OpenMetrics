@@ -118,7 +118,7 @@ message HistogramValue {
   double sum = 1;
 
   // Required.
-  int64 count = 2;
+  uint64 count = 2;
 
   // Required.
   BucketOptions bucket_options = 3;
@@ -155,7 +155,7 @@ message HistogramValue {
     message Linear {
       // Required.
       // Must be greater than 0.
-      int32 num_explicit_buckets = 1;
+      uint32 num_explicit_buckets = 1;
 
       // Required.
       // Must be greater than 0.
@@ -179,7 +179,7 @@ message HistogramValue {
     message Exponential {
       // Required.
       // Must be greater than 0.
-      int32 num_exponential_buckets = 1;
+      uint32 num_exponential_buckets = 1;
 
       // Required.
       // Must be greater than 1.
@@ -205,8 +205,8 @@ message HistogramValue {
   // The number of values in each bucket of the histogram, as described in
   // `bucket_options`.
   //
-  // `bucket_counts` will typically contain N + 1 values. If you supply fewer
-  // values, the remaining values are assumed to be 0.
+  // `bucket_counts` must contain N + 1 values. The sum of BucketCount::counts
+  // must equal HistogramValue::count.
   //
   // The order of the values in `bucket_counts` follows the bucket numbering
   // schemes described for the three bucket types.
@@ -214,7 +214,7 @@ message HistogramValue {
   message BucketCount {
     // Required.
     // Count is the number of values for a bucket of the histogram.
-    int64 count = 1;
+    uint64 count = 1;
 
     // An example of a value that fell into this bucket.
     Exemplar exemplar = 2;
@@ -227,6 +227,8 @@ message HistogramValue {
       Timestamp timestamp = 2;
 
       // Additional information about the example value // (e.g. trace id).
+      // The sum of lengths of all the strings in all the labels must not
+      // exceed 64 UTF-8 characters.
       repeated Label label = 3;
     }
   }
@@ -258,7 +260,7 @@ message SummaryValue {
   // The quantiles can be reset at arbitrary unknown times.
 
   double sum = 1;
-  int64 count = 2;
+  uint64 count = 2;
 
   repeated Quantile quantile = 3;
   message Quantile {
