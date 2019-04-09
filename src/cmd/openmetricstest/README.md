@@ -4,8 +4,10 @@ A command line tool to drive testing an Open Metrics parser and exposition imple
 
 ## Compile
 
+From the repository root:
+
 ```
-go build .
+make openmetricstest
 ```
 
 ## Usage
@@ -30,7 +32,7 @@ When testing a library you will need to have a process that can house the librar
 
 > `cmd-parser-text`
 
-This command specifies the process to run to test parsing OpenMetrics text exposition test cases.
+This command specifies the process to run to test parsing OpenMetrics text exposition test cases.  It should take the OpenMetrics text exposition as stdin.
 
 ## Examples
 
@@ -40,7 +42,7 @@ This is an example of tersting that "echo" can parse a simple counter text expos
 
 ```
 # Run and since echo will always accept any stdin observe success
-./openmetricstest -testdata-dir ../testdata/parsers/simple_counter -cmd-parser-text echo
+./openmetricstest -testdata-dir ../../tests/testdata/parsers/simple_counter -cmd-parser-text echo
 2019/04/09 21:25:56 RUN test: simple_counter
 2019/04/09 21:25:56 parse-result-validator ok
 2019/04/09 21:25:56 PASS test: simple_counter
@@ -54,7 +56,7 @@ This is an example of tersting that "echo" can parse a simple counter text expos
 echo '#!/bin/bash' > /tmp/fail && echo 'exit 1' >> /tmp/fail && chmod +x /tmp/fail
 
 # Run and since the script will always fail regardless of stdin observe failure
-./openmetricstest -testdata-dir ../testdata/parsers/simple_counter -cmd-parser-text /tmp/fail
+./openmetricstest -testdata-dir ../../tests/testdata/parsers/simple_counter -cmd-parser-text /tmp/fail
 2019/04/09 21:40:30 RUN test: simple_counter
 2019/04/09 21:40:30 parse-result-validator error:
 2019/04/09 21:40:30 > parse error: exit status 1
