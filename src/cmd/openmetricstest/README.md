@@ -36,13 +36,15 @@ This command specifies the process to run to test parsing OpenMetrics text expos
 
 ## Examples
 
+These examples are from running the tool in the repository root after building it.
+
 ### Testing text parsing with "echo"
 
 This is an example of tersting that "echo" can parse a simple counter text exposition:
 
 ```
 # Run and since echo will always accept any stdin observe success
-./openmetricstest -testdata-dir ../../tests/testdata/parsers/simple_counter -cmd-parser-text echo
+./bin/openmetricstest -testdata-dir ./tests/testdata/parsers/simple_counter -cmd-parser-text echo
 2019/04/09 21:25:56 RUN test: simple_counter
 2019/04/09 21:25:56 parse-result-validator ok
 2019/04/09 21:25:56 PASS test: simple_counter
@@ -56,7 +58,7 @@ This is an example of tersting that "echo" can parse a simple counter text expos
 echo '#!/bin/bash' > /tmp/fail && echo 'exit 1' >> /tmp/fail && chmod +x /tmp/fail
 
 # Run and since the script will always fail regardless of stdin observe failure
-./openmetricstest -testdata-dir ../../tests/testdata/parsers/simple_counter -cmd-parser-text /tmp/fail
+./bin/openmetricstest -testdata-dir ./tests/testdata/parsers/simple_counter -cmd-parser-text /tmp/fail
 2019/04/09 21:40:30 RUN test: simple_counter
 2019/04/09 21:40:30 parse-result-validator error:
 2019/04/09 21:40:30 > parse error: exit status 1
