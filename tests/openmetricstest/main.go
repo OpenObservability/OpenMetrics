@@ -85,7 +85,7 @@ type testFailure struct {
 
 func runTests(dir string, opts runTestsOptions) (runTestsResults, error) {
 	var results runTestsResults
-	err := filepath.Walk(".", func(filePath string, file os.FileInfo, err error) error {
+	err := filepath.Walk(dir, func(filePath string, file os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("cannot read path=%s: %v", filePath, err)
 		}
