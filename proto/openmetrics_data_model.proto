@@ -44,8 +44,8 @@ message MetricDescriptor {
   // underscores are reserved for monitoring-system internal use.
   string name = 1;
 
-  // TODO: Format?
   // STATE_SETs and INFO types must not have a unit.
+  // Must match the regexp [a-zA-Z_:][a-zA-Z0-9_:]*
   string unit = 2;
 
   // Required.
@@ -99,7 +99,9 @@ message Point {
     InfoValue info_value = 5;
     SummaryValue summary_value = 6;
   }
-  // Required for COUNTER, SUMMARY or CUMULATIVE_HISTOGRAM type.
+
+  // Not required, but SHOULD be specified for COUNTER, SUMMARY or
+  // CUMULATIVE_HISTOGRAM type.
   //
   // The cumulative value is over
   // the time interval (start_timestamp, timestamp].
@@ -114,10 +116,10 @@ message Point {
 
 // Value for CUMULATIVE_HISTOGRAM or GAUGE_HISTOGRAM point.
 message HistogramValue {
-  // Required.
+  // Not required, but SHOULD be specified.
   double sum = 1;
 
-  // Required.
+  // Not required, but SHOULD be specified.
   uint64 count = 2;
 
   // Required.
@@ -255,17 +257,21 @@ message InfoValue {
 
 // Value for SUMMARY point.
 message SummaryValue {
-  // Sum and count are optional since some systems (e.g. DropWizard) do not
-  // expose them. The start_timestamp only applies to the sum and count.
+  // Sum and count are not required but SHOULD be specified.
+  // These are not required since some systems (e.g. DropWizard) do not
+  // expose them.
+  //
+  // The start_timestamp only applies to the sum and count.
   // The quantiles can be reset at arbitrary unknown times.
 
   double sum = 1;
   uint64 count = 2;
 
+  // Not required, but SHOULD be specified.
   repeated Quantile quantile = 3;
   message Quantile {
     // Required.
-    // Must be in the interval (0.0, 1.0].
+    // Must be in the interval [0.0, 1.0].
     double quantile = 1;
     double value = 2;
   }
