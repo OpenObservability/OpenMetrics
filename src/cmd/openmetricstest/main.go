@@ -56,13 +56,14 @@ func main() {
 		failures += len(elem.failures)
 	}
 
-	result := fmt.Sprintf("passed=%d, failed=%d, total_failures=%d\n",
+	result := fmt.Sprintf("passed=%d, failed=%d, total_failures=%d",
 		success, failed, failures)
-	if failures == 0 {
-		log.Println("OK", result)
-	} else {
+	if failures != 0 {
 		log.Println("FAILED", result)
+		os.Exit(1)
 	}
+
+	log.Println("OK", result)
 }
 
 type runTestsOptions struct {
@@ -102,26 +103,18 @@ func runTests(dir string, opts runTestsOptions) (runTestsResults, error) {
 }
 
 type testDef struct {
-	Parse   parseDef   `json:"parse"`
-	Outcome outcomeDef `json:"outcome"`
+	Type        string          `json:"type"`
+	File        string          `json:"file"`
+	ResultParse *resultParseDef `json:"resultParse"`
 }
 
-type parseDef struct {
-	Type string `json:"type"`
-	File string `json:"file"`
-}
-
-type outcomeDef struct {
-	ParseResult *parseResultDef `json:"parseResult"`
-}
-
-type parseResultDef struct {
+type resultParseDef struct {
 	Valid bool `json:"valid"`
 }
 
 // validator returns the concrete validator for this test result definition
-func (d parseResultDef) validator() testResultValidator {
-	return parseResultValidator{def: d}
+func (d resultParseDef) validator() testResultValidator {
+	return resultParseValidator{def: d}
 }
 
 func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
@@ -141,13 +134,13 @@ func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
 
 	log.Println("RUN test:", result.name)
 
-	inputFile := path.Join(dir, test.Parse.File)
+	inputFile := path.Join(dir, test.File)
 	input, err := ioutil.ReadFile(inputFile)
 	if err != nil {
 		return result, fmt.Errorf("cannot read test input: file=%s, err=%v", inputFile, err)
 	}
 
-	switch test.Parse.Type {
+	switch test.Type {
 	case "text":
 		testCmd := opts.cmdTestParserText
 		cmd := exec.Command(testCmd)
@@ -175,7 +168,7 @@ func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
 
 		log.Println("PASS test:", result.name)
 	default:
-		return result, fmt.Errorf("parse type unknown: %s", test.Parse.Type)
+		return result, fmt.Errorf("parse type unknown: %s", test.Type)
 	}
 
 	return result, nil
@@ -201,7 +194,7 @@ func validateResult(test testDef, cmd *exec.Cmd) []testFailure {
 		log.Println(v.Name(), "ok")
 	}
 
-	if d := test.Outcome.ParseResult; d != nil {
+	if d := test.ResultParse; d != nil {
 		validate(d.validator())
 	}
 

@@ -15,15 +15,15 @@ type testResultValidator interface {
 	ValidateResult(r testResult) error
 }
 
-type parseResultValidator struct {
-	def parseResultDef
+type resultParseValidator struct {
+	def resultParseDef
 }
 
-func (v parseResultValidator) Name() string {
-	return "parse-result-validator"
+func (v resultParseValidator) Name() string {
+	return "result-parse-validator"
 }
 
-func (v parseResultValidator) ValidateResult(r testResult) error {
+func (v resultParseValidator) ValidateResult(r testResult) error {
 	if v.def.Valid && r.err != nil {
 		return fmt.Errorf("parse error: %v", r.err)
 	} else if !v.def.Valid && r.err == nil {

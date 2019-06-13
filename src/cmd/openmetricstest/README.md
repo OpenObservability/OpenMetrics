@@ -22,6 +22,12 @@ Usage of ./openmetricstest:
 
 ## Testing an implementation
 
+### Testing parsing
+
+The parse tests require the path to a binary to be supplied, the tests then pass input to that binary through `stdin` and the binary is expected to return a success exit code of 0 if it was able to parse the input, or any other exit code if not able to process the input.
+
+### How it works
+
 The tool will walk the `testdata-dir` directory and execute all tests it finds (any directory with `test.json` is a test).
 
 To run the tests against an implementation you must specify a process to test a feature (such as parsing).
@@ -54,11 +60,8 @@ This is an example of tersting that "echo" can parse a simple counter text expos
 ### Testing text parsing with a script that always fails
 
 ```
-# Create a shell script that will always fail on any stdin
-echo '#!/bin/bash' > /tmp/fail && echo 'exit 1' >> /tmp/fail && chmod +x /tmp/fail
-
 # Run and since the script will always fail regardless of stdin observe failure
-./bin/openmetricstest -testdata-dir ./tests/testdata/parsers/simple_counter -cmd-parser-text /tmp/fail
+./bin/openmetricstest -testdata-dir ./tests/testdata/parsers/simple_counter -cmd-parser-text false
 2019/04/09 21:40:30 RUN test: simple_counter
 2019/04/09 21:40:30 parse-result-validator error:
 2019/04/09 21:40:30 > parse error: exit status 1
