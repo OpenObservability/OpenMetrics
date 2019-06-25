@@ -15,19 +15,28 @@ type testResultValidator interface {
 	ValidateResult(r testResult) error
 }
 
-type resultParseValidator struct {
-	def resultParseDef
+type parseResultValidator struct {
+	shouldParse bool
 }
 
-func (v resultParseValidator) Name() string {
-	return "result-parse-validator"
+func parseTestResultValidator(def testDef) (testResultValidator, bool) {
+	if def.ShouldParse == nil {
+		return nil, false
+	}
+	return parseResultValidator{
+		shouldParse: *def.ShouldParse,
+	}, true
 }
 
-func (v resultParseValidator) ValidateResult(r testResult) error {
-	if v.def.Valid && r.err != nil {
+func (v parseResultValidator) Name() string {
+	return "parse-result-validator"
+}
+
+func (v parseResultValidator) ValidateResult(r testResult) error {
+	if v.shouldParse && r.err != nil {
 		return fmt.Errorf("parse error: %v", r.err)
-	} else if !v.def.Valid && r.err == nil {
-		return fmt.Errorf("no parse error")
+	} else if !v.shouldParse && r.err == nil {
+		return fmt.Errorf("expected a parse error, none found")
 	}
 	return nil
 }

@@ -103,18 +103,9 @@ func runTests(dir string, opts runTestsOptions) (runTestsResults, error) {
 }
 
 type testDef struct {
-	Type        string          `json:"type"`
-	File        string          `json:"file"`
-	ResultParse *resultParseDef `json:"resultParse"`
-}
-
-type resultParseDef struct {
-	Valid bool `json:"valid"`
-}
-
-// validator returns the concrete validator for this test result definition
-func (d resultParseDef) validator() testResultValidator {
-	return resultParseValidator{def: d}
+	Type        string `json:"type"`
+	File        string `json:"file"`
+	ShouldParse *bool  `json:"shouldParse"`
 }
 
 func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
@@ -194,11 +185,11 @@ func validateResult(test testDef, cmd *exec.Cmd) []testFailure {
 		log.Println(v.Name(), "ok")
 	}
 
-	if d := test.ResultParse; d != nil {
-		validate(d.validator())
+	if v, ok := parseTestResultValidator(test); ok {
+		validate(v)
 	}
 
-	// Future definitions should append any errors to result
+	// Future validators should appear here
 
 	return failures
 }
