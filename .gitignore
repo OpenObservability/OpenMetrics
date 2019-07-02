@@ -1,6 +1,9 @@
 # macOS stuff
 .DS_Store
 
+# build
+bin/
+
 # Node.js artifacts (mostly Sass sources)
 node_modules/
 
