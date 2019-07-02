@@ -19,13 +19,8 @@ type parseResultValidator struct {
 	shouldParse bool
 }
 
-func parseTestResultValidator(def testDef) (testResultValidator, bool) {
-	if def.ShouldParse == nil {
-		return nil, false
-	}
-	return parseResultValidator{
-		shouldParse: *def.ShouldParse,
-	}, true
+func newParseResultValidator(def testDef) testResultValidator {
+	return parseResultValidator{shouldParse: def.ShouldParse}
 }
 
 func (v parseResultValidator) Name() string {

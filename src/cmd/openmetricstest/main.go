@@ -105,7 +105,7 @@ func runTests(dir string, opts runTestsOptions) (runTestsResults, error) {
 type testDef struct {
 	Type        string `json:"type"`
 	File        string `json:"file"`
-	ShouldParse *bool  `json:"shouldParse"`
+	ShouldParse bool   `json:"shouldParse"`
 }
 
 func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
@@ -185,11 +185,9 @@ func validateResult(test testDef, cmd *exec.Cmd) []testFailure {
 		log.Println(v.Name(), "ok")
 	}
 
-	if v, ok := parseTestResultValidator(test); ok {
-		validate(v)
-	}
+	// Run validators
+	validate(newParseResultValidator(test))
 
-	// Future validators should appear here
-
+	// Future validators come here
 	return failures
 }
