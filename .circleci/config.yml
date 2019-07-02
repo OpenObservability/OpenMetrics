@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang
+    steps:
+      - checkout
+      - run: "make binaries"
+  test-success:
+    docker:
+      - image: circleci/golang
+    steps:
+      - checkout
+      - run: "make test-impl cmd-parser-text=echo"
+  test-fail:
+    docker:
+      - image: circleci/golang
+    steps:
+      - checkout
+      - run: "! make test-impl cmd-parser-text=false"
