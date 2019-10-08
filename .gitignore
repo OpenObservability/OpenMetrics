@@ -1,3 +1,6 @@
+# Binaries
+bin/
+
 # macOS stuff
 .DS_Store
 
@@ -6,7 +9,3 @@ node_modules/
 
 # Hugo-generated assets
 public/
-
-# Binaries
-bin/
-
