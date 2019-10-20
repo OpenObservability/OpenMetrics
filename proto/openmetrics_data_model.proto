@@ -1,17 +1,16 @@
 syntax = "proto3";
 
+// The OpenMetrics protobuf schema which defines the protobuf
+// wire format. 
+// Ensure to intepret "required" as semantically required for a valid message.
+// All string fields MUST be UTF-8 encoded strings.
 package openmetrics;
 
-// This is a description of the OpenMetrics data model in a proto
-// form. Additionally, it serves as the proto wire format.
-//
-// Interpret "required" as semantically required. Some fields are
-// semantically required depending on the values of the other fields
-// (and indicated by comments).
+import "google/protobuf/timestamp.proto";
 
-// The top-level message sent on the wire.
+// The top-level container type that is encoded and sent over the wire.
 message MetricSet {
-  // Each MetricPoints has one or more points from a single metric.
+  // Each MetricPoints has one or more points for a single metric.
   repeated MetricPoints metric_points = 1;
 }
 
@@ -44,32 +43,43 @@ message MetricDescriptor {
   // underscores are reserved for monitoring-system internal use.
   string name = 1;
 
+  // Required.
+  MetricType MetricType = 2;
+
   // STATE_SETs and INFO types must not have a unit.
   // Must match the regexp [a-zA-Z_:][a-zA-Z0-9_:]*
-  string unit = 2;
+  string unit = 3;
 
-  // Required.
-  Type type = 3;
-
+  // Optional description of the metric name.
   string description = 4;
 
-  enum Type {
-    UNKNOWN = 0;  // double or int valued point
-    GAUGE = 1;    // double or int valued point
-    COUNTER = 2;  // double or int valued point.
-    STATE_SET = 3;
-    INFO = 4;  // provides information about the entity being monitored
-    CUMULATIVE_HISTOGRAM = 5;
-    GAUGE_HISTOGRAM = 6;
-    // Summary quantiles are not recommended, since they cannot be
-    // aggregated.
-    SUMMARY = 7;
-  }
   // Note: No bucketing is defined for a HISTOGRAM in the descriptor.
   // It is an implementation detail of the backend whether it can handle
   // changes in bucketing for a metric. Same for SUMMARY (quantiles are
   // not defined here), and STATE_SET (the set of possible values is
   // defined in each point).
+}
+
+// The type of a metric.
+enum MetricType {
+  // Unknown must use double or int valued points.
+  UNKNOWN = 0;
+  // Gauge must use double or int valued points.
+  GAUGE = 1;
+  // Counter must use double or int valued points.
+  COUNTER = 2;
+  // State set must use state set value points.
+  STATE_SET = 3;
+  // Info provides information about the target being monitored
+  // and must use info value points.
+  INFO = 4;
+  // Cumulative histogram must use histogram value points.
+  CUMULATIVE_HISTOGRAM = 5;
+  // Gauge histogram must use histogram value points.
+  GAUGE_HISTOGRAM = 6;
+  // Summary quantiles are not recommended, since they cannot be
+  // aggregated.
+  SUMMARY = 7;
 }
 
 // A name-value pair. These are used in multiple places: identifying
@@ -82,15 +92,9 @@ message Label {
   string value = 2;
 }
 
-message Timestamp {
-  // Required.
-  int64 seconds = 1;  // Seconds since the epoch. Negative values are permitted
-
-  uint32 nanoseconds = 2;
-}
-
 // A point in a timeseries.
 message Point {
+  // Required.
   oneof value {
     double double_value = 1;
     int64 int_value = 2;
@@ -103,15 +107,16 @@ message Point {
   // Not required, but SHOULD be specified for COUNTER, SUMMARY or
   // CUMULATIVE_HISTOGRAM type.
   //
-  // The cumulative value is over
-  // the time interval (start_timestamp, timestamp].
+  // The cumulative value is over the time interval 
+  // (start_timestamp, timestamp].
   // If start_timestamp is present and timestamp is absent,
   // the backend assigned timestamp may be used to construct the time
   // interval.
-  Timestamp start_timestamp = 7;
+  google.protobuf.Timestamp start_timestamp = 7;
 
+  // Not required.
   // If not specified, the timestamp will be decided by the backend.
-  Timestamp timestamp = 8;
+  google.protobuf.Timestamp timestamp = 8;
 }
 
 // Value for CUMULATIVE_HISTOGRAM or GAUGE_HISTOGRAM point.
@@ -130,7 +135,7 @@ message HistogramValue {
   // exponential sequence, or each bucket can be specified explicitly.
   // `BucketOptions` does not include the number of values in each bucket.
   //
-  // A bucket has a 0 lower bound and an inclusive upper bound for the
+  // A bucket has an exclusive lower bound and an inclusive upper bound for the
   // values that are counted for that bucket. That is, buckets are
   // cumulative. The upper bound of successive buckets must be increasing.
   // There is an implicit overflow bucket that extends up to +infinity.
@@ -153,7 +158,7 @@ message HistogramValue {
     //
     // There are `num_explicit_buckets` (N) buckets plus the overflow
     // bucket. Bucket `i` (0 <= i < N) has upper bound : offset + (width * i).
-    // Note that when offset = 0, bucket 0 represents the interval [0, 0].
+    // Note that when offset = 0, bucket 0 represents the interval (0, 0].
     message Linear {
       // Required.
       // Must be greater than 0.
@@ -175,7 +180,7 @@ message HistogramValue {
     //
     // There are `num_exponential_buckets` + 1 (N) buckets plus the overflow
     // bucket.
-    // Bucket 0 represents the interval [0, 0].
+    // Bucket 0 represents the interval (0, 0].
     // Bucket `i` (1 <= i < N) has upper bound :
     //   scale * (growth_factor ^ (i - 1)).
     message Exponential {
@@ -192,7 +197,7 @@ message HistogramValue {
       double scale = 3;
     }
 
-    // Specifies a set of buckets with arbitrary upper-bounds
+    // Specifies a set of buckets with arbitrary upper-bounds.
     //
     // There are `size(bounds)` (N) explicit buckets plus the overflow bucket.
     // Bucket `i` (0 <= i < N) has upper bound: bounds[i].
@@ -213,20 +218,23 @@ message HistogramValue {
   // The order of the values in `bucket_counts` follows the bucket numbering
   // schemes described for the three bucket types.
   repeated BucketCount bucket_counts = 4;
+
   message BucketCount {
     // Required.
     // Count is the number of values for a bucket of the histogram.
     uint64 count = 1;
 
+    // Not required.
     // An example of a value that fell into this bucket.
     Exemplar exemplar = 2;
+
     message Exemplar {
       // Required.
       // The value of the example.
       double value = 1;
 
       // The timestamp of the example. Optional but SHOULD set it.
-      Timestamp timestamp = 2;
+      google.protobuf.Timestamp timestamp = 2;
 
       // Additional information about the example value // (e.g. trace id).
       // The sum of lengths of all the strings in all the labels must not
@@ -255,24 +263,24 @@ message InfoValue {
   repeated Label info = 1;
 }
 
-// Value for SUMMARY point.
+// Value for SUMMARY point. The start_timestamp only applies to the sum 
+// and count. The quantiles can be reset at arbitrary unknown times.
 message SummaryValue {
-  // Sum and count are not required but SHOULD be specified.
-  // These are not required since some systems (e.g. DropWizard) do not
-  // expose them.
-  //
-  // The start_timestamp only applies to the sum and count.
-  // The quantiles can be reset at arbitrary unknown times.
-
+  // Not required, but SHOULD be specified. This is for compatibility 
+  // since some common systems do not expose them.
   double sum = 1;
+
+  // Not required, but SHOULD be specified. This is for compatibility 
+  // since some common systems do not expose them.
   uint64 count = 2;
 
-  // Not required, but SHOULD be specified.
   repeated Quantile quantile = 3;
+
   message Quantile {
-    // Required.
-    // Must be in the interval [0.0, 1.0].
+    // Required. Must be in the interval [0.0, 1.0].
     double quantile = 1;
+
+    // Required.
     double value = 2;
   }
 }
