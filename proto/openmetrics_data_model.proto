@@ -62,11 +62,11 @@ message MetricDescriptor {
 
 // The type of a metric.
 enum MetricType {
-  // Unknown must use double or int valued points.
+  // Unknown must use double point values.
   UNKNOWN = 0;
-  // Gauge must use double or int valued points.
+  // Gauge must use double point values.
   GAUGE = 1;
-  // Counter must use double or int valued points.
+  // Counter must use double point values.
   COUNTER = 2;
   // State set must use state set value points.
   STATE_SET = 3;
@@ -78,7 +78,7 @@ enum MetricType {
   // Gauge histogram must use histogram value points.
   GAUGE_HISTOGRAM = 6;
   // Summary quantiles are not recommended, since they cannot be
-  // aggregated.
+  // aggregated, they must use summary value points.
   SUMMARY = 7;
 }
 
@@ -97,11 +97,10 @@ message Point {
   // Required.
   oneof value {
     double double_value = 1;
-    int64 int_value = 2;
-    HistogramValue histogram_value = 3;
-    StateSetValue state_set_value = 4;
-    InfoValue info_value = 5;
-    SummaryValue summary_value = 6;
+    HistogramValue histogram_value = 2;
+    StateSetValue state_set_value = 3;
+    InfoValue info_value = 4;
+    SummaryValue summary_value = 5;
   }
 
   // Not required, but SHOULD be specified for COUNTER, SUMMARY or
@@ -121,10 +120,10 @@ message Point {
 
 // Value for CUMULATIVE_HISTOGRAM or GAUGE_HISTOGRAM point.
 message HistogramValue {
-  // Not required, but SHOULD be specified.
+  // Optional, but SHOULD be specified.
   double sum = 1;
 
-  // Not required, but SHOULD be specified.
+  // Optional, but SHOULD be specified.
   uint64 count = 2;
 
   // Required.
@@ -181,7 +180,7 @@ message HistogramValue {
     // There are `num_exponential_buckets` + 1 (N) buckets plus the overflow
     // bucket.
     // Bucket 0 represents the interval (0, 0].
-    // Bucket `i` (1 <= i < N) has upper bound :
+    // Bucket `i` (1 <= i < N) has upper bound:
     //   scale * (growth_factor ^ (i - 1)).
     message Exponential {
       // Required.
@@ -203,10 +202,10 @@ message HistogramValue {
     // Bucket `i` (0 <= i < N) has upper bound: bounds[i].
     // The `bounds` field must contain at least one element.
     message Explicit {
+      // Required, at least one.
       // The values must be monotonically increasing and >= 0.
       repeated double bounds = 1;
     }
-
   }
 
   // The number of values in each bucket of the histogram, as described in
@@ -224,7 +223,7 @@ message HistogramValue {
     // Count is the number of values for a bucket of the histogram.
     uint64 count = 1;
 
-    // Not required.
+    // Optional.
     // An example of a value that fell into this bucket.
     Exemplar exemplar = 2;
 
@@ -233,10 +232,12 @@ message HistogramValue {
       // The value of the example.
       double value = 1;
 
-      // The timestamp of the example. Optional but SHOULD set it.
+      // Optional, but SHOULD set it.
+      // The timestamp of the example.
       google.protobuf.Timestamp timestamp = 2;
 
-      // Additional information about the example value // (e.g. trace id).
+      // Optional.
+      // Additional information about the example value (e.g. trace id).
       // The sum of lengths of all the strings in all the labels must not
       // exceed 64 UTF-8 characters.
       repeated Label label = 3;
@@ -246,6 +247,7 @@ message HistogramValue {
 
 // Value for STATE_SET point.
 message StateSetValue {
+  // Required, at least one.
   // Each state must have a unique name. Any number of states may be enabled.
   repeated State states = 1;
 
@@ -260,20 +262,22 @@ message StateSetValue {
 
 // Value for INFO point.
 message InfoValue {
+  // Required, at least one.
   repeated Label info = 1;
 }
 
 // Value for SUMMARY point. The start_timestamp only applies to the sum 
 // and count. The quantiles can be reset at arbitrary unknown times.
 message SummaryValue {
-  // Not required, but SHOULD be specified. This is for compatibility 
-  // since some common systems do not expose them.
+  // Optional, but SHOULD be specified. 
+  // This is for compatibility since some common systems do not expose them.
   double sum = 1;
 
-  // Not required, but SHOULD be specified. This is for compatibility 
-  // since some common systems do not expose them.
+  // Optional, but SHOULD be specified. 
+  // This is for compatibility since some common systems do not expose them.
   uint64 count = 2;
 
+  // Required, at least one.
   repeated Quantile quantile = 3;
 
   message Quantile {
