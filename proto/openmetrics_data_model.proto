@@ -20,11 +20,13 @@ message MetricPoints {
   // Required.
   MetricDescriptor metric_descriptor = 1;
 
+  // Required, at least one.
   repeated Timeseries timeseries = 2;
 }
 
 // A single timeseries.
 message Timeseries {
+  // Optional.
   // Labels applying to all points.
   repeated Label label = 1;
 
