@@ -20,7 +20,7 @@ message MetricPoints {
   // Required.
   MetricDescriptor metric_descriptor = 1;
 
-  // Required, at least one.
+  // Optional.
   repeated Timeseries timeseries = 2;
 }
 
@@ -68,19 +68,17 @@ enum MetricType {
   UNKNOWN = 0;
   // Gauge must use double point values.
   GAUGE = 1;
-  // Counter must use double point values.
+  // Counter must use double point values or int values.
   COUNTER = 2;
   // State set must use state set value points.
   STATE_SET = 3;
-  // Info provides information about the target being monitored
-  // and must use info value points.
+  // Info must use info value points.
   INFO = 4;
   // Cumulative histogram must use histogram value points.
   CUMULATIVE_HISTOGRAM = 5;
   // Gauge histogram must use histogram value points.
   GAUGE_HISTOGRAM = 6;
-  // Summary quantiles are not recommended, since they cannot be
-  // aggregated, they must use summary value points.
+  // Summary quantiles must use summary value points.
   SUMMARY = 7;
 }
 
@@ -99,10 +97,11 @@ message Point {
   // Required.
   oneof value {
     double double_value = 1;
-    HistogramValue histogram_value = 2;
-    StateSetValue state_set_value = 3;
-    InfoValue info_value = 4;
-    SummaryValue summary_value = 5;
+    int64 int_value = 2;
+    HistogramValue histogram_value = 3;
+    StateSetValue state_set_value = 4;
+    InfoValue info_value = 5;
+    SummaryValue summary_value = 6;
   }
 
   // Not required, but SHOULD be specified for COUNTER, SUMMARY or
@@ -201,11 +200,11 @@ message HistogramValue {
     // Specifies a set of buckets with arbitrary upper-bounds.
     //
     // There are `size(bounds)` (N) explicit buckets plus the overflow bucket.
-    // Bucket `i` (0 <= i < N) has upper bound: bounds[i].
+    // Bucket `i` has upper bound: bounds[i].
     // The `bounds` field must contain at least one element.
     message Explicit {
-      // Required, at least one.
-      // The values must be monotonically increasing and >= 0.
+      // Optional, but SHOULD set it.
+      // The values must be monotonically increasing.
       repeated double bounds = 1;
     }
   }
@@ -231,15 +230,15 @@ message HistogramValue {
 
     message Exemplar {
       // Required.
-      // The value of the example.
+      // The value of the exemplar.
       double value = 1;
 
       // Optional, but SHOULD set it.
-      // The timestamp of the example.
+      // The timestamp of the exemplar.
       google.protobuf.Timestamp timestamp = 2;
 
       // Optional.
-      // Additional information about the example value (e.g. trace id).
+      // Additional information about the exemplar value (e.g. trace id).
       // The sum of lengths of all the strings in all the labels must not
       // exceed 64 UTF-8 characters.
       repeated Label label = 3;
@@ -264,7 +263,7 @@ message StateSetValue {
 
 // Value for INFO point.
 message InfoValue {
-  // Required, at least one.
+  // Optional, but SHOULD set it.
   repeated Label info = 1;
 }
 
