@@ -169,7 +169,6 @@ message HistogramValue {
       double width = 2;
 
       // Required.
-      // Must be >= 0.
       double offset = 3;
     }
 
@@ -180,7 +179,7 @@ message HistogramValue {
     //
     // There are `num_exponential_buckets` + 1 (N) buckets plus the overflow
     // bucket.
-    // Bucket 0 represents the interval (0, 0].
+    // Bucket 0 represents the interval [0, 0].
     // Bucket `i` (1 <= i < N) has upper bound:
     //   scale * (growth_factor ^ (i - 1)).
     message Exponential {
