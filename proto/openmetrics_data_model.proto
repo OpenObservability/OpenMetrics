@@ -136,7 +136,7 @@ message HistogramValue {
   // exponential sequence, or each bucket can be specified explicitly.
   // `BucketOptions` does not include the number of values in each bucket.
   //
-  // A bucket has an exclusive lower bound and an inclusive upper bound for the
+  // A bucket has no lower bound and an inclusive upper bound for the
   // values that are counted for that bucket. That is, buckets are
   // cumulative. The upper bound of successive buckets must be increasing.
   // There is an implicit overflow bucket that extends up to +infinity.
