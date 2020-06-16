@@ -30,6 +30,7 @@ message Timeseries {
   // Labels applying to all points.
   repeated Label label = 1;
 
+  // Optional.
   // If there is more than one point, all must have a timestamp field
   // and they must be in increasing order of timestamp.
   // If there is only one point and has no timestamp field, the receiver
