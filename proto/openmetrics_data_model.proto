@@ -51,6 +51,7 @@ message MetricDescriptor {
 
   // STATE_SETs and INFO types must not have a unit.
   // Must match the regexp [a-zA-Z_:][a-zA-Z0-9_:]*
+  // If unit set, if MUST be a suffix on the metric name too (e.g. "foo_seconds").
   string unit = 3;
 
   // Optional description of the metric name.
@@ -248,7 +249,7 @@ message HistogramValue {
 
 // Value for STATE_SET point.
 message StateSetValue {
-  // Required, at least one.
+  // Optional, should set at least one.
   // Each state must have a unique name. Any number of states may be enabled.
   repeated State states = 1;
 
