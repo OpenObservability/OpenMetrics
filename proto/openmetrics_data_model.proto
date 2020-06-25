@@ -51,7 +51,9 @@ message MetricDescriptor {
 
   // STATE_SETs and INFO types must not have a unit.
   // Must match the regexp [a-zA-Z_:][a-zA-Z0-9_:]*
-  // If unit set, if MUST be a suffix on the metric name too (e.g. "foo_seconds").
+  // If unit set, if MUST be a suffix on the metric name too. If the 
+  // original name of the metric was "foo" and the unit was seconds 
+  // then the name must be specified as "foo_seconds".
   string unit = 3;
 
   // Optional description of the metric name.
