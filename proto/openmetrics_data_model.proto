@@ -268,7 +268,7 @@ message InfoValue {
 }
 
 // Value for SUMMARY point. The start_timestamp of the Point only applies to 
-// the sum  and count. The quantiles can be reset at arbitrary unknown times.
+// the sum and count. The quantiles can be reset at arbitrary unknown times.
 message SummaryValue {
   // Optional, but SHOULD be specified. 
   // This is for compatibility since some common systems do not expose them.
