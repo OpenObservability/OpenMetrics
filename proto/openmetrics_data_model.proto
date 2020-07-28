@@ -80,7 +80,7 @@ message Metric {
   // and they must be in increasing order of timestamp.
   // If there is only one point and has no timestamp field, the receiver
   // will assign a timestamp.
-  repeated Point point = 2;
+  repeated Point points = 2;
 }
 
 // A name-value pair. These are used in multiple places: identifying
