@@ -278,7 +278,7 @@ message SummaryValue {
   // This is for compatibility since some common systems do not expose them.
   uint64 count = 2;
 
-  // Optional, but SHOULD be specified.
+  // Optional.
   repeated Quantile quantile = 3;
 
   message Quantile {
