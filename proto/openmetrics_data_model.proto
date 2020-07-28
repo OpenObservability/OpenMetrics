@@ -11,59 +11,41 @@ import "google/protobuf/timestamp.proto";
 // The top-level container type that is encoded and sent over the wire.
 message MetricSet {
   // Each MetricPoints has one or more points for a single metric.
-  repeated MetricPoints metric_points = 1;
+  repeated MetricFamily metric_families = 1;
 }
 
-// One or more timeseries for a single metric, where each timeseries has
-// one or more points.
-message MetricPoints {
-  // Required.
-  MetricDescriptor metric_descriptor = 1;
-
-  // Optional.
-  repeated Timeseries timeseries = 2;
-}
-
-// A single timeseries.
-message Timeseries {
-  // Optional.
-  // Labels applying to all points.
-  repeated Label label = 1;
-
-  // Optional.
-  // If there is more than one point, all must have a timestamp field
-  // and they must be in increasing order of timestamp.
-  // If there is only one point and has no timestamp field, the receiver
-  // will assign a timestamp.
-  repeated Point point = 2;
-}
-
-// The descriptor of a metric.
-message MetricDescriptor {
+// One or more metrics for a single metric family, where each metric
+// has one or more points.
+// Note: No bucketing is defined for a HISTOGRAM in the metric family.
+// It is an implementation detail of the backend whether it can handle
+// changes in bucketing for a metric. Same for SUMMARY (quantiles are
+// not defined here), and STATE_SET (the set of possible values is
+// defined in each point).
+message MetricFamily {
   // Required.
   // Names must match the regex [a-zA-Z_:][a-zA-Z0-9_:]* however colons are
   // reserved for monitoring system use, and names beginning with
   // underscores are reserved for monitoring-system internal use.
   string name = 1;
 
-  // Required.
-  MetricType MetricType = 2;
+  // Optional.
+  // If not set, the zero value specifies it is an UNKNOWN metric type.
+  MetricType type = 2;
 
+  // Optional.
   // STATE_SETs and INFO types must not have a unit.
-  // Must match the regexp [a-zA-Z_:][a-zA-Z0-9_:]*
+  // Must match the regexp [a-zA-Z_:][a-zA-Z0-9_:]*.
   // If unit set, if MUST be a suffix on the metric name too. If the 
   // original name of the metric was "foo" and the unit was "seconds" 
   // then the name must be specified as "foo_seconds".
   string unit = 3;
 
-  // Optional description of the metric name.
-  string description = 4;
+  // Optional.
+  // Description of the metric family.
+  string help = 4;
 
-  // Note: No bucketing is defined for a HISTOGRAM in the descriptor.
-  // It is an implementation detail of the backend whether it can handle
-  // changes in bucketing for a metric. Same for SUMMARY (quantiles are
-  // not defined here), and STATE_SET (the set of possible values is
-  // defined in each point).
+  // Optional.
+  repeated Metric metrics = 5;
 }
 
 // The type of a metric.
@@ -86,6 +68,21 @@ enum MetricType {
   SUMMARY = 7;
 }
 
+// A single metric must have a unique set of labels within 
+// the metric family that it is contained by.
+message Metric {
+  // Optional.
+  // Labels applying to all points, must be unique.
+  repeated Label labels = 1;
+
+  // Optional.
+  // If there is more than one point, all must have a timestamp field
+  // and they must be in increasing order of timestamp.
+  // If there is only one point and has no timestamp field, the receiver
+  // will assign a timestamp.
+  repeated Point point = 2;
+}
+
 // A name-value pair. These are used in multiple places: identifying
 // timeseries, value of INFO metrics, and exemplars in Histograms.
 message Label {
@@ -96,7 +93,7 @@ message Label {
   string value = 2;
 }
 
-// A point in a timeseries.
+// A point in a metric.
 message Point {
   // Required.
   oneof value {
@@ -108,7 +105,7 @@ message Point {
     SummaryValue summary_value = 6;
   }
 
-  // Not required, but SHOULD be specified for COUNTER, SUMMARY or
+  // Optional, but SHOULD be specified for COUNTER, SUMMARY or
   // CUMULATIVE_HISTOGRAM type.
   //
   // The cumulative value is over the time interval 
@@ -118,7 +115,7 @@ message Point {
   // interval.
   google.protobuf.Timestamp start_timestamp = 7;
 
-  // Not required.
+  // Optional.
   // If not specified, the timestamp will be decided by the backend.
   google.protobuf.Timestamp timestamp = 8;
 }
@@ -270,8 +267,8 @@ message InfoValue {
   repeated Label info = 1;
 }
 
-// Value for SUMMARY point. The start_timestamp only applies to the sum 
-// and count. The quantiles can be reset at arbitrary unknown times.
+// Value for SUMMARY point. The start_timestamp of the Point only applies to 
+// the sum  and count. The quantiles can be reset at arbitrary unknown times.
 message SummaryValue {
   // Optional, but SHOULD be specified. 
   // This is for compatibility since some common systems do not expose them.
@@ -281,11 +278,12 @@ message SummaryValue {
   // This is for compatibility since some common systems do not expose them.
   uint64 count = 2;
 
-  // Optional.
+  // Optional, but SHOULD be specified.
   repeated Quantile quantile = 3;
 
   message Quantile {
-    // Required. Must be in the interval [0.0, 1.0].
+    // Required. 
+    // Must be in the interval [0.0, 1.0].
     double quantile = 1;
 
     // Required.
