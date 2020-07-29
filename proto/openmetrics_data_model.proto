@@ -54,7 +54,7 @@ enum MetricType {
   UNKNOWN = 0;
   // Gauge must use double point values.
   GAUGE = 1;
-  // Counter must use double point values or int values.
+  // Counter must use counter point values, which is a double or int value.
   COUNTER = 2;
   // State set must use state set value points.
   STATE_SET = 3;
@@ -98,7 +98,7 @@ message Point {
   // Required.
   oneof value {
     double double_value = 1;
-    int64 int_value = 2;
+    CounterValue counter_value = 2;
     HistogramValue histogram_value = 3;
     StateSetValue state_set_value = 4;
     InfoValue info_value = 5;
@@ -113,11 +113,31 @@ message Point {
   // If start_timestamp is present and timestamp is absent,
   // the backend assigned timestamp may be used to construct the time
   // interval.
-  google.protobuf.Timestamp start_timestamp = 7;
+  google.protobuf.Timestamp created = 7;
 
   // Optional.
   // If not specified, the timestamp will be decided by the backend.
   google.protobuf.Timestamp timestamp = 8;
+}
+
+// Value for COUNTER point.
+// A Point in a Metric with the type Counter SHOULD have a Timestamp 
+// value called created. This can help ingesters discern between new 
+// metrics and long-running ones it did not see before.
+// A Point in a Metric’s counter’s total MAY reset to 0. If present, the 
+// corresponding creation time MUST also be set to the timestamp of the reset.
+message CounterValue {
+  // Required.
+  // A total is a non-NaN and MUST be monotonically non-decreasing over 
+  // time, starting from 0.
+  oneof total {
+    double double_value = 1;
+    uint64 int_value = 2;
+  }
+
+  // Optional.
+  // An example of a value for a discrete event that was counted.
+  Exemplar exemplar = 3;
 }
 
 // Value for CUMULATIVE_HISTOGRAM or GAUGE_HISTOGRAM point.
@@ -227,23 +247,23 @@ message HistogramValue {
     // Optional.
     // An example of a value that fell into this bucket.
     Exemplar exemplar = 2;
-
-    message Exemplar {
-      // Required.
-      // The value of the exemplar.
-      double value = 1;
-
-      // Optional, but SHOULD set it.
-      // The timestamp of the exemplar.
-      google.protobuf.Timestamp timestamp = 2;
-
-      // Optional.
-      // Additional information about the exemplar value (e.g. trace id).
-      // The sum of lengths of all the strings in all the labels must not
-      // exceed 64 UTF-8 characters.
-      repeated Label label = 3;
-    }
   }
+}
+
+message Exemplar {
+  // Required.
+  // The value of the exemplar.
+  double value = 1;
+
+  // Optional, but SHOULD set it.
+  // The timestamp of the exemplar.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // Optional.
+  // Additional information about the exemplar value (e.g. trace id).
+  // The sum of lengths of all the strings in all the labels must not
+  // exceed 64 UTF-8 characters.
+  repeated Label label = 3;
 }
 
 // Value for STATE_SET point.
