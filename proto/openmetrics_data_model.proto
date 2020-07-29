@@ -52,7 +52,7 @@ message MetricFamily {
 enum MetricType {
   // Unknown must use unknown point values, which is a double or int value.
   UNKNOWN = 0;
-  // Gauge must use double point values, which is a double or int value.
+  // Gauge must use gauge point values, which is a double or int value.
   GAUGE = 1;
   // Counter must use counter point values, which is a double or uint value.
   COUNTER = 2;
