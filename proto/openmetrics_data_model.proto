@@ -61,9 +61,9 @@ enum MetricType {
   // Info must use info value points.
   INFO = 4;
   // Cumulative histogram must use histogram value points.
-  CUMULATIVE_HISTOGRAM = 5;
+  HISTOGRAM_CUMULATIVE = 5;
   // Gauge histogram must use histogram value points.
-  GAUGE_HISTOGRAM = 6;
+  HISTOGRAM_GAUGE = 6;
   // Summary quantiles must use summary value points.
   SUMMARY = 7;
 }
