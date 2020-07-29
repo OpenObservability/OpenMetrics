@@ -50,11 +50,11 @@ message MetricFamily {
 
 // The type of a metric.
 enum MetricType {
-  // Unknown must use double point values.
+  // Unknown must use unknown point values, which is a double or int value.
   UNKNOWN = 0;
-  // Gauge must use double point values.
+  // Gauge must use double point values, which is a double or int value.
   GAUGE = 1;
-  // Counter must use counter point values, which is a double or int value.
+  // Counter must use counter point values, which is a double or uint value.
   COUNTER = 2;
   // State set must use state set value points.
   STATE_SET = 3;
@@ -97,12 +97,13 @@ message Label {
 message Point {
   // Required.
   oneof value {
-    double double_value = 1;
-    CounterValue counter_value = 2;
-    HistogramValue histogram_value = 3;
-    StateSetValue state_set_value = 4;
-    InfoValue info_value = 5;
-    SummaryValue summary_value = 6;
+    UnknownValue unknown_value = 1;
+    GaugeValue gauge_value = 2;
+    CounterValue counter_value = 3;
+    HistogramValue histogram_value = 4;
+    StateSetValue state_set_value = 5;
+    InfoValue info_value = 6;
+    SummaryValue summary_value = 7;
   }
 
   // Optional, but SHOULD be specified for COUNTER, SUMMARY or
@@ -113,11 +114,29 @@ message Point {
   // If start_timestamp is present and timestamp is absent,
   // the backend assigned timestamp may be used to construct the time
   // interval.
-  google.protobuf.Timestamp created = 7;
+  google.protobuf.Timestamp created = 8;
 
   // Optional.
   // If not specified, the timestamp will be decided by the backend.
-  google.protobuf.Timestamp timestamp = 8;
+  google.protobuf.Timestamp timestamp = 9;
+}
+
+// Value for UNKNOWN point.
+message UnknownValue {
+  // Required.
+  oneof value {
+    double double_value = 1;
+    int64 int_value = 2;
+  }
+}
+
+// Value for GAUGE point.
+message GaugeValue {
+  // Required.
+  oneof value {
+    double double_value = 1;
+    int64 int_value = 2;
+  }
 }
 
 // Value for COUNTER point.
