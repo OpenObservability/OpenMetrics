@@ -61,9 +61,9 @@ enum MetricType {
   // Info must use info value points.
   INFO = 4;
   // Cumulative histogram must use histogram value points.
-  HISTOGRAM_CUMULATIVE = 5;
+  HISTOGRAM = 5;
   // Gauge histogram must use histogram value points.
-  HISTOGRAM_GAUGE = 6;
+  GAUGE_HISTOGRAM = 6;
   // Summary quantiles must use summary value points.
   SUMMARY = 7;
 }
@@ -162,7 +162,10 @@ message CounterValue {
 // Value for CUMULATIVE_HISTOGRAM or GAUGE_HISTOGRAM point.
 message HistogramValue {
   // Optional, but SHOULD be specified.
-  double sum = 1;
+  oneof sum {
+    double double_value = 1;
+    int64 int_value = 2;
+  }
 
   // Optional, but SHOULD be specified.
   uint64 count = 2;
@@ -311,7 +314,10 @@ message InfoValue {
 message SummaryValue {
   // Optional, but SHOULD be specified. 
   // This is for compatibility since some common systems do not expose them.
-  double sum = 1;
+  oneof sum {
+    double double_value = 1;
+    int64 int_value = 2;
+  }
 
   // Optional, but SHOULD be specified. 
   // This is for compatibility since some common systems do not expose them.
