@@ -107,7 +107,7 @@ message Point {
   }
 
   // Optional, but SHOULD be specified for COUNTER, SUMMARY or
-  // CUMULATIVE_HISTOGRAM type.
+  // HISTOGRAM type.
   //
   // The cumulative value is over the time interval 
   // (start_timestamp, timestamp].
@@ -159,7 +159,7 @@ message CounterValue {
   Exemplar exemplar = 3;
 }
 
-// Value for CUMULATIVE_HISTOGRAM or GAUGE_HISTOGRAM point.
+// Value for HISTOGRAM or GAUGE_HISTOGRAM point.
 message HistogramValue {
   // Optional, but SHOULD be specified.
   oneof sum {
