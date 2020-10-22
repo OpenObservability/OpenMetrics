@@ -6,3 +6,6 @@ node_modules/
 
 # Hugo-generated assets
 public/
+
+# IntelliJ stuff
+/.idea/
