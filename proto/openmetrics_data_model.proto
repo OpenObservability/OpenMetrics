@@ -83,7 +83,7 @@ message CounterValue {
 }
 
 // Bucket boundary is inclusive at lower bound, exclusive at upper bound.
-// Bucket count supports both integer and double.
+// Bucket count supports both integer and double. Zero count buckets are allowed.
 // Use integer count whenever possible as it is efficiently encoded as varint.
 message HistogramValue {
   // Sum of values represented by this histogram
@@ -182,6 +182,7 @@ message HistogramValue {
   message Explicit {
     uint32 num_of_buckets = 1;
     // bucket_lower_bounds and bucket_counts must both have num_of_buckets entries.
+    // The values in bucket_lower_bounds must be strictly increasing.
     repeated double bucket_lower_bounds = 2;
     BucketCounts bucket_counts = 3;
   }
@@ -195,7 +196,7 @@ message HistogramValue {
     }
 
     // When present, exemplars must have the same number of entries as the count list.
-    repeated  Exemplar exemplars = 3;
+    repeated Exemplar exemplars = 3;
 
     // In proto3, repeated fields of scalar numeric types use packed encoding by default.
     // Thus small counters will cost fewer bytes when encoded.
