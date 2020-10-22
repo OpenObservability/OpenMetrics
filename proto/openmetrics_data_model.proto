@@ -109,10 +109,10 @@ message HistogramValue {
 
   HistogramProducer histogram_producer = 9;
 
-  // A consumer may use HistogramProducer as a hint to deserialize a histogram
-  // into the producer's format.
+  // A consumer may use HistogramProducer as a hint to generate a histogram
+  // in the producer's orignal format.
   enum HistogramProducer {
-    UNKNOWN = 0;
+    UNLISTED = 0;
     HDRHISTOGRAM = 1;
     DDSKETCH = 2;
     CIRCLLHIST = 3;
@@ -161,8 +161,8 @@ message HistogramValue {
 
     // A bucket's logical index is physical index in bucket_counts plus index_offset.
     message BucketCountsWithIndexOffset {
-      uint32 num_of_buckets = 1;
-      sint32 index_offset = 2;
+      sint32 index_offset = 1;
+      uint32 num_of_buckets = 2;
       BucketCounts bucket_counts = 3;
     }
   }
@@ -170,7 +170,7 @@ message HistogramValue {
   // Explicitly enumerating all bucket bounds.
   message Explicit {
     uint32 num_of_buckets = 1;
-    // bucket_bounds and bucket_counts must have num_of_buckets entries.
+    // bucket_bounds and bucket_counts must both have num_of_buckets entries.
     repeated double bucket_bounds = 2;
     BucketCounts bucket_counts = 3;
   }
@@ -183,8 +183,8 @@ message HistogramValue {
       DoubleBucketCounts double_bucket_counts = 2;
     }
 
-    // When present, exemplar must have num_of_buckets entries.
-    repeated  Exemplar exemplar = 3;
+    // When present, exemplars must have the same number entries as the count list.
+    repeated  Exemplar exemplars = 3;
 
     // In proto3, repeated fields of scalar numeric types use packed encoding by default.
     // Thus small counters will cost fewer bytes when encoded.
