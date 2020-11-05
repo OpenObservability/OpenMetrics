@@ -1,7 +1,6 @@
 syntax = "proto3";
 
-// The OpenMetrics protobuf schema which defines the protobuf
-// wire format. 
+// The OpenMetrics protobuf schema which defines the protobuf wire format. 
 // Ensure to interpret "required" as semantically required for a valid message.
 // All string fields MUST be UTF-8 encoded strings.
 package openmetrics;
@@ -16,32 +15,17 @@ message MetricSet {
 
 // One or more metrics for a single metric family, where each metric
 // has one or more points.
-// Note: No bucketing is defined for a HISTOGRAM in the metric family.
-// It is an implementation detail of the backend whether it can handle
-// changes in bucketing for a metric. Same for SUMMARY (quantiles are
-// not defined here), and STATE_SET (the set of possible values is
-// defined in each point).
 message MetricFamily {
   // Required.
-  // Names must match the regex [a-zA-Z_:][a-zA-Z0-9_:]* however colons are
-  // reserved for monitoring system use, and names beginning with
-  // underscores are reserved for monitoring-system internal use.
   string name = 1;
 
   // Optional.
-  // If not set, the zero value specifies it is an UNKNOWN metric type.
   MetricType type = 2;
 
   // Optional.
-  // STATE_SETs and INFO types must not have a unit.
-  // Must match the regexp [a-zA-Z_:][a-zA-Z0-9_:]*.
-  // If unit set, if MUST be a suffix on the metric name too. If the 
-  // original name of the metric was "foo" and the unit was "seconds" 
-  // then the name must be specified as "foo_seconds".
   string unit = 3;
 
   // Optional.
-  // Description of the metric family.
   string help = 4;
 
   // Optional.
@@ -50,36 +34,30 @@ message MetricFamily {
 
 // The type of a metric.
 enum MetricType {
-  // Unknown must use double point values.
+  // Unknown must use unknown point values.
   UNKNOWN = 0;
-  // Gauge must use double point values.
+  // Gauge must use gauge point values.
   GAUGE = 1;
-  // Counter must use double point values or int values.
+  // Counter must use counter point values.
   COUNTER = 2;
   // State set must use state set value points.
   STATE_SET = 3;
   // Info must use info value points.
   INFO = 4;
-  // Cumulative histogram must use histogram value points.
-  CUMULATIVE_HISTOGRAM = 5;
+  // Histogram must use histogram value points.
+  HISTOGRAM = 5;
   // Gauge histogram must use histogram value points.
   GAUGE_HISTOGRAM = 6;
   // Summary quantiles must use summary value points.
   SUMMARY = 7;
 }
 
-// A single metric must have a unique set of labels within 
-// the metric family that it is contained by.
+// A single metric with a unique set of labels within a metric family.
 message Metric {
   // Optional.
-  // Labels applying to all points, must be unique.
   repeated Label labels = 1;
 
   // Optional.
-  // If there is more than one point, all must have a timestamp field
-  // and they must be in increasing order of timestamp.
-  // If there is only one point and has no timestamp field, the receiver
-  // will assign a timestamp.
   repeated Point points = 2;
 }
 
@@ -97,159 +75,100 @@ message Label {
 message Point {
   // Required.
   oneof value {
-    double double_value = 1;
-    int64 int_value = 2;
-    HistogramValue histogram_value = 3;
-    StateSetValue state_set_value = 4;
-    InfoValue info_value = 5;
-    SummaryValue summary_value = 6;
+    UnknownValue unknown_value = 1;
+    GaugeValue gauge_value = 2;
+    CounterValue counter_value = 3;
+    HistogramValue histogram_value = 4;
+    StateSetValue state_set_value = 5;
+    InfoValue info_value = 6;
+    SummaryValue summary_value = 7;
   }
 
-  // Optional, but SHOULD be specified for COUNTER, SUMMARY or
-  // CUMULATIVE_HISTOGRAM type.
-  //
-  // The cumulative value is over the time interval 
-  // (start_timestamp, timestamp].
-  // If start_timestamp is present and timestamp is absent,
-  // the backend assigned timestamp may be used to construct the time
-  // interval.
-  google.protobuf.Timestamp start_timestamp = 7;
-
   // Optional.
-  // If not specified, the timestamp will be decided by the backend.
   google.protobuf.Timestamp timestamp = 8;
 }
 
-// Value for CUMULATIVE_HISTOGRAM or GAUGE_HISTOGRAM point.
-message HistogramValue {
-  // Optional, but SHOULD be specified.
-  double sum = 1;
-
-  // Optional, but SHOULD be specified.
-  uint64 count = 2;
-
+// Value for UNKNOWN point.
+message UnknownValue {
   // Required.
-  BucketOptions bucket_options = 3;
+  oneof value {
+    double double_value = 1;
+    int64 int_value = 2;
+  }
+}
 
-  // `BucketOptions` describes the bucket boundaries used to create a
-  // histogram. The buckets can be in a linear sequence, an
-  // exponential sequence, or each bucket can be specified explicitly.
-  // `BucketOptions` does not include the number of values in each bucket.
-  //
-  // A bucket has no lower bound and an inclusive upper bound for the
-  // values that are counted for that bucket. That is, buckets are
-  // cumulative. The upper bound of successive buckets must be increasing.
-  // There is an implicit overflow bucket that extends up to +infinity.
-  message BucketOptions {
-    // Exactly one of these three fields must be set.
-    oneof options {
-      // The linear bucket.
-      Linear linear_buckets = 1;
+// Value for GAUGE point.
+message GaugeValue {
+  // Required.
+  oneof value {
+    double double_value = 1;
+    int64 int_value = 2;
+  }
+}
 
-      // The exponential buckets.
-      Exponential exponential_buckets = 2;
-
-      // The explicit buckets.
-      Explicit explicit_buckets = 3;
-    }
-
-    // Specifies a linear sequence of buckets that add the same constant width
-    // to the previous bucket (except the overflow bucket). This implies
-    // a constant absolute uncertainty on the specific value of a sample.
-    //
-    // There are `num_explicit_buckets` (N) buckets plus the overflow
-    // bucket. Bucket `i` (0 <= i < N) has upper bound : offset + (width * i).
-    // Note that when offset = 0, bucket 0 represents the interval [0, 0].
-    message Linear {
-      // Required.
-      // Must be greater than 0.
-      uint32 num_explicit_buckets = 1;
-
-      // Required.
-      // Must be greater than 0.
-      double width = 2;
-
-      // Required.
-      double offset = 3;
-    }
-
-    // Specifies an exponential sequence of buckets that have an upper bound
-    // that is proportional to the value of the upper bound of the previous
-    // bucket. This implies a constant relative uncertainty on the specific
-    // value of a sample.
-    //
-    // There are `num_exponential_buckets` + 1 (N) buckets plus the overflow
-    // bucket.
-    // Bucket 0 represents the interval [0, 0].
-    // Bucket `i` (1 <= i < N) has upper bound:
-    //   scale * (growth_factor ^ (i - 1)).
-    message Exponential {
-      // Required.
-      // Must be greater than 0.
-      uint32 num_exponential_buckets = 1;
-
-      // Required.
-      // Must be greater than 1.
-      double growth_factor = 2;
-
-      // Required.
-      // Must be greater than 0.
-      double scale = 3;
-    }
-
-    // Specifies a set of buckets with arbitrary upper-bounds.
-    //
-    // There are `size(bounds)` (N) explicit buckets plus the overflow bucket.
-    // Bucket `i` has upper bound: bounds[i].
-    // The `bounds` field must contain at least one element.
-    message Explicit {
-      // Optional, but SHOULD set it.
-      // The values must be monotonically increasing.
-      repeated double bounds = 1;
-    }
+// Value for COUNTER point.
+message CounterValue {
+  // Required.
+  oneof total {
+    double double_value = 1;
+    uint64 int_value = 2;
   }
 
-  // The number of values in each bucket of the histogram, as described in
-  // `bucket_options`.
-  //
-  // `bucket_counts` must contain N + 1 values. The sum of BucketCount::counts
-  // must equal HistogramValue::count.
-  //
-  // The order of the values in `bucket_counts` follows the bucket numbering
-  // schemes described for the three bucket types.
-  repeated BucketCount bucket_counts = 4;
+  // The time values began being collected for this counter.
+  // Optional.
+  google.protobuf.Timestamp created = 3;
 
-  message BucketCount {
+  // Optional.
+  Exemplar exemplar = 4;
+}
+
+// Value for HISTOGRAM or GAUGE_HISTOGRAM point.
+message HistogramValue {
+  // Optional.
+  oneof sum {
+    double double_value = 1;
+    int64 int_value = 2;
+  }
+
+  // Optional.
+  uint64 count = 3;
+
+  // The time values began being collected for this histogram.
+  // Optional.
+  google.protobuf.Timestamp created = 4;
+
+  // Optional.
+  repeated Bucket buckets = 5;
+
+  // Bucket is the number of values for a bucket in the histogram
+  // with an optional exemplar.
+  message Bucket {  
     // Required.
-    // Count is the number of values for a bucket of the histogram.
     uint64 count = 1;
 
     // Optional.
-    // An example of a value that fell into this bucket.
-    Exemplar exemplar = 2;
+    double upper_bound = 2;
 
-    message Exemplar {
-      // Required.
-      // The value of the exemplar.
-      double value = 1;
-
-      // Optional, but SHOULD set it.
-      // The timestamp of the exemplar.
-      google.protobuf.Timestamp timestamp = 2;
-
-      // Optional.
-      // Additional information about the exemplar value (e.g. trace id).
-      // The sum of lengths of all the strings in all the labels must not
-      // exceed 64 UTF-8 characters.
-      repeated Label label = 3;
-    }
+    // Optional.
+    Exemplar exemplar = 3;
   }
+}
+
+message Exemplar {
+  // Required.
+  double value = 1;
+
+  // Optional.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // Labels are additional information about the exemplar value (e.g. trace id).
+  // Optional.
+  repeated Label label = 3;
 }
 
 // Value for STATE_SET point.
 message StateSetValue {
-  // Optional, should set at least one.
-  // Each state must have a unique name. Any number of states may be enabled.
+  // Optional.
   repeated State states = 1;
 
   message State {
@@ -263,27 +182,30 @@ message StateSetValue {
 
 // Value for INFO point.
 message InfoValue {
-  // Optional, but SHOULD set it.
+  // Optional.
   repeated Label info = 1;
 }
 
-// Value for SUMMARY point. The start_timestamp of the Point only applies to 
-// the sum and count. The quantiles can be reset at arbitrary unknown times.
+// Value for SUMMARY point.
 message SummaryValue {
-  // Optional, but SHOULD be specified. 
-  // This is for compatibility since some common systems do not expose them.
-  double sum = 1;
+  // Optional. 
+  oneof sum {
+    double double_value = 1;
+    int64 int_value = 2;
+  }
 
-  // Optional, but SHOULD be specified. 
-  // This is for compatibility since some common systems do not expose them.
+  // Optional. 
   uint64 count = 2;
 
+  // The time sum and count values began being collected for this summary.
   // Optional.
-  repeated Quantile quantile = 3;
+  google.protobuf.Timestamp created = 3;
+
+  // Optional.
+  repeated Quantile quantile = 4;
 
   message Quantile {
     // Required. 
-    // Must be in the interval [0.0, 1.0].
     double quantile = 1;
 
     // Required.
