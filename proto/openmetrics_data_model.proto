@@ -9,12 +9,12 @@ import "google/protobuf/timestamp.proto";
 
 // The top-level container type that is encoded and sent over the wire.
 message MetricSet {
-  // Each MetricPoints has one or more points for a single metric.
+  // Each MetricFamily has one or more MetricPoints for a single Metric.
   repeated MetricFamily metric_families = 1;
 }
 
-// One or more metrics for a single metric family, where each metric
-// has one or more points.
+// One or more Metrics for a single MetricFamily, where each Metric
+// has one or more MetricPoints.
 message MetricFamily {
   // Required.
   string name = 1;
@@ -32,23 +32,23 @@ message MetricFamily {
   repeated Metric metrics = 5;
 }
 
-// The type of a metric.
+// The type of a Metric.
 enum MetricType {
-  // Unknown must use unknown point values.
+  // Unknown must use unknown MetricPoint values.
   UNKNOWN = 0;
-  // Gauge must use gauge point values.
+  // Gauge must use gauge MetricPoint values.
   GAUGE = 1;
-  // Counter must use counter point values.
+  // Counter must use counter MetricPoint values.
   COUNTER = 2;
-  // State set must use state set value points.
+  // State set must use state set MetricPoint values.
   STATE_SET = 3;
-  // Info must use info value points.
+  // Info must use info MetricPoint values.
   INFO = 4;
-  // Histogram must use histogram value points.
+  // Histogram must use histogram value MetricPoint values.
   HISTOGRAM = 5;
-  // Gauge histogram must use histogram value points.
+  // Gauge histogram must use histogram value MetricPoint values.
   GAUGE_HISTOGRAM = 6;
-  // Summary quantiles must use summary value points.
+  // Summary quantiles must use summary value MetricPoint values.
   SUMMARY = 7;
 }
 
@@ -58,7 +58,7 @@ message Metric {
   repeated Label labels = 1;
 
   // Optional.
-  repeated Point points = 2;
+  repeated MetricPoint points = 2;
 }
 
 // A name-value pair. These are used in multiple places: identifying
@@ -72,7 +72,7 @@ message Label {
 }
 
 // A point in a metric.
-message Point {
+message MetricPoint {
   // Required.
   oneof value {
     UnknownValue unknown_value = 1;
@@ -88,7 +88,7 @@ message Point {
   google.protobuf.Timestamp timestamp = 8;
 }
 
-// Value for UNKNOWN point.
+// Value for UNKNOWN MetricPoint.
 message UnknownValue {
   // Required.
   oneof value {
@@ -97,7 +97,7 @@ message UnknownValue {
   }
 }
 
-// Value for GAUGE point.
+// Value for GAUGE MetricPoint.
 message GaugeValue {
   // Required.
   oneof value {
@@ -106,7 +106,7 @@ message GaugeValue {
   }
 }
 
-// Value for COUNTER point.
+// Value for COUNTER MetricPoint.
 message CounterValue {
   // Required.
   oneof total {
@@ -122,7 +122,7 @@ message CounterValue {
   Exemplar exemplar = 4;
 }
 
-// Value for HISTOGRAM or GAUGE_HISTOGRAM point.
+// Value for HISTOGRAM or GAUGE_HISTOGRAM MetricPoint.
 message HistogramValue {
   // Optional.
   oneof sum {
@@ -166,7 +166,7 @@ message Exemplar {
   repeated Label label = 3;
 }
 
-// Value for STATE_SET point.
+// Value for STATE_SET MetricPoint.
 message StateSetValue {
   // Optional.
   repeated State states = 1;
@@ -180,13 +180,13 @@ message StateSetValue {
   }
 }
 
-// Value for INFO point.
+// Value for INFO MetricPoint.
 message InfoValue {
   // Optional.
   repeated Label info = 1;
 }
 
-// Value for SUMMARY point.
+// Value for SUMMARY MetricPoint.
 message SummaryValue {
   // Optional. 
   oneof sum {
