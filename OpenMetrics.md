@@ -362,7 +362,6 @@ Integer numbers MUST NOT have a decimal point. Examples are “23”, “0042”
 
 Floating point numbers MUST be represented either with a decimal point or using scientific notation. Examples are “8903.123421” and ”1.89e-7”. Floating point numbers MUST fit within the range of a 64-bit floating point value as defined by IEEE 754, but MAY require so many bits in the mantissa that results in lost precision. This MAY be used to encode nanosecond resolution timestamps.
 
-EDITORS NOTE: “le” & “quantile” labels are described in “Wire format -> Text format -> Metric types -> Summary/Histogram”
 Arbitrary integer and floating point rendering of numbers MUST NOT be used for “quantile” and “le” label values as in section “Canonical Numbers”. They MAY be used anywhere else numbers are used.
 
 ##### Considerations: Canonical Numbers
