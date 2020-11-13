@@ -5,7 +5,7 @@ disableKinds: [taxonomy, taxonomyTerm]
 
 params:
   description: |
-    An effort to create an open standard for transmitting metrics at scale, with support for both [text representation](https://prometheus.io/docs/instrumenting/exposition_formats/#text-based-format) and [Protocol Buffers](https://developers.google.com/protocol-buffers/).
+    OpenMetrics is [released](https://github.com/OpenObservability/OpenMetrics/blob/master/OpenMetrics.md). It creates an open standard for transmitting metrics at scale, with support for both text representation and Protocol Buffers.
   subdescription: |
-    OpenMetrics is **coming soon**. You can track the project's progress in the [OpenMetrics](https://github.com/OpenObservability/OpenMetrics) repository on GitHub or on the [OpenMetrics mailing list](https://groups.google.com/forum/m/#!forum/openmetrics).
+    You can track the project's progress on the [OpenMetrics mailing list](https://groups.google.com/forum/m/#!forum/openmetrics).
   favicon: /images/logo/logo.png
