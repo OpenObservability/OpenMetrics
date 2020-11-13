@@ -58,7 +58,7 @@ message Metric {
   repeated Label labels = 1;
 
   // Optional.
-  repeated MetricPoint points = 2;
+  repeated MetricPoint metric_points = 2;
 }
 
 // A name-value pair. These are used in multiple places: identifying
@@ -71,7 +71,7 @@ message Label {
   string value = 2;
 }
 
-// A point in a metric.
+// A MetricPoint in a Metric.
 message MetricPoint {
   // Required.
   oneof value {
