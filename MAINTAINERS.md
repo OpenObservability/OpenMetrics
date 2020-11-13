@@ -1,6 +1,8 @@
 * Ben Kochie
 * Brian Brazil
-* Jerome Froe
 * Richard Hartmann
 * Rob Skillington
+
+# Emeritus
+
 * Sumeer Bhola
