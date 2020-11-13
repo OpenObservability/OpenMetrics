@@ -353,7 +353,7 @@ An example of a complete exposition:
 ````
 # TYPE acme_http_router_request_seconds summary
 # UNIT acme_http_router_request_seconds seconds
-# HELP acme_http_router_request_seconds Latency though all of ACME's HTTP request router
+# HELP acme_http_router_request_seconds Latency though all of ACME's HTTP request router.
 acme_http_router_request_seconds_sum{path="/api/v1",method="GET"} 9036.32
 acme_http_router_request_seconds_count{path="/api/v1",method="GET"} 807283.0
 acme_http_router_request_seconds_created{path="/api/v1",method="GET"} 1605281325.0
