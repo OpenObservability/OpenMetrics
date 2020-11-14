@@ -6,7 +6,7 @@ With OpenMetrics, we are cleaning up and tightening the specification with the e
 
 Given the wide adoption and significant coordination requirements in the ecosystem, sweeping changes to either the Prometheus exposition format 0.0.4 or OpenMetrics 1.0 are considered out of scope.
 
-#Overview
+# Overview
 
 Metrics are a specific kind of telemetry data. They represent a snapshot of the current state for a set of data. They are distinct from logs or events, which focus on records or information about individual events.
 
@@ -24,7 +24,7 @@ Common examples of metric time series would be network interface counters, devic
 
 # Data Model
 
-This section MUST be read together with the ANBF section. In case of disagreements between the two, the  ABNF’s restrictions MUST take precedence. This reduces repetition as the text wire format MUST be supported.
+This section MUST be read together with the ABNF section. In case of disagreements between the two, the  ABNF’s restrictions MUST take precedence. This reduces repetition as the text wire format MUST be supported.
 
 ## Data Types
 
