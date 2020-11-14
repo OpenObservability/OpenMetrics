@@ -14,4 +14,4 @@ See [our spec file](OpenMetrics.md) and [our proto](proto/openmetrics_data_model
 Join the [mailing list](https://groups.google.com/forum/m/#!forum/openmetrics) or follow us on [Twitter](https://twitter.com/OpenMetricsIO)
 
 # Code of Conduct
-To make Prometheus a welcoming and harassment-free experience for everyone, we follow the [CNCF Code of Conduct](https://github.com/cncf/foundation/blob/master/code-of-conduct.md).
+To make OpenMetrics a welcoming and harassment-free experience for everyone, we follow the [CNCF Code of Conduct](https://github.com/cncf/foundation/blob/master/code-of-conduct.md).
