@@ -34,7 +34,7 @@ Metric values in OpenMetrics MUST be either floating points or integers. Note th
 
 #### Booleans
 
-Booolean values MUST follow 1==true, 0==false.
+Boolean values MUST follow 1==true, 0==false.
 
 ### Timestamps
 
