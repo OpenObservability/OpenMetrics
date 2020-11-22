@@ -9,7 +9,7 @@ OpenMetrics a specification built upon and carefully extending [Prometheus expos
 
 See [our spec file](OpenMetrics.md) and [our proto](proto/openmetrics_data_model.proto).
 
-# Mailing list
+# News and updates
 
 Join the [mailing list](https://groups.google.com/forum/m/#!forum/openmetrics) or follow us on [Twitter](https://twitter.com/OpenMetricsIO)
 
