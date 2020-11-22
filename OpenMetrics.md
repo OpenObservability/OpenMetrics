@@ -1,12 +1,76 @@
-{:toc}
+---
+title: OpenMetrics, a cloud-native, highly scalable metrics protocol
+abbrev: OpenMetrics
+docname: draft-ietf-opsawg-openmetrics-00
+category: std
 
-# Rationale
+area: General
+workgroup: Ops WG
+keyword: Internet-Draft
+
+stand_alone: yes
+pi: [toc, sortrefs, symrefs]
+
+author:
+ -  role: editor
+    ins: R. Hartmann
+    name: Richard Hartmann
+    organization: Grafana Labs
+    email: richih@richih.org
+ -  ins: B. Kochie
+    name: Ben Kochie
+    organization: GitLab
+    email: superq@gmail.com
+ -  ins: B. Brazil
+    name: Brian Brazil
+    organization: Robust Perception
+    email: brian.brazil@gmail.com
+ -  ins: R. Skillington
+    name: Rob Skillington
+    organization: Chronosphere
+    email: rob.skillington@gmail.com
+
+contributor:
+ -  ins: S. Bhola
+    name: Sumeer Bhola
+    organization: TODO Organization
+    email: todo@example.com
+
+normative:
+  RFC2119:
+  RFC5234:
+  RFC8174:
+
+informative:
+  normalization:
+    target: https://en.wikipedia.org/wiki/Database_normalization
+    title: Database Normalization
+  PrometheusPorts:
+    target: https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+    title: Prometheus informal port allocation
+
+--- abstract
+
+TODO
+
+--- note_
+
+**This document is a work in progress and has not yet been published
+as an Internet Draft.**
+
+--- middle
+
+# Introduction
 
 Created in 2012, Prometheus has been the default for cloud-native observability since 2015. A central part of Prometheus design is its text metric exposition format, called the Prometheus exposition format 0.0.4, stable since 2014. In this format, special care has been taken to make it easy to generate, to ingest, and to understand by humans. As of 2020, there are more than 700 publicly listed exporters, an unknown number of unlisted exporters, and thousands of native library integrations using this format. Dozens of ingestors from various projects and companies support consuming it.
 
 With OpenMetrics, we are cleaning up and tightening the specification with the express purpose of bringing it into IETF. We are documenting a working standard with wide and organic adoption while introducing minimal, largely backwards-compatible, and well-considered changes. As of 2020, dozens of exporters, integrations, and ingestors use and preferentially negotiate OpenMetrics already.
 
 Given the wide adoption and significant coordination requirements in the ecosystem, sweeping changes to either the Prometheus exposition format 0.0.4 or OpenMetrics 1.0 are considered out of scope.
+
+## Requirements Language
+
+{::boilerplate bcp14}
 
 # Overview
 
@@ -164,6 +228,7 @@ A StateSet Metric's LabelSet MUST NOT have a label name which is the same as the
 If encoded as a StateSet, ENUMs MUST have exactly one Boolean which is true within a MetricPoint.
 
 This is suitable where the enum value changes over time, and the number of States isn't much more than a handful.
+
 EDITOR’S NOTE: This might be better as Consideration
 
 MetricFamilies of type StateSets MUST have an empty Unit string.
@@ -196,6 +261,7 @@ A Histogram MetricPoint SHOULD have a Timestamp value called Created. This can h
 A Histogram's Metric's LabelSet MUST NOT have a "le" label name.
 
 Bucket values MAY have exemplars. Buckets are cumulative to allow monitoring systems to drop any non-+Inf bucket for performance/anti-denial-of-service reasons in a way that loses granularity but is still a valid Histogram.
+
 EDITOR’S NOTE: The second sentence is a consideration, it can be moved if needed
 
 Each bucket covers the values less and or equal to it, and the value of the exemplar MUST be within this range. Exemplars SHOULD be put into the bucket with the highest value. A bucket MUST NOT have more than one exemplar.
@@ -260,11 +326,12 @@ Text format
 ### ABNF
 
 ABNF as per RFC 5234
+
 EDITOR’S NOTE: Should we update to RFC 7405, in particular the case insensitive bits?
 
 “exposition” is the top level token of the ABNF.
 
-~~~~
+~~~~ abnf
 exposition = metricset HASH SP eof [ LF ]
 
 metricset = *metricfamily
@@ -1077,7 +1144,9 @@ Exposition SHOULD be of the most recent state. For example, a thread serving the
 For high availability and ad-hoc access a common approach is to have multiple ingestors. To support this, concurrent expositions MUST be supported. All BCPs for concurrent systems SHOULD be followed, common pitfalls include deadlocks, race conditions, and overly-coarse grained locking preventing expositions progressing concurrently.
 
 ## Metric Naming and Namespaces
+
 EDITOR’S NOTE: This section might be good for a BCP paper.
+
 We aim for a balance between understandability, avoiding clashes, and succinctness in the naming of metrics and label names. Names are separated through underscores, so metric names end up being in “snake_case”.
 
 To take an example “http_request_seconds” is succinct but would clash between large numbers of applications, and it's also unclear exactly what this metric is measuring. For example, it might be before or after auth middleware in a complex system.
@@ -1129,7 +1198,7 @@ wrong_metric{label="b"} 6
 wrong_metric{label="total"} 7
 ~~~~
 
-Labels of a Metric should be to the minimum needed to ensure uniqueness as every extra label is one more that users need to consider when determining what Labels to work with downstream. Labels which could be applied many MetricFamilies are candidates for being moved into _info metrics similar to [database normalization](https://en.wikipedia.org/wiki/Database_normalization). If virtually all users of a Metric could be expected to want the additional label, it may be a better trade-off to add it to all MetricFamilies. For example if you had a MetricFamily relating to different SQL statements where uniqueness was provided by a label containing a hash of the full SQL statements, it would be okay to have another label with the first 500 characters of the SQL statement for human readability.
+Labels of a Metric should be to the minimum needed to ensure uniqueness as every extra label is one more that users need to consider when determining what Labels to work with downstream. Labels which could be applied many MetricFamilies are candidates for being moved into _info metrics similar to database {{normalization}}. If virtually all users of a Metric could be expected to want the additional label, it may be a better trade-off to add it to all MetricFamilies. For example if you had a MetricFamily relating to different SQL statements where uniqueness was provided by a label containing a hash of the full SQL statements, it would be okay to have another label with the first 500 characters of the SQL statement for human readability.
 
 Experience has shown that downstream ingestors find it easier to work with separate total and failure MetricFamiles rather than using {result="success"} and {result="failure"} Labels within one MetricFamily. Also it is usually better to expose separate read & write and send & receive MetricFamiles as full duplex systems are common and downstream ingestors are more likely to care about those values separately than in aggregate.
 
@@ -1285,7 +1354,7 @@ If all targets of a particular type are exposing the same set of time series, th
 
 There is a hard 128 UTF-8 character limit on exemplar length, to prevent misuse of the feature for tracing span data and other event logging.
 
-# Security Considerations
+# Security Considerations {#IANA}
 
 Implementors MAY choose to offer authentication, authorization, and accounting; if they so choose, this SHOULD be handled outside of OpenMetrics.
 
@@ -1294,14 +1363,16 @@ If an exposer implementation does not support encryption, operators SHOULD use r
 
 Metric exposition should be independent of production services exposed to end users; as such, having a /metrics endpoint on ports like TCP/80, TCP/443, TCP/8080, and TCP/8443 is generally discouraged for publicly exposed services using OpenMetrics.
 
-# IANA Considerations
+# IANA Considerations {#Security}
 
-While currently most implementations of the Prometheus exposition format are using non-IANA-registered ports from an [informal registry](https://github.com/prometheus/prometheus/wiki/Default-port-allocations), OpenMetrics can be found on a well-defined port.
+While currently most implementations of the Prometheus exposition format are using non-IANA-registered ports from an informal registry at {{PrometheusPorts}}, OpenMetrics can be found on a well-defined port.
 
 The port assigned by IANA for clients exposing data is <9099 requested for historical consistency>.
 
 If more than one metric endpoint needs to be reachable at a common IP address and port, operators might consider using a reverse proxy that communicates with exposers over localhost addresses. To ease multiplexing, endpoints SHOULD carry their own name in their path, i.e. `/node_exporter/metrics`. Expositions SHOULD NOT be combined into one exposition, for the reasons covered under "Supporting target metadata in both push-based and pull-based systems" and to allow for independent ingestion without a single point of failure.
 
 OpenMetrics would like to register two MIME types, `application/openmetrics-text` and `application/openmetrics-proto`.
+
 EDITOR’S NOTE: `application/openmetrics-text` is in active use since 2018, `application/openmetrics-proto` is not yet in active use.
 
+--- back
