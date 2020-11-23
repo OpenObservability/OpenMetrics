@@ -51,7 +51,7 @@ informative:
 
 --- abstract
 
-TODO
+OpenMetrics specifies today's de-facto standard for transmitting cloud-native metrics at scale, with support for both text representation and Protocol Buffers and brings it into IETF. It supports both pull and push-based data collection.
 
 --- note_
 
