@@ -1,4 +1,4 @@
 # TYPE a counter
-# HELP a help
+# HELP a 
 a_total 1
 # EOF
