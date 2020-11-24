@@ -52,4 +52,8 @@ foo_bucket{le="+Inf"} 17.0
 foo_count 17.0
 foo_sum 324789.3
 foo_created 1.520430000123e+09
+# HELP bar histogram Testing with labels
+# TYPE bar histogram
+bar_bucket{a="b",le="+Inf"} 0.0
+bar_bucket{a="c",le="+Inf"} 0.0
 # EOF

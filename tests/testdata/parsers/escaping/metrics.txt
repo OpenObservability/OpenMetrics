@@ -2,4 +2,6 @@
 # HELP a he\n\\l\tp
 a_total{foo="b\"a\nr"} 1
 a_total{foo="b\\a\z"} 2
+a_total{foo="b\"a\nr # "} 3
+a_total{foo="b\\a\z # "} 4
 # EOF

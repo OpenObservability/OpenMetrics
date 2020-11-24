@@ -1,4 +1,4 @@
-# TYPE a gaugehistogram
+# TYPE a histogram
 a_bucket{le=" Inf"} 0
-a_gcount 0
+#a_count 0
 # EOF
