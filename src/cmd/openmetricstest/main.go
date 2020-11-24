@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 type code int
@@ -133,8 +134,16 @@ func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
 
 	switch test.Type {
 	case "text":
+		var testArgs []string
 		testCmd := opts.cmdTestParserText
-		cmd := exec.Command(testCmd)
+		if strings.Contains(testCmd, " ") {
+			// Extrapolate the rest of command as arguments.
+			split := strings.Split(testCmd, " ")
+			testCmd = split[0]
+			testArgs = split[1:]
+		}
+
+		cmd := exec.Command(testCmd, testArgs...)
 
 		stdin, err := cmd.StdinPipe()
 		if err != nil {
@@ -147,6 +156,9 @@ func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
 
 		if _, err := stdin.Write(input); err != nil {
 			return result, fmt.Errorf("cannot write input: %v", err)
+		}
+		if err := stdin.Close(); err != nil {
+			return result, fmt.Errorf("cannot close input: %v", err)
 		}
 
 		// Run validators on result and collect failures
