@@ -363,13 +363,15 @@ Internet-Draft                 OpenMetrics                 November 2020
 
    o  Gauge: '' (empty)
 
+   o  StateSet: '' (empty)
+
    o  Unknown: '' (empty)
 
 3.1.9.2.  Type
 
    Type specifies the MetricFamily type.  Valid values are "unknown",
-   "gauge", "counter", "stateset", "info", "histogram", "gauge-
-   histogram", and "summary".
+   "gauge", "counter", "stateset", "info", "histogram",
+   "gaugehistogram", and "summary".
 
 3.1.9.3.  Unit
 
@@ -382,8 +384,6 @@ Internet-Draft                 OpenMetrics                 November 2020
    Help is a string and SHOULD non-empty.  It is used to give a brief
    description of the MetricFamily for human consumption and SHOULD be
    short enough to be used as a tooltip.
-
-
 
 
 
