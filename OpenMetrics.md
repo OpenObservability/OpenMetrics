@@ -30,12 +30,6 @@ author:
     organization: Chronosphere
     email: rob.skillington@gmail.com
 
-contributor:
- -  ins: S. Bhola
-    name: Sumeer Bhola
-    organization: TODO Organization
-    email: todo@example.com
-
 normative:
   RFC2119:
   RFC5234:
@@ -1374,5 +1368,7 @@ If more than one metric endpoint needs to be reachable at a common IP address an
 OpenMetrics would like to register two MIME types, `application/openmetrics-text` and `application/openmetrics-proto`.
 
 EDITOR’S NOTE: `application/openmetrics-text` is in active use since 2018, `application/openmetrics-proto` is not yet in active use.
+
+EDITOR'S NOTE: We would like to thank Sumeer Bhola, but kramdown 2.x does not support `Contributor:` any more so we will add this by hand once consensus has been achieved.
 
 --- back
