@@ -42,15 +42,13 @@ informative:
   PrometheusPorts:
     target: https://github.com/prometheus/prometheus/wiki/Default-port-allocations
     title: Prometheus informal port allocation
+  timestamp:
+    target: https://github.com/protocolbuffers/protobuf/blob/2f6a7546e4539499bc08abc6900dc929782f5dcd/src/google/protobuf/timestamp.proto
+    title: Go Timestamp ProtoBuf
 
 --- abstract
 
 OpenMetrics specifies today's de-facto standard for transmitting cloud-native metrics at scale, with support for both text representation and Protocol Buffers and brings it into IETF. It supports both pull and push-based data collection.
-
---- note_
-
-**This document is a work in progress and has not yet been published
-as an Internet Draft.**
 
 --- middle
 
@@ -356,13 +354,14 @@ number =/ "nan"
 
 timestamp = realnumber
 
-; Not 100% sure this captures all float corner cases. Leading 0s explicitly okay
+; Not 100% sure this captures all float corner cases.
+; Leading 0s explicitly okay
 realnumber = [SIGN] 1*DIGIT
 realnumber =/ [SIGN] 1*DIGIT ["." *DIGIT] [ "e" [SIGN] 1*DIGIT ]
 realnumber =/ [SIGN] *DIGIT "." 1*DIGIT [ "e" [SIGN] 1*DIGIT ]
 
 
-; RFC 5234 is case insensitive, so we need to specify these by ASCII value.
+; RFC 5234 is case insensitive.
 ; Uppercase
 eof = %d69.79.70
 type = %d84.89.80.69
@@ -821,15 +820,17 @@ All string fields MUST be UTF-8 encoded.
 
 #### Timestamps
 
-Timestamp representations in the OpenMetrics protobuf schema MUST follow the published  google.protobuf.Timestamp (https://github.com/protocolbuffers/protobuf/blob/2f6a7546e4539499bc08abc6900dc929782f5dcd/src/google/protobuf/timestamp.proto) message. The timestamp message MUST be in Unix epoch seconds as an int64 and a non-negative fraction of a second at nanosecond resolution as an int32 that counts forward from the seconds timestamp component. It MUST be within 0 to 999,999,999 inclusive.
+Timestamp representations in the OpenMetrics protobuf schema MUST follow the published google.protobuf.Timestamp [timestamp] message. The timestamp message MUST be in Unix epoch seconds as an int64 and a non-negative fraction of a second at nanosecond resolution as an int32 that counts forward from the seconds timestamp component. It MUST be within 0 to 999,999,999 inclusive.
 
 ### Protobuf schema
 
 ~~~~
 syntax = "proto3";
 
-// The OpenMetrics protobuf schema which defines the protobuf wire format. 
-// Ensure to interpret "required" as semantically required for a valid message.
+// The OpenMetrics protobuf schema which defines the protobuf wire
+// format.
+// Ensure to interpret "required" as semantically required for a valid
+// message.
 // All string fields MUST be UTF-8 encoded strings.
 package openmetrics;
 
@@ -989,7 +990,8 @@ message Exemplar {
   // Optional.
   google.protobuf.Timestamp timestamp = 2;
 
-  // Labels are additional information about the exemplar value (e.g. trace id).
+  // Labels are additional information about the exemplar value
+  // (e.g. trace id).
   // Optional.
   repeated Label label = 3;
 }
@@ -1025,7 +1027,8 @@ message SummaryValue {
   // Optional.
   uint64 count = 2;
 
-  // The time sum and count values began being collected for this summary.
+  // The time sum and count values began being collected for this
+  // summary.
   // Optional.
   google.protobuf.Timestamp created = 3;
 
@@ -1231,7 +1234,7 @@ Generally, the same Label should not appear on every Metric of an exposition, bu
 
 Exposers can expose exposer metadata as Info MetricFamilies.
 
-The above discussion is in the context of individual exposers. An exposition from a general purpose monitoring system may contain metrics from many individual targets, and thus may expose multiple target info Metrics. The metrics may already have had target metadata added to them as labels as part of ingestion. The metric names MUST not be varied based on target metadata. For example it would be incorrect for all metrics to end up being prefixed with staging_ even if they all originated from targets in a staging environment).
+The above discussion is in the context of individual exposers. An exposition from a general purpose monitoring system may contain metrics from many individual targets, and thus may expose multiple target info Metrics. The metrics may already have had target metadata added to them as labels as part of ingestion. The metric names MUST NOT be varied based on target metadata. For example it would be incorrect for all metrics to end up being prefixed with staging_ even if they all originated from targets in a staging environment).
 
 ## Client Calculations and Derived Metrics
 
