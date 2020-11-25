@@ -7,7 +7,7 @@ OpenMetrics a specification built upon and carefully extending [Prometheus expos
 
 # Spec
 
-See [our spec file](OpenMetrics.md) and [our proto](proto/openmetrics_data_model.proto).
+See [our spec file](specification/OpenMetrics.md) and [our proto](proto/openmetrics_data_model.proto).
 
 # News and updates
 
