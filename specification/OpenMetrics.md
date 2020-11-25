@@ -161,11 +161,12 @@ Exposers SHOULD avoid names that could be confused with the suffixes that text f
 * GaugeHistogram: '_gcount', '_gsum', '_bucket'
 * Info: '_info'
 * Gauge: '' (empty)
+* StateSet: '' (empty)
 * Unknown: '' (empty)
 
 #### Type
 
-Type specifies the MetricFamily type. Valid values are "unknown", "gauge", "counter", "stateset", "info", "histogram", "gauge-histogram", and "summary".
+Type specifies the MetricFamily type. Valid values are "unknown", "gauge", "counter", "stateset", "info", "histogram", "gaugehistogram", and "summary".
 
 #### Unit
 
