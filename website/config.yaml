@@ -5,7 +5,7 @@ disableKinds: [taxonomy, taxonomyTerm]
 
 params:
   description: |
-    OpenMetrics is [released](https://github.com/OpenObservability/OpenMetrics/blob/master/OpenMetrics.md). It specifies the de-facto standard for transmitting cloud-native metrics at scale, with support for both text representation and Protocol Buffers.
+    OpenMetrics is [released](https://github.com/OpenObservability/OpenMetrics/blob/master/specification/OpenMetrics.md). It specifies the de-facto standard for transmitting cloud-native metrics at scale, with support for both text representation and Protocol Buffers.
   subdescription: |
     You can track the project's progress on the [OpenMetrics mailing list](https://groups.google.com/forum/m/#!forum/openmetrics).
   favicon: /images/logo/logo.png
