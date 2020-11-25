@@ -11,3 +11,6 @@ resources/
 # Binaries
 bin/
 
+# Ignore kdrfc working files
+OpenMetrics.xml
+.refcache/
