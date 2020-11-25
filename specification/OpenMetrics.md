@@ -1,7 +1,7 @@
 ---
 title: OpenMetrics, a cloud-native, highly scalable metrics protocol
 abbrev: OpenMetrics
-docname: draft-ietf-opsawg-openmetrics-00
+docname: draft-richih-opsawg-openmetrics-00
 category: std
 
 area: General
