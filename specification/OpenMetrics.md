@@ -1352,7 +1352,7 @@ If all targets of a particular type are exposing the same set of time series, th
 
 There is a hard 128 UTF-8 character limit on exemplar length, to prevent misuse of the feature for tracing span data and other event logging.
 
-# Security Considerations {#IANA}
+# Security Considerations {#Security}
 
 Implementors MAY choose to offer authentication, authorization, and accounting; if they so choose, this SHOULD be handled outside of OpenMetrics.
 
@@ -1361,7 +1361,7 @@ If an exposer implementation does not support encryption, operators SHOULD use r
 
 Metric exposition should be independent of production services exposed to end users; as such, having a /metrics endpoint on ports like TCP/80, TCP/443, TCP/8080, and TCP/8443 is generally discouraged for publicly exposed services using OpenMetrics.
 
-# IANA Considerations {#Security}
+# IANA Considerations {#IANA}
 
 While currently most implementations of the Prometheus exposition format are using non-IANA-registered ports from an informal registry at {{PrometheusPorts}}, OpenMetrics can be found on a well-defined port.
 
