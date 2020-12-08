@@ -20,7 +20,7 @@ author:
  -  ins: B. Kochie
     name: Ben Kochie
     organization: GitLab
-    email: superq@gmail.com
+    email: ben@nerp.net
  -  ins: B. Brazil
     name: Brian Brazil
     organization: Robust Perception
