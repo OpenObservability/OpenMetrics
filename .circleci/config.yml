@@ -5,6 +5,9 @@ executors:
   golang:
     docker:
       - image: cimg/go:1.15
+  ruby:
+    docker:
+      - image: ruby:2.7
 
 jobs:
   build:
@@ -22,3 +25,17 @@ jobs:
     steps:
       - checkout
       - run: "! make test-impl cmd-parser-text=false"
+  kdrfc:
+    executor: ruby
+    steps:
+      - checkout
+      - run: bundle install
+      - run: bundle exec kdrfc specification/OpenMetrics.md
+      - run: git diff --exit-code
+
+workflows:
+  version: 2
+  openmetrics:
+    jobs:
+      - build
+      - kdrfc
