@@ -195,14 +195,14 @@ message SummaryValue {
   }
 
   // Optional. 
-  uint64 count = 2;
+  uint64 count = 3;
 
   // The time sum and count values began being collected for this summary.
   // Optional.
-  google.protobuf.Timestamp created = 3;
+  google.protobuf.Timestamp created = 4;
 
   // Optional.
-  repeated Quantile quantile = 4;
+  repeated Quantile quantile = 5;
 
   message Quantile {
     // Required. 
