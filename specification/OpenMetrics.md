@@ -1,7 +1,7 @@
 ---
 title: OpenMetrics, a cloud-native, highly scalable metrics protocol
 abbrev: OpenMetrics
-docname: draft-richih-opsawg-openmetrics-00
+docname: draft-richih-opsawg-openmetrics-01
 category: std
 
 area: General
@@ -1025,19 +1025,18 @@ message SummaryValue {
     int64 int_value = 2;
   }
 
-  // Optional.
-  uint64 count = 2;
+  // Optional. 
+  uint64 count = 3;
 
-  // The time sum and count values began being collected for this
-  // summary.
+  // The time sum and count values began being collected for this summary.
   // Optional.
-  google.protobuf.Timestamp created = 3;
+  google.protobuf.Timestamp created = 4;
 
   // Optional.
-  repeated Quantile quantile = 4;
+  repeated Quantile quantile = 5;
 
   message Quantile {
-    // Required.
+    // Required. 
     double quantile = 1;
 
     // Required.
