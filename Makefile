@@ -19,12 +19,20 @@ prometheus_client_python_parser:
 		-f ./tests/implementations/prometheus_client_python_parser/Dockerfile \
 		./tests/implementations/prometheus_client_python_parser
 
+.PHONY: proto_go
+proto_go: setup
+	protoc --go_out=$(BUILD) --go_opt=paths=source_relative ./proto/*.proto
+
 .PHONY: setup
 setup:
 	mkdir -p $(BUILD)
 
 .PHONY: binaries
 binaries: $(BINARIES)
+
+.PHONY: clean
+clean:
+	rm -rf $(BUILD)
 
 define BINARY_RULES
 
