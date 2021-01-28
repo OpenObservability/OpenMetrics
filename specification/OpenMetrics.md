@@ -174,7 +174,7 @@ Unit specifies MetricFamily units. If non-empty, it MUST be a suffix of the Metr
 
 #### Help
 
-Help is a string and SHOULD non-empty. It is used to give a brief description of the MetricFamily for human consumption and SHOULD be short enough to be used as a tooltip.
+Help is a string and SHOULD be non-empty. It is used to give a brief description of the MetricFamily for human consumption and SHOULD be short enough to be used as a tooltip.
 
 #### MetricSet
 
