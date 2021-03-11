@@ -29,6 +29,18 @@ Anees Shaikh (Google), Ben Kochie (GitLab), Carl Lebsack (Google), Eric Silva (G
 
 Rob Skillington (Uber) and Jerome ??? (Uber) join
 
+## 2020
+
+* release
+
+* SIG o11y DD
+
+## 2021
+
+All meetings public, recorded, and published to YouTube
+
+[Meeting notes](https://docs.google.com/document/d/17j5w4CZGT5bg6mtqFkJjTp4Vx53K1RU543rhA05Dxzg)
+
 # TODO
 
 * When did Lee Calcote (SolarWinds) join & leave
