@@ -12,7 +12,7 @@ First thoughts around RFC
 
 ## 2017-10 OpenCensus & OpenMetrics meeting at Google London
 
-Ben Kochie (GitLab), Bogdan Drutu (Google), Brian Brazil (Robust Perception), Chris Larsen (Oath.com), Dino Oliva (Google), Eric Silva (Google), Jeromy Carriere (Google), Paul Dix (InfluxData), Pim van Pelt (Google), Matt Bostock (CloudFlare), Morgan McLean (Google), RichiH (SpaceNet), Sumeer Bhola (Google), Tom Wilkie (Kausal), Wilmer van der Gaast (Google)
+[Meeting notes](legacy/meetings/2017-10-10--face-to-face.md)
 
 ## 2017-11 Uber joins OpenMetrics
 
