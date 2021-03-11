@@ -117,13 +117,13 @@ Google London
  * Open Discussion
  * See GitHub issue tracker for developing consensus.
  * Consensus
-  * We spec in Proto
-  * Some things might change, v2 vs v3
-  * Text format MUST be supported, it’s the lingua franca
-    * Easy to write
-    * Need it for debugging anyway
-  * We will have a test suite to implement against
-    * Both linting & validation
+   * We spec in Proto
+   * Some things might change, v2 vs v3
+   * Text format MUST be supported, it’s the lingua franca
+     * Easy to write
+     * Need it for debugging anyway
+    * We will have a test suite to implement against
+      * Both linting & validation
 
 ## Wednesday 2017-10-11 10:00
  * Going through more issues
