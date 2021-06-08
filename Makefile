@@ -13,6 +13,12 @@ test-impl:
 	cd ./src && make openmetricstest
 	$(BUILD)/openmetricstest -cmd-parser-text="$(cmd-parser-text)"
 
+# To test github.com/prometheus/prometheus/pkg/textparse parser:
+# make prometheus_client_go_parser test-impl cmd-parser-text="./bin/prometheusclientgoparser"
+.PHONY: prometheus_client_go_parser
+prometheus_client_go_parser:
+	cd ./src && make prometheusclientgoparser
+
 .PHONY: prometheus_client_python_parser
 prometheus_client_python_parser:
 	docker build -t prometheus_client_python_parser:latest                    \
@@ -30,8 +36,3 @@ setup:
 .PHONY: clean
 clean:
 	rm -rf $(BUILD)
-
-
-
-
-
