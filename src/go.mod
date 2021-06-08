@@ -1,3 +1,3 @@
-module github.com/cw9/OpenMetrics/src
+module github.com/OpenObservability/OpenMetrics/src
 
 go 1.16

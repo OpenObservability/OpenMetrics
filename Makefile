@@ -10,7 +10,7 @@ BUILD := $(abspath ./bin)
 .PHONY: test-impl
 test-impl:
 # openmetricstest needs to be built in /src since it requires /src/go.mod
-	(cd ./src && make openmetricstest)
+	cd ./src && make openmetricstest
 	$(BUILD)/openmetricstest -cmd-parser-text="$(cmd-parser-text)"
 
 .PHONY: prometheus_client_python_parser
