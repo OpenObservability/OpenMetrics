@@ -4,7 +4,7 @@ A command line tool to drive testing an Open Metrics parser and exposition imple
 
 ## Compile
 
-From the repository root:
+From the /src directory:
 
 ```
 make openmetricstest
@@ -49,7 +49,8 @@ These examples are from running the tool in the repository root after building i
 This is an example of testing that "true" can parse a simple counter text exposition:
 
 ```
-# Run and since echo will always accept any stdin observe success
+
+# Run and since echo will always accept any stdin observe success in the root directory.
 ./bin/openmetricstest -testdata-dir ./tests/testdata/parsers/simple_counter -cmd-parser-text true
 2019/07/02 09:15:07 RUN test: simple_counter
 2019/07/02 09:15:07 parse-result-validator ok
@@ -60,7 +61,7 @@ This is an example of testing that "true" can parse a simple counter text exposi
 ### Testing text parsing with a script that always fails
 
 ```
-# Run and since the script will always fail regardless of stdin observe failure
+# Run and since the script will always fail regardless of stdin observe failure in the root directory.
 ./bin/openmetricstest -testdata-dir ./tests/testdata/parsers/simple_counter -cmd-parser-text false
 2019/04/09 21:40:30 RUN test: simple_counter
 2019/04/09 21:40:30 parse-result-validator error:
