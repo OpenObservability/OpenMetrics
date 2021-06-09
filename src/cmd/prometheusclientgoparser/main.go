@@ -12,11 +12,12 @@ import (
 func main() {
 	b, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
-		log.Println("could not read stdin: ", err)
+		log.Fatalf("could not read stdin: %v", err)
 	}
 	if err := parse(b); err != nil {
-		os.Exit(1)
+		log.Fatalf("failed to parse input: %v", err)
 	}
+	log.Println("successfully parsed input")
 }
 
 func parse(b []byte) error {
