@@ -1,8 +1,0 @@
-# github.com/cespare/xxhash v1.1.0
-## explicit
-github.com/cespare/xxhash
-# github.com/prometheus/prometheus v2.5.0+incompatible
-## explicit
-github.com/prometheus/prometheus/pkg/labels
-github.com/prometheus/prometheus/pkg/textparse
-github.com/prometheus/prometheus/pkg/value

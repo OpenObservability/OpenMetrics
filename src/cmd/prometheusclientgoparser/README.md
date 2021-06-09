@@ -10,7 +10,6 @@ From the /src directory:
 make prometheusclientgoparser
 ```
 
-
 ## Example
 
 Here are some examples of running the golang parser from the root directory.
