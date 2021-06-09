@@ -14,3 +14,6 @@ bin/
 # Ignore kdrfc working files
 OpenMetrics.xml
 .refcache/
+
+# Golang vendor
+./src/vendor/

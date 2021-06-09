@@ -4,9 +4,6 @@ BUILD := $(abspath ./bin)
 #
 # To test echo parser:
 # make test-impl cmd-parser-text=echo
-#
-# To test github.com/prometheus/client_python parser:
-# make prometheus_client_python_parser test-impl cmd-parser-text="docker run --rm -i prometheus_client_python_parser:latest"
 .PHONY: test-impl
 test-impl:
 # openmetricstest needs to be built in /src since it requires /src/go.mod
@@ -19,6 +16,18 @@ prometheus_client_python_parser:
 		-f ./tests/implementations/prometheus_client_python_parser/Dockerfile \
 		./tests/implementations/prometheus_client_python_parser
 
+# To test github.com/prometheus/client_python parser:
+.PHONY: test_prometheus_client_python_parser
+test_prometheus_client_python_parser:
+	make prometheus_client_python_parser
+	make test-impl cmd-parser-text="docker run --rm -i prometheus_client_python_parser:latest"
+
+# To test github.com/prometheus/prometheus/pkg/textparse parser:
+.PHONY: test_prometheus_client_go_parser
+test_prometheus_client_go_parser:
+	cd ./src && make prometheusclientgoparser
+	make test-impl cmd-parser-text="./bin/prometheusclientgoparser"
+
 .PHONY: proto_go
 proto_go: setup
 	protoc --go_out=$(BUILD) --go_opt=paths=source_relative ./proto/*.proto
@@ -30,8 +39,3 @@ setup:
 .PHONY: clean
 clean:
 	rm -rf $(BUILD)
-
-
-
-
-

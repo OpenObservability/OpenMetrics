@@ -1,6 +1,7 @@
 BUILD := $(abspath ../bin)
-BINARIES :=         \
-	openmetricstest   \
+BINARIES :=                \
+	openmetricstest          \
+	prometheusclientgoparser \
 
 .PHONY: setup
 setup:
