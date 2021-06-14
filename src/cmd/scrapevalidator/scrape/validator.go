@@ -12,6 +12,8 @@ var (
 
 	errMustNotSeriesDisappear = errors.New("series MUST NOT disappear between scrapes")
 
+	errMustNotTimestampDecrease = errors.New("MetricPoints MUST have monotonically increasing timestamps")
+
 	errShouldNotDuplicateLabel = errors.New("the same label name and value SHOULD NOT appear on every Metric within a MetricSet")
 )
 
@@ -70,7 +72,14 @@ func (v *openMetricsValidator) Record(
 		value:     value,
 		timestamp: timestamp,
 	}
-	v.curMetricSet[key] = cur
+	last, ok := v.curMetricSet[key]
+	if !ok {
+		v.curMetricSet[key] = cur
+		return nil
+	}
+	if err := validate(last, cur); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -136,6 +145,9 @@ func validate(last, cur metricPoint) error {
 func validateCounter(last, cur metricPoint) error {
 	if cur.value < last.value {
 		return errMustNotCounterValueDecrease
+	}
+	if cur.timestamp <= last.timestamp {
+		return errMustNotTimestampDecrease
 	}
 	return nil
 }

@@ -11,14 +11,18 @@ import (
 	"github.com/prometheus/prometheus/pkg/timestamp"
 )
 
+type nowFn func() time.Time
+
 type scrapeLoop struct {
 	validator validator
 	scraper   scraper
+	nowFn     nowFn
 }
 
 func newScraperLoop() *scrapeLoop {
 	return &scrapeLoop{
 		validator: newValidator(),
+		nowFn:     time.Now,
 	}
 }
 
@@ -28,7 +32,7 @@ func (s *scrapeLoop) run() error {
 		if err != nil {
 			return err
 		}
-		if err := s.parseAndValidate(b, time.Now()); err != nil {
+		if err := s.parseAndValidate(b, s.nowFn()); err != nil {
 			return err
 		}
 	}

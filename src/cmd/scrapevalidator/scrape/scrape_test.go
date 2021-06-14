@@ -76,6 +76,31 @@ a2_total{bar="baz"} 1
 			},
 			expectedErr: errShouldNotDuplicateLabel,
 		},
+		{
+			name: "bad_timestamp_decrease_in_metric_set",
+			exports: []string{
+				`# TYPE a counter
+# HELP a help
+a_total{a="1",foo="bar"} 1 2
+a_total{a="1",foo="bar"} 2 1
+# EOF`,
+			},
+			expectedErr: errMustNotTimestampDecrease,
+		},
+		{
+			name: "bad_timestamp_decrease_between_metric_sets",
+			exports: []string{
+				`# TYPE a counter
+# HELP a help
+a_total{a="1",foo="bar"} 1 2
+# EOF`,
+				`# TYPE a counter
+# HELP a help
+a_total{a="1",foo="bar"} 2 1
+# EOF`,
+			},
+			expectedErr: errMustNotTimestampDecrease,
+		},
 	}
 
 	for _, tc := range tcs {
@@ -92,10 +117,10 @@ type testCase struct {
 }
 
 func run(t *testing.T, tc testCase) {
-	s := newScraperLoop()
+	s := testScraperLoop()
 	var mErr error
 	for _, export := range tc.exports {
-		err := s.parseAndValidate([]byte(export), time.Now())
+		err := s.parseAndValidate([]byte(export), s.nowFn())
 		mErr = multierr.Append(mErr, err)
 	}
 	if tc.expectedErr == nil {
@@ -103,4 +128,19 @@ func run(t *testing.T, tc testCase) {
 		return
 	}
 	require.Equal(t, mErr.Error(), tc.expectedErr.Error())
+}
+
+func testNowFn() nowFn {
+	var sec int64
+	return func() time.Time {
+		sec++
+		return time.Unix(sec, 0)
+	}
+}
+
+func testScraperLoop() *scrapeLoop {
+	l := newScraperLoop()
+	nowFn := testNowFn()
+	l.nowFn = nowFn
+	return l
 }
