@@ -36,7 +36,7 @@ type metadata struct {
 	help       string
 }
 
-type record struct {
+type metricPoint struct {
 	m         metadata
 	lset      labels.Labels
 	timestamp int64
@@ -44,13 +44,13 @@ type record struct {
 }
 
 type openMetricsValidator struct {
-	lastScrape map[string]record
-	curScrape  map[string]record
+	lastMetricSet map[string]metricPoint
+	curMetricSet  map[string]metricPoint
 }
 
 func newValidator() *openMetricsValidator {
 	return &openMetricsValidator{
-		curScrape: make(map[string]record),
+		curMetricSet: make(map[string]metricPoint),
 	}
 }
 
@@ -64,13 +64,13 @@ func (v *openMetricsValidator) Record(
 	if err != nil {
 		return err
 	}
-	cur := record{
+	cur := metricPoint{
 		m:         m,
 		lset:      lset,
 		value:     value,
 		timestamp: timestamp,
 	}
-	v.curScrape[key] = cur
+	v.curMetricSet[key] = cur
 	return nil
 }
 
@@ -79,27 +79,27 @@ func (v *openMetricsValidator) Validate() error {
 	if err := v.validateLabels(); err != nil {
 		return err
 	}
-	for lset, lastData := range v.lastScrape {
-		curData, ok := v.curScrape[lset]
+	for lset, lastData := range v.lastMetricSet {
+		curData, ok := v.curMetricSet[lset]
 		if !ok {
 			return errMustNotSeriesDisappear
 		}
 		return validate(lastData, curData)
 	}
-	v.lastScrape = v.curScrape
-	v.curScrape = make(map[string]record, len(v.lastScrape))
+	v.lastMetricSet = v.curMetricSet
+	v.curMetricSet = make(map[string]metricPoint, len(v.lastMetricSet))
 	return nil
 }
 
 // validateLabels makes sure that the same label name and value does not appear
 // on every metric within a metric set.
 func (v *openMetricsValidator) validateLabels() error {
-	if len(v.curScrape) <= 1 {
+	if len(v.curMetricSet) <= 1 {
 		// When there is only one metric, skip this check.
 		return nil
 	}
 	var lset labels.Labels
-	for _, data := range v.curScrape {
+	for _, data := range v.curMetricSet {
 		if len(lset) == 0 {
 			lset = labels.New(data.lset...)
 			continue
@@ -125,7 +125,7 @@ func duplicatedLabels(this, other labels.Labels) labels.Labels {
 
 // validate validates the current record against last record for a metric.
 // TODO: validate more metric types.
-func validate(last, cur record) error {
+func validate(last, cur metricPoint) error {
 	switch last.m.metricType {
 	case textparse.MetricTypeCounter:
 		return validateCounter(last, cur)
@@ -133,7 +133,7 @@ func validate(last, cur record) error {
 	return nil
 }
 
-func validateCounter(last, cur record) error {
+func validateCounter(last, cur metricPoint) error {
 	if cur.value < last.value {
 		return errMustNotCounterValueDecrease
 	}
