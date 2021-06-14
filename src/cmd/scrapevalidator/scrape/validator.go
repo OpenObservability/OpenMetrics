@@ -142,6 +142,5 @@ func validateCounter(last, cur record) error {
 
 // labelKey generates a key for the labels.
 func labelKey(lset labels.Labels) (string, error) {
-	b, err := lset.MarshalJSON()
-	return string(b), err
+	return lset.String(), nil
 }
