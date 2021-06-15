@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"time"
-	"unsafe"
 
 	"github.com/prometheus/prometheus/pkg/labels"
 	"github.com/prometheus/prometheus/pkg/textparse"
@@ -15,9 +14,23 @@ import (
 	"github.com/prometheus/prometheus/scrape"
 )
 
+type Option func(*Loop)
+
+func WithScrapeTimeout(timeout time.Duration) Option {
+	return func(l *Loop) {
+		l.scrapeTimeout = timeout
+	}
+}
+
+func WithScrapeInterval(interval time.Duration) Option {
+	return func(l *Loop) {
+		l.scrapeInterval = interval
+	}
+}
+
 type nowFn func() time.Time
 
-type ScrapeLoop struct {
+type Loop struct {
 	validator      validator
 	scraper        scraper
 	scrapeTimeout  time.Duration
@@ -28,19 +41,20 @@ type ScrapeLoop struct {
 
 func NewScrapeLoop(
 	endpoint string,
-	scrapeTimeout time.Duration,
-	scrapeInterval time.Duration,
-) *ScrapeLoop {
-	return &ScrapeLoop{
-		validator:      newValidator(),
-		scraper:        newSimpleScraper(endpoint),
-		scrapeTimeout:  scrapeTimeout,
-		scrapeInterval: scrapeInterval,
-		nowFn:          time.Now,
+	opts ...Option,
+) *Loop {
+	l := &Loop{
+		validator: newValidator(),
+		scraper:   newSimpleScraper(endpoint),
+		nowFn:     time.Now,
 	}
+	for _, opt := range opts {
+		opt(l)
+	}
+	return l
 }
 
-func (s *ScrapeLoop) Run() error {
+func (s *Loop) Run() error {
 	if err := s.runOnce(); err != nil {
 		return err
 	}
@@ -56,7 +70,7 @@ func (s *ScrapeLoop) Run() error {
 	return nil
 }
 
-func (s *ScrapeLoop) runOnce() error {
+func (s *Loop) runOnce() error {
 	ctx, cancel := context.WithTimeout(context.Background(), s.scrapeTimeout)
 	defer cancel()
 
@@ -75,7 +89,7 @@ func (s *ScrapeLoop) runOnce() error {
 
 // parseAndValidate parses the scraped bytes and validates the metrics against
 // OpenMetrics spec between scrapes.
-func (s *ScrapeLoop) parseAndValidate(b []byte, ts time.Time) (int, error) {
+func (s *Loop) parseAndValidate(b []byte, ts time.Time) (int, error) {
 	var (
 		p                  = textparse.NewOpenMetricsParser(b)
 		defTime            = timestamp.FromTime(ts)
@@ -96,21 +110,21 @@ func (s *ScrapeLoop) parseAndValidate(b []byte, ts time.Time) (int, error) {
 		switch et {
 		case textparse.EntryType:
 			name, metricType := p.Type()
-			if err := tryResetMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+			if err := tryResetMetadata(&dataPointFound, &m, string(name)); err != nil {
 				return 0, err
 			}
 			m.Type = metricType
 			continue
 		case textparse.EntryHelp:
 			name, helpBytes := p.Help()
-			if err := tryResetMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+			if err := tryResetMetadata(&dataPointFound, &m, string(name)); err != nil {
 				return 0, err
 			}
 			m.Help = string(helpBytes)
 			continue
 		case textparse.EntryUnit:
 			name, unitBytes := p.Unit()
-			if err := tryResetMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+			if err := tryResetMetadata(&dataPointFound, &m, string(name)); err != nil {
 				return 0, err
 			}
 			m.Unit = string(unitBytes)
@@ -156,8 +170,4 @@ func tryResetMetadata(dataPointFound *bool, m *scrape.MetricMetadata, name strin
 	}
 	m.Metric = name
 	return nil
-}
-
-func yoloString(b []byte) string {
-	return *((*string)(unsafe.Pointer(&b)))
 }

@@ -149,8 +149,8 @@ func testNowFn() nowFn {
 	}
 }
 
-func testScraperLoop() *ScrapeLoop {
-	l := &ScrapeLoop{
+func testScraperLoop() *Loop {
+	l := &Loop{
 		validator: newValidator(),
 		nowFn:     testNowFn(),
 	}
