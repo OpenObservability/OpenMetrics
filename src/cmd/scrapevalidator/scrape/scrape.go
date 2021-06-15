@@ -26,7 +26,7 @@ type ScrapeLoop struct {
 	nowFn nowFn
 }
 
-func NewScraperLoop(
+func NewScrapeLoop(
 	endpoint string,
 	scrapeTimeout time.Duration,
 	scrapeInterval time.Duration,
@@ -41,12 +41,13 @@ func NewScraperLoop(
 }
 
 func (s *ScrapeLoop) Run() error {
-	ticker := time.NewTicker(s.scrapeInterval)
-	defer ticker.Stop()
-
 	if err := s.runOnce(); err != nil {
 		return err
 	}
+
+	ticker := time.NewTicker(s.scrapeInterval)
+	defer ticker.Stop()
+
 	for range ticker.C {
 		if err := s.runOnce(); err != nil {
 			return err
@@ -95,21 +96,21 @@ func (s *ScrapeLoop) parseAndValidate(b []byte, ts time.Time) (int, error) {
 		switch et {
 		case textparse.EntryType:
 			name, metricType := p.Type()
-			if err := processMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+			if err := tryResetMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
 				return 0, err
 			}
 			m.Type = metricType
 			continue
 		case textparse.EntryHelp:
 			name, helpBytes := p.Help()
-			if err := processMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+			if err := tryResetMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
 				return 0, err
 			}
 			m.Help = string(helpBytes)
 			continue
 		case textparse.EntryUnit:
 			name, unitBytes := p.Unit()
-			if err := processMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+			if err := tryResetMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
 				return 0, err
 			}
 			m.Unit = string(unitBytes)
@@ -140,9 +141,10 @@ func (s *ScrapeLoop) parseAndValidate(b []byte, ts time.Time) (int, error) {
 	}
 }
 
-// processMetadata resets the metadata if the parser finds metadata
+// tryResetMetadata resets the metadata if the parser finds metadata
 // for a new metric.
-func processMetadata(dataPointFound *bool, m *scrape.MetricMetadata, name string) error {
+func tryResetMetadata(dataPointFound *bool, m *scrape.MetricMetadata, name string) error {
+	// If new metadata is read after reading a data point, reset.
 	if *dataPointFound {
 		*dataPointFound = false
 		*m = scrape.MetricMetadata{}

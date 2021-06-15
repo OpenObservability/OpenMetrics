@@ -16,7 +16,7 @@ var (
 
 func main() {
 	flag.Parse()
-	s := scrape.NewScraperLoop(*endpoint, *scrapeTimeout, *scrapeInterval)
+	s := scrape.NewScrapeLoop(*endpoint, *scrapeTimeout, *scrapeInterval)
 	if err := s.Run(); err != nil {
 		log.Fatalf("validation failed: %s", err)
 	}
