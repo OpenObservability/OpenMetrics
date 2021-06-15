@@ -3,49 +3,84 @@ package scrape
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
+	"log"
 	"time"
+	"unsafe"
 
 	"github.com/prometheus/prometheus/pkg/labels"
 	"github.com/prometheus/prometheus/pkg/textparse"
 	"github.com/prometheus/prometheus/pkg/timestamp"
+	"github.com/prometheus/prometheus/scrape"
 )
 
 type nowFn func() time.Time
 
-type scrapeLoop struct {
-	validator validator
-	scraper   scraper
-	nowFn     nowFn
+type ScrapeLoop struct {
+	validator      validator
+	scraper        scraper
+	scrapeTimeout  time.Duration
+	scrapeInterval time.Duration
+
+	nowFn nowFn
 }
 
-func newScraperLoop() *scrapeLoop {
-	return &scrapeLoop{
-		validator: newValidator(),
-		nowFn:     time.Now,
+func NewScraperLoop(
+	endpoint string,
+	scrapeTimeout time.Duration,
+	scrapeInterval time.Duration,
+) *ScrapeLoop {
+	return &ScrapeLoop{
+		validator:      newValidator(),
+		scraper:        newSimpleScraper(endpoint),
+		scrapeTimeout:  scrapeTimeout,
+		scrapeInterval: scrapeInterval,
+		nowFn:          time.Now,
 	}
 }
 
-func (s *scrapeLoop) run() error {
-	for {
-		b, err := s.scraper.Scrape(context.TODO())
-		if err != nil {
-			return err
-		}
-		if err := s.parseAndValidate(b, s.nowFn()); err != nil {
+func (s *ScrapeLoop) Run() error {
+	ticker := time.NewTicker(s.scrapeInterval)
+	defer ticker.Stop()
+
+	if err := s.runOnce(); err != nil {
+		return err
+	}
+	for range ticker.C {
+		if err := s.runOnce(); err != nil {
 			return err
 		}
 	}
+	return nil
+}
+
+func (s *ScrapeLoop) runOnce() error {
+	ctx, cancel := context.WithTimeout(context.Background(), s.scrapeTimeout)
+	defer cancel()
+
+	b, err := s.scraper.Scrape(ctx)
+	if err != nil {
+		return err
+	}
+	log.Println("scraped successfully")
+	num, err := s.parseAndValidate(b, s.nowFn())
+	if err != nil {
+		return err
+	}
+	log.Printf("parsed %d data points, validated successfully", num)
+	return nil
 }
 
 // parseAndValidate parses the scraped bytes and validates the metrics against
 // OpenMetrics spec between scrapes.
-func (s *scrapeLoop) parseAndValidate(b []byte, ts time.Time) error {
+func (s *ScrapeLoop) parseAndValidate(b []byte, ts time.Time) (int, error) {
 	var (
-		p          = textparse.NewOpenMetricsParser(b)
-		defTime    = timestamp.FromTime(ts)
-		m          metadata
-		foundValue bool
+		p                  = textparse.NewOpenMetricsParser(b)
+		defTime            = timestamp.FromTime(ts)
+		m                  scrape.MetricMetadata
+		dataPointFound     bool
+		numDataPointsFound int
 	)
 	for {
 		// TODO: Handle exemplar.
@@ -53,25 +88,31 @@ func (s *scrapeLoop) parseAndValidate(b []byte, ts time.Time) error {
 		if err != nil {
 			if err == io.EOF {
 				// Validate at the end of a scrape.
-				return s.validator.Validate()
+				return numDataPointsFound, s.validator.Validate()
 			}
-			return err
+			return 0, err
 		}
 		switch et {
 		case textparse.EntryType:
-			processMetadata(&foundValue, &m)
-			_, metricType := p.Type()
-			m.metricType = metricType
+			name, metricType := p.Type()
+			if err := processMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+				return 0, err
+			}
+			m.Type = metricType
 			continue
 		case textparse.EntryHelp:
-			processMetadata(&foundValue, &m)
-			_, helpBytes := p.Help()
-			m.help = string(helpBytes)
+			name, helpBytes := p.Help()
+			if err := processMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+				return 0, err
+			}
+			m.Help = string(helpBytes)
 			continue
 		case textparse.EntryUnit:
-			processMetadata(&foundValue, &m)
-			_, unitBytes := p.Unit()
-			m.unit = string(unitBytes)
+			name, unitBytes := p.Unit()
+			if err := processMetadata(&dataPointFound, &m, yoloString(name)); err != nil {
+				return 0, err
+			}
+			m.Unit = string(unitBytes)
 			continue
 		case textparse.EntryComment:
 			continue
@@ -88,21 +129,33 @@ func (s *scrapeLoop) parseAndValidate(b []byte, ts time.Time) error {
 		_ = p.Metric(&lset)
 
 		if !lset.Has(labels.MetricName) {
-			return errors.New("metric must contain a name")
+			return 0, errors.New("metric must contain a name")
 		}
 		if err := s.validator.Record(m, lset, t, v); err != nil {
-			return err
+			return 0, err
 		}
-		// Mark that a metric value is found.
-		foundValue = true
+		// Mark that a metric data point is found.
+		dataPointFound = true
+		numDataPointsFound++
 	}
 }
 
 // processMetadata resets the metadata if the parser finds metadata
 // for a new metric.
-func processMetadata(foundValue *bool, m *metadata) {
-	if *foundValue {
-		*foundValue = false
-		*m = metadata{}
+func processMetadata(dataPointFound *bool, m *scrape.MetricMetadata, name string) error {
+	if *dataPointFound {
+		*dataPointFound = false
+		*m = scrape.MetricMetadata{}
+		m.Metric = name
+		return nil
 	}
+	if m.Metric != "" && m.Metric != name {
+		return fmt.Errorf("metric name changed from %q to %q", m.Metric, name)
+	}
+	m.Metric = name
+	return nil
+}
+
+func yoloString(b []byte) string {
+	return *((*string)(unsafe.Pointer(&b)))
 }

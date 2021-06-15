@@ -1,6 +1,7 @@
 package scrape
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -101,6 +102,16 @@ a_total{a="1",foo="bar"} 2 1
 			},
 			expectedErr: errMustNotTimestampDecrease,
 		},
+		{
+			name: "bad_metric_name_change",
+			exports: []string{
+				`# TYPE a counter
+# HELP b help
+a_total1 2
+# EOF`,
+			},
+			expectedErr: errors.New(`metric name changed in metadata from "a" to "b"`),
+		},
 	}
 
 	for _, tc := range tcs {
@@ -120,7 +131,7 @@ func run(t *testing.T, tc testCase) {
 	s := testScraperLoop()
 	var mErr error
 	for _, export := range tc.exports {
-		err := s.parseAndValidate([]byte(export), s.nowFn())
+		_, err := s.parseAndValidate([]byte(export), s.nowFn())
 		mErr = multierr.Append(mErr, err)
 	}
 	if tc.expectedErr == nil {
@@ -138,9 +149,10 @@ func testNowFn() nowFn {
 	}
 }
 
-func testScraperLoop() *scrapeLoop {
-	l := newScraperLoop()
-	nowFn := testNowFn()
-	l.nowFn = nowFn
+func testScraperLoop() *ScrapeLoop {
+	l := &ScrapeLoop{
+		validator: newValidator(),
+		nowFn:     testNowFn(),
+	}
 	return l
 }

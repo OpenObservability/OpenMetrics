@@ -5,6 +5,7 @@ import (
 
 	"github.com/prometheus/prometheus/pkg/labels"
 	"github.com/prometheus/prometheus/pkg/textparse"
+	"github.com/prometheus/prometheus/scrape"
 )
 
 var (
@@ -22,7 +23,7 @@ var (
 type validator interface {
 	// Record records a metric.
 	Record(
-		m metadata,
+		m scrape.MetricMetadata,
 		lset labels.Labels,
 		timestamp int64,
 		value float64,
@@ -32,14 +33,8 @@ type validator interface {
 	Validate() error
 }
 
-type metadata struct {
-	metricType textparse.MetricType
-	unit       string
-	help       string
-}
-
 type metricPoint struct {
-	m         metadata
+	m         scrape.MetricMetadata
 	lset      labels.Labels
 	timestamp int64
 	value     float64
@@ -57,7 +52,7 @@ func newValidator() *openMetricsValidator {
 }
 
 func (v *openMetricsValidator) Record(
-	m metadata,
+	m scrape.MetricMetadata,
 	lset labels.Labels,
 	timestamp int64,
 	value float64,
@@ -135,7 +130,7 @@ func duplicatedLabels(this, other labels.Labels) labels.Labels {
 // validate validates the current record against last record for a metric.
 // TODO: validate more metric types.
 func validate(last, cur metricPoint) error {
-	switch last.m.metricType {
+	switch last.m.Type {
 	case textparse.MetricTypeCounter:
 		return validateCounter(last, cur)
 	}
