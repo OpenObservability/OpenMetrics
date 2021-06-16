@@ -86,7 +86,7 @@ a_total{a="1",foo="bar"} 1 2
 a_total{a="1",foo="bar"} 2 1
 # EOF`,
 			},
-			expectedErr: errMustNotTimestampDecrease,
+			expectedErr: errMustTimestampIncrease,
 		},
 		{
 			name: "bad_must_not_timestamp_decrease_between_metric_sets",
@@ -100,7 +100,7 @@ a_total{a="1",foo="bar"} 1 2
 a_total{a="1",foo="bar"} 2 1
 # EOF`,
 			},
-			expectedErr: errMustNotTimestampDecrease,
+			expectedErr: errMustTimestampIncrease,
 		},
 		{
 			name: "bad_must_not_metric_name_change",
@@ -111,6 +111,71 @@ a_total1 2
 # EOF`,
 			},
 			expectedErr: errors.New(`metric name changed from "a" to "b"`),
+		},
+		{
+			name: "bad_must_histogram_have_+Inf_bucket",
+			exports: []string{
+				`# TYPE a gaugehistogram
+a_bucket{le="10"} NaN
+# EOF`,
+			},
+			expectedErr: errMustContainPositiveInfBucket,
+		},
+		{
+			name: "bad_must_summary_metric_with_empty_suffix_have_quantile_label",
+			exports: []string{
+				`# TYPE a summary
+a 0
+# EOF`,
+			},
+			expectedErr: errors.New(`invalid quantile value ""`),
+		},
+		{
+			name: "bad_must_summary_quantile_be_between_0_and_1",
+			exports: []string{
+				`# TYPE a summary
+a{quantile="2"} 0
+# EOF`,
+			},
+			expectedErr: errMustQuantileBeBetweenZeroAndOne,
+		},
+		{
+			name: "bad_must_summary_quantile_be_between_0_and_1",
+			exports: []string{
+				`# TYPE a summary
+a{quantile="NaN"} 0
+# EOF`,
+			},
+			expectedErr: errMustQuantileBeBetweenZeroAndOne,
+		},
+		{
+			name: "bad_must_stateset_contain_label",
+			exports: []string{
+				`# TYPE a stateset
+# HELP a help
+a 0
+# EOF`,
+			},
+			expectedErr: errMustStateSetContainLabel,
+		},
+		{
+			name: "good_must_stateset_contain_label",
+			exports: []string{
+				`# TYPE a stateset
+# HELP a help
+a{a="bar"} 0
+# EOF`,
+			},
+		},
+		{
+			name: "bad_clashing_names",
+			exports: []string{
+				`# TYPE a counter
+# TYPE a counter
+# EOF
+`,
+			},
+			expectedErr: errMustMetricNameBeUnique,
 		},
 	}
 	for _, tc := range tcs {
@@ -197,7 +262,7 @@ a_total{a="1",foo="bar"} 1 2
 a_total{a="1",foo="bar"} 2 1
 # EOF`,
 			},
-			expectedErr: errMustNotTimestampDecrease,
+			expectedErr: errMustTimestampIncrease,
 		},
 		{
 			name: "bad_must_not_timestamp_decrease_between_metric_sets",
@@ -211,7 +276,7 @@ a_total{a="1",foo="bar"} 1 2
 a_total{a="1",foo="bar"} 2 1
 # EOF`,
 			},
-			expectedErr: errMustNotTimestampDecrease,
+			expectedErr: errMustTimestampIncrease,
 		},
 		{
 			name: "bad_must_not_metric_name_change",
@@ -250,7 +315,7 @@ func run(t *testing.T, v *OpenMetricsValidator, tc testCase) {
 		require.NoError(t, mErr)
 		return
 	}
-	require.Equal(t, tc.expectedErr.Error(), mErr.Error())
+	require.Contains(t, mErr.Error(), tc.expectedErr.Error())
 }
 
 func testNowFn() nowFn {
