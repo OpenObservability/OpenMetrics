@@ -1,4 +1,4 @@
-package scrape
+package validator
 
 import (
 	"errors"
@@ -116,9 +116,8 @@ a_total1 2
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			// Validates against both SHOULD rules and MUST rules.
-			l := testScraperLoop()
-			WithErrorLevel(ErrorLevelShould)(l)
-			run(t, l, tc)
+			v := testValidator(ErrorLevelShould)
+			run(t, v, tc)
 		})
 	}
 }
@@ -229,8 +228,8 @@ a_total1 2
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			// Validate against must rules only.
-			l := testScraperLoop()
-			run(t, l, tc)
+			v := testValidator(ErrorLevelMust)
+			run(t, v, tc)
 		})
 	}
 }
@@ -241,10 +240,10 @@ type testCase struct {
 	expectedErr error
 }
 
-func run(t *testing.T, l *Loop, tc testCase) {
+func run(t *testing.T, v *OpenMetricsValidator, tc testCase) {
 	var mErr error
 	for _, export := range tc.exports {
-		_, err := l.parseAndValidate([]byte(export), l.nowFn())
+		err := v.Validate([]byte(export))
 		mErr = multierr.Append(mErr, err)
 	}
 	if tc.expectedErr == nil {
@@ -262,8 +261,8 @@ func testNowFn() nowFn {
 	}
 }
 
-func testScraperLoop() *Loop {
-	l := NewLoop("")
-	l.nowFn = testNowFn()
-	return l
+func testValidator(el ErrorLevel) *OpenMetricsValidator {
+	v := NewValidator(el)
+	v.nowFn = testNowFn()
+	return v
 }
