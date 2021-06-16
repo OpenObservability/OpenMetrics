@@ -28,6 +28,14 @@ test_prometheus_client_go_parser:
 	cd ./src && make prometheusclientgoparser
 	make test-impl cmd-parser-text="./bin/prometheusclientgoparser"
 
+
+# To test OpenMetrics validator:
+.PHONY: test_open_metrics_validator
+test_open_metrics_validator:
+	cd ./src && make openmetricsvalidator
+	make test-impl cmd-parser-text="./bin/openmetricsvalidator"
+
+
 .PHONY: proto_go
 proto_go: setup
 	protoc --go_out=$(BUILD) --go_opt=paths=source_relative ./proto/*.proto

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/OpenObservability/OpenMetrics/src/cmd/scrapevalidator/scrape"
+	"github.com/OpenObservability/OpenMetrics/src/validator"
 )
 
 var (
@@ -29,7 +30,7 @@ func main() {
 		scrape.WithScrapeTimeout(*scrapeTimeoutArg),
 	}
 	if *errorLevelArg != "" {
-		el, err := scrape.NewErrorLevel(*errorLevelArg)
+		el, err := validator.NewErrorLevel(*errorLevelArg)
 		if err != nil {
 			log.Fatalf("invalid error level: %v", err)
 		}
