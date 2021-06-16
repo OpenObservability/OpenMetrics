@@ -13,7 +13,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not read stdin: %v", err)
 	}
-	v := validator.NewValidator(validator.ErrorLevelShould)
+	v := validator.NewValidator(validator.ErrorLevelMust)
 	if err := v.Validate(b); err != nil {
 		log.Fatalf("failed to validate input: %v", err)
 	}

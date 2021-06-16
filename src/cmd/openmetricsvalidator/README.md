@@ -37,6 +37,8 @@ FAIL test: bad_counter_values_1
 FAIL test: bad_counter_values_10
 FAIL test: bad_counter_values_11
 FAIL test: bad_counter_values_12
+FAIL test: bad_counter_values_13
+FAIL test: bad_counter_values_14
 FAIL test: bad_counter_values_15
 FAIL test: bad_counter_values_16
 FAIL test: bad_counter_values_17
@@ -48,10 +50,14 @@ FAIL test: bad_counter_values_4
 FAIL test: bad_counter_values_5
 FAIL test: bad_counter_values_6
 FAIL test: bad_counter_values_7
+FAIL test: bad_counter_values_8
+FAIL test: bad_counter_values_9
 FAIL test: bad_exemplars_6
 FAIL test: bad_exemplars_on_unallowed_samples_2
 FAIL test: bad_grouping_or_ordering_0
 FAIL test: bad_grouping_or_ordering_10
+FAIL test: bad_grouping_or_ordering_2
+FAIL test: bad_grouping_or_ordering_3
 FAIL test: bad_grouping_or_ordering_4
 FAIL test: bad_grouping_or_ordering_5
 FAIL test: bad_grouping_or_ordering_6
@@ -59,10 +65,18 @@ FAIL test: bad_grouping_or_ordering_7
 FAIL test: bad_grouping_or_ordering_8
 FAIL test: bad_grouping_or_ordering_9
 FAIL test: bad_histograms_0
+FAIL test: bad_histograms_1
 FAIL test: bad_histograms_6
+FAIL test: bad_histograms_10
+FAIL test: bad_histograms_11
 FAIL test: bad_histograms_12
+FAIL test: bad_histograms_2
 FAIL test: bad_histograms_3
 FAIL test: bad_histograms_6
+FAIL test: bad_histograms_7
+FAIL test: bad_histograms_8
+FAIL test: bad_histograms_5
+FAIL test: bad_histograms_9
 FAIL test: bad_info_and_stateset_values_0
 FAIL test: bad_info_and_stateset_values_1
 FAIL test: bad_invalid_labels_2
@@ -90,16 +104,5 @@ FAIL test: bad_timestamp_5
 FAIL test: bad_timestamp_7
 FAIL test: bad_unit_6
 FAIL test: bad_unit_7
-FAIL test: duplicate_timestamps
-FAIL test: exemplars_with_hash_in_label_values
-FAIL test: gaugehistogram_exemplars
-FAIL test: help_escaping
-FAIL test: histogram_exemplars
-FAIL test: info_timestamps
-FAIL test: label_escaping
-FAIL test: negative_bucket_gaugehistogram
-FAIL test: negative_bucket_histogram
-FAIL test: roundtrip
-FAIL test: untyped
-FAILED passed=134, failed=71, total_failures=71
+FAILED passed=131, failed=74, total_failures=74
 ```
