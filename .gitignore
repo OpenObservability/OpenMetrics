@@ -16,4 +16,4 @@ OpenMetrics.xml
 .refcache/
 
 # Golang vendor
-./src/vendor/
+src/vendor/

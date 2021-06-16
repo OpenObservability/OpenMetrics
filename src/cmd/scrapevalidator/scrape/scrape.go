@@ -14,22 +14,33 @@ import (
 	"github.com/prometheus/prometheus/scrape"
 )
 
+// Option sets options in Loop.
 type Option func(*Loop)
 
+// WithScrapeTimeout sets the scrape timeout.
 func WithScrapeTimeout(timeout time.Duration) Option {
 	return func(l *Loop) {
 		l.scrapeTimeout = timeout
 	}
 }
 
+// WithScrapeInterval sets the scrape interval.
 func WithScrapeInterval(interval time.Duration) Option {
 	return func(l *Loop) {
 		l.scrapeInterval = interval
 	}
 }
 
+// WithErrorLevel sets the error level.
+func WithErrorLevel(el ErrorLevel) Option {
+	return func(l *Loop) {
+		l.validator = newValidator(el)
+	}
+}
+
 type nowFn func() time.Time
 
+// Loop and perform scrape and validate in a loop.
 type Loop struct {
 	validator      validator
 	scraper        scraper
@@ -39,12 +50,13 @@ type Loop struct {
 	nowFn nowFn
 }
 
-func NewScrapeLoop(
+// NewLoop creates a new scrape and validate loop.
+func NewLoop(
 	endpoint string,
 	opts ...Option,
 ) *Loop {
 	l := &Loop{
-		validator: newValidator(),
+		validator: newValidator(ErrorLevelMust),
 		scraper:   newSimpleScraper(endpoint),
 		nowFn:     time.Now,
 	}
@@ -54,6 +66,7 @@ func NewScrapeLoop(
 	return l
 }
 
+// Run starts the loop.
 func (s *Loop) Run() error {
 	if err := s.runOnce(); err != nil {
 		return err
