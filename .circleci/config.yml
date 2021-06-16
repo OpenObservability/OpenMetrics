@@ -15,6 +15,11 @@ jobs:
     steps:
       - checkout
       - run: "cd ./src && make binaries"
+  unit-test:
+    executor: golang
+    steps:
+      - checkout
+      - run: "cd ./src && go test ./..."
   test-success:
     executor: golang
     steps:

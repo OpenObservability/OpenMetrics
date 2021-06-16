@@ -2,6 +2,7 @@ package scrape
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/prometheus/prometheus/pkg/labels"
 	"github.com/prometheus/prometheus/pkg/textparse"
@@ -9,14 +10,78 @@ import (
 )
 
 var (
-	errMustNotCounterValueDecrease = errors.New("counter total MUST be monotonically non-decreasing over time")
+	errMustNotCounterValueDecrease = errorWithLevel{
+		err:   errors.New("counter total MUST be monotonically non-decreasing over time"),
+		level: ErrorLevelMust,
+	}
 
-	errMustNotSeriesDisappear = errors.New("series MUST NOT disappear between scrapes")
+	errMustNotTimestampDecrease = errorWithLevel{
+		err:   errors.New("MetricPoints MUST have monotonically increasing timestamps"),
+		level: ErrorLevelMust,
+	}
 
-	errMustNotTimestampDecrease = errors.New("MetricPoints MUST have monotonically increasing timestamps")
-
-	errShouldNotDuplicateLabel = errors.New("the same label name and value SHOULD NOT appear on every Metric within a MetricSet")
+	errShouldNotMetricsDisappear = errorWithLevel{
+		err:   errors.New("metrics and samples SHOULD NOT appear and disappear from exposition to exposition"),
+		level: ErrorLevelShould,
+	}
+	errShouldNotDuplicateLabel = errorWithLevel{
+		err:   errors.New("the same label name and value SHOULD NOT appear on every Metric within a MetricSet"),
+		level: ErrorLevelShould,
+	}
 )
+
+// ErrorLevel is the level of the validation error.
+// The OpenMetrics spec defines rules in different categories like "SHOULD"
+// and "MUST", the value of ErrorLevel identifies which category is the error
+// falling into.
+type ErrorLevel int
+
+// A list of supported error levels, ordered by severity.
+const (
+	ErrorLevelShould ErrorLevel = iota
+	ErrorLevelMust
+)
+
+var validErrorLevels = []ErrorLevel{ErrorLevelShould, ErrorLevelMust}
+
+// String returns a readable value for the error level.
+// Use custom string value here because the standard string `ErrorLevelMust` is not ergnonomic in tooling.
+func (el ErrorLevel) String() string {
+	if el == ErrorLevelShould {
+		return "should"
+	}
+	if el == ErrorLevelMust {
+		return "must"
+	}
+	return ""
+}
+
+// NewErrorLevel creates an ErrorLevel.
+func NewErrorLevel(str string) (ErrorLevel, error) {
+	for _, el := range validErrorLevels {
+		if el.String() == str {
+			return el, nil
+		}
+	}
+	return 0, fmt.Errorf("unknown error level %q", str)
+}
+
+type errorWithLevel struct {
+	err   error
+	level ErrorLevel
+}
+
+func (e errorWithLevel) Error() string {
+	return e.err.Error()
+}
+
+// tryReport reports the error if the level is equal or above the target level, otherwise the error is omitted.
+func (e errorWithLevel) tryReport(level ErrorLevel) error {
+	if e.level >= level {
+		return e
+	}
+	return nil
+}
 
 // validator records metrics in a scrape and validates them against previous
 // scrapes.
@@ -33,7 +98,7 @@ type validator interface {
 	Validate() error
 }
 
-type metricPoint struct {
+type metricDataPoint struct {
 	m         scrape.MetricMetadata
 	lset      labels.Labels
 	timestamp int64
@@ -41,13 +106,16 @@ type metricPoint struct {
 }
 
 type openMetricsValidator struct {
-	lastMetricSet map[string]metricPoint
-	curMetricSet  map[string]metricPoint
+	lastMetricSet map[string]metricDataPoint
+	curMetricSet  map[string]metricDataPoint
+
+	level ErrorLevel
 }
 
-func newValidator() *openMetricsValidator {
+func newValidator(level ErrorLevel) *openMetricsValidator {
 	return &openMetricsValidator{
-		curMetricSet: make(map[string]metricPoint),
+		curMetricSet: make(map[string]metricDataPoint),
+		level:        level,
 	}
 }
 
@@ -57,11 +125,8 @@ func (v *openMetricsValidator) Record(
 	timestamp int64,
 	value float64,
 ) error {
-	key, err := labelKey(lset)
-	if err != nil {
-		return err
-	}
-	cur := metricPoint{
+	key := labelKey(lset)
+	cur := metricDataPoint{
 		m:         m,
 		lset:      lset,
 		value:     value,
@@ -72,26 +137,24 @@ func (v *openMetricsValidator) Record(
 		v.curMetricSet[key] = cur
 		return nil
 	}
-	if err := validate(last, cur); err != nil {
-		return err
-	}
-	return nil
+	return validate(last, cur)
 }
 
 func (v *openMetricsValidator) Validate() error {
-	// TODO: differentiate SHOULD NOT and MUST NOT errors.
 	if err := v.validateLabels(); err != nil {
 		return err
 	}
 	for lset, lastData := range v.lastMetricSet {
 		curData, ok := v.curMetricSet[lset]
-		if !ok {
-			return errMustNotSeriesDisappear
+		if ok {
+			return validate(lastData, curData)
 		}
-		return validate(lastData, curData)
+		if err := errShouldNotMetricsDisappear.tryReport(v.level); err != nil {
+			return err
+		}
 	}
 	v.lastMetricSet = v.curMetricSet
-	v.curMetricSet = make(map[string]metricPoint, len(v.lastMetricSet))
+	v.curMetricSet = make(map[string]metricDataPoint, len(v.lastMetricSet))
 	return nil
 }
 
@@ -111,7 +174,7 @@ func (v *openMetricsValidator) validateLabels() error {
 		lset = duplicatedLabels(lset, data.lset)
 	}
 	if len(lset) > 0 {
-		return errShouldNotDuplicateLabel
+		return errShouldNotDuplicateLabel.tryReport(v.level)
 	}
 	return nil
 }
@@ -129,7 +192,7 @@ func duplicatedLabels(this, other labels.Labels) labels.Labels {
 
 // validate validates the current record against last record for a metric.
 // TODO: validate more metric types.
-func validate(last, cur metricPoint) error {
+func validate(last, cur metricDataPoint) error {
 	switch last.m.Type {
 	case textparse.MetricTypeCounter:
 		return validateCounter(last, cur)
@@ -137,7 +200,7 @@ func validate(last, cur metricPoint) error {
 	return nil
 }
 
-func validateCounter(last, cur metricPoint) error {
+func validateCounter(last, cur metricDataPoint) error {
 	if cur.value < last.value {
 		return errMustNotCounterValueDecrease
 	}
@@ -148,6 +211,6 @@ func validateCounter(last, cur metricPoint) error {
 }
 
 // labelKey generates a key for the labels.
-func labelKey(lset labels.Labels) (string, error) {
-	return lset.String(), nil
+func labelKey(lset labels.Labels) string {
+	return lset.String()
 }
