@@ -78,14 +78,14 @@ func (l *Loop) runOnce() {
 
 	b, err := l.scraper.Scrape(ctx)
 	if err != nil {
-		log.Printf("scrape failed: %v", err)
+		log.Printf("scrape failed: %v\n", err)
 		return
 	}
 	log.Println("scraped successfully")
 
 	if err := l.validator.Validate(b); err != nil {
 		l.validator.Reset()
-		log.Printf("validation failed: %v", err)
+		log.Printf("validation failed: %v\n", err)
 		return
 	}
 	log.Println("validated successfully")
