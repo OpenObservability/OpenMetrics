@@ -46,10 +46,16 @@ var (
 		level: ErrorLevelMust,
 	}
 
+	errMustMetricFamilyWithMetadata = errorWithLevel{
+		err:   errors.New("A MetricFamily MUST have a name, HELP, TYPE, and UNIT metadata"),
+		level: ErrorLevelMust,
+	}
+
 	errShouldNotMetricsDisappear = errorWithLevel{
 		err:   errors.New("metrics and samples SHOULD NOT appear and disappear from exposition to exposition"),
 		level: ErrorLevelShould,
 	}
+
 	errShouldNotDuplicateLabel = errorWithLevel{
 		err:   errors.New("the same label name and value SHOULD NOT appear on every Metric within a MetricSet"),
 		level: ErrorLevelShould,
@@ -267,7 +273,7 @@ func (v *OpenMetricsValidator) recordMetric(
 		mf.metrics[key] = cur
 		return nil
 	}
-	return compareMetric(*mf.metricType, last, cur)
+	return compareMetric(mf.metricType, last, cur)
 }
 
 func (v *OpenMetricsValidator) validateRecorded() error {
@@ -334,7 +340,7 @@ func (v *OpenMetricsValidator) compareMetricFamilies(last, cur *metricFamily) er
 	for lset, lastMF := range last.metrics {
 		curMF, ok := cur.metrics[lset]
 		if ok {
-			return compareMetric(*cur.metricType, lastMF, curMF)
+			return compareMetric(cur.metricType, lastMF, curMF)
 		}
 		if err := errShouldNotMetricsDisappear.tryReport(v.level); err != nil {
 			return err
@@ -403,11 +409,14 @@ func (v *OpenMetricsValidator) validateMetricFamilyHistogram(cur *metricFamily) 
 
 // compareMetric validates the current record against last record for a metric.
 // TODO: compareMetric more metric types.
-func compareMetric(mt textparse.MetricType, last, cur metric) error {
+func compareMetric(mt *textparse.MetricType, last, cur metric) error {
+	if mt == nil {
+		return errMustMetricFamilyWithMetadata
+	}
 	if cur.timestamp <= last.timestamp {
 		return errMustTimestampIncrease
 	}
-	switch mt {
+	switch *mt {
 	case textparse.MetricTypeCounter:
 		return compareMetricCounter(last, cur)
 	}
