@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/prometheus/prometheus/pkg/labels"
@@ -18,8 +21,33 @@ var (
 		level: ErrorLevelMust,
 	}
 
-	errMustNotTimestampDecrease = errorWithLevel{
+	errMustTimestampIncrease = errorWithLevel{
 		err:   errors.New("MetricPoints MUST have monotonically increasing timestamps"),
+		level: ErrorLevelMust,
+	}
+
+	errMustContainPositiveInfBucket = errorWithLevel{
+		err:   errors.New("Histogram MetricPoints MUST have at least a bucket with an +Inf threshold"),
+		level: ErrorLevelMust,
+	}
+
+	errMustQuantileBeBetweenZeroAndOne = errorWithLevel{
+		err:   errors.New("Quantiles MUST be between 0 and 1 inclusive"),
+		level: ErrorLevelMust,
+	}
+
+	errMustStateSetContainLabel = errorWithLevel{
+		err:   errors.New("Each State's sample MUST have a label with the MetricFamily name as the label name and the State name as the label value"),
+		level: ErrorLevelMust,
+	}
+
+	errMustMetricNameBeUnique = errorWithLevel{
+		err:   errors.New("MetricFamily names are a string and MUST be unique within a MetricSet"),
+		level: ErrorLevelMust,
+	}
+
+	errMustMetricFamilyWithMetadata = errorWithLevel{
+		err:   errors.New("A MetricFamily MUST have a name, HELP, TYPE, and UNIT metadata"),
 		level: ErrorLevelMust,
 	}
 
@@ -27,6 +55,7 @@ var (
 		err:   errors.New("metrics and samples SHOULD NOT appear and disappear from exposition to exposition"),
 		level: ErrorLevelShould,
 	}
+
 	errShouldNotDuplicateLabel = errorWithLevel{
 		err:   errors.New("the same label name and value SHOULD NOT appear on every Metric within a MetricSet"),
 		level: ErrorLevelShould,
@@ -86,19 +115,29 @@ func (e errorWithLevel) tryReport(level ErrorLevel) error {
 	return nil
 }
 
-type metricDataPoint struct {
-	m         scrape.MetricMetadata
+type metric struct {
 	lset      labels.Labels
 	timestamp int64
 	value     float64
+}
+
+type metricFamily struct {
+	metricType *textparse.MetricType
+	metrics    map[string]metric
+}
+
+func newMetricFamily() *metricFamily {
+	return &metricFamily{
+		metrics: make(map[string]metric),
+	}
 }
 
 type nowFn func() time.Time
 
 // OpenMetricsValidator validates metrics against OpenMetrics spec.
 type OpenMetricsValidator struct {
-	lastMetricSet map[string]metricDataPoint
-	curMetricSet  map[string]metricDataPoint
+	lastMetricSet map[string]*metricFamily
+	curMetricSet  map[string]*metricFamily
 	level         ErrorLevel
 
 	nowFn nowFn
@@ -107,7 +146,7 @@ type OpenMetricsValidator struct {
 // NewValidator creates an OpenMetricsValidator.
 func NewValidator(level ErrorLevel) *OpenMetricsValidator {
 	return &OpenMetricsValidator{
-		curMetricSet: make(map[string]metricDataPoint),
+		curMetricSet: make(map[string]*metricFamily),
 		level:        level,
 		nowFn:        time.Now,
 	}
@@ -134,6 +173,9 @@ func (v *OpenMetricsValidator) Validate(b []byte) error {
 		switch et {
 		case textparse.EntryType:
 			name, metricType := p.Type()
+			if err := v.recordMetricType(string(name), metricType); err != nil {
+				return err
+			}
 			if err := tryResetMetadata(&dataPointFound, &m, string(name)); err != nil {
 				return err
 			}
@@ -170,7 +212,7 @@ func (v *OpenMetricsValidator) Validate(b []byte) error {
 		if !lset.Has(labels.MetricName) {
 			return errors.New("metric must contain a name")
 		}
-		if err := v.record(m, lset, t, value); err != nil {
+		if err := v.recordMetric(m.Metric, lset, t, value); err != nil {
 			return err
 		}
 		// Mark that a metric data point is found.
@@ -195,42 +237,68 @@ func tryResetMetadata(dataPointFound *bool, m *scrape.MetricMetadata, name strin
 	return nil
 }
 
-func (v *OpenMetricsValidator) record(
-	m scrape.MetricMetadata,
+func (v *OpenMetricsValidator) recordMetricType(
+	name string,
+	mt textparse.MetricType,
+) error {
+	mf, ok := v.curMetricSet[name]
+	if ok {
+		if mf.metricType != nil {
+			return errMustMetricNameBeUnique
+		}
+		mf.metricType = &mt
+		return nil
+	}
+	mf = newMetricFamily()
+	mf.metricType = &mt
+	v.curMetricSet[name] = mf
+	return nil
+}
+
+func (v *OpenMetricsValidator) recordMetric(
+	metricName string,
 	lset labels.Labels,
 	timestamp int64,
 	value float64,
 ) error {
-	key := labelKey(lset)
-	cur := metricDataPoint{
-		m:         m,
+	mf := v.curMetricSet[metricName]
+	cur := metric{
 		lset:      lset,
 		value:     value,
 		timestamp: timestamp,
 	}
-	last, ok := v.curMetricSet[key]
+	key := labelKey(lset)
+	last, ok := mf.metrics[key]
 	if !ok {
-		v.curMetricSet[key] = cur
+		mf.metrics[key] = cur
 		return nil
 	}
-	return validate(last, cur)
+	return compareMetric(mf.metricType, last, cur)
 }
 
 func (v *OpenMetricsValidator) validateRecorded() error {
 	if err := v.validateLabels(); err != nil {
 		return err
 	}
-	for lset, lastData := range v.lastMetricSet {
-		curData, ok := v.curMetricSet[lset]
+	for _, curMF := range v.curMetricSet {
+		if err := v.validateMetricFamily(curMF); err != nil {
+			return err
+		}
+	}
+	for mn, lastMF := range v.lastMetricSet {
+		curMF, ok := v.curMetricSet[mn]
 		if ok {
-			return validate(lastData, curData)
+			if err := v.compareMetricFamilies(lastMF, curMF); err != nil {
+				return err
+			}
+			continue
 		}
 		if err := errShouldNotMetricsDisappear.tryReport(v.level); err != nil {
 			return err
 		}
 	}
 	v.lastMetricSet = v.curMetricSet
-	v.curMetricSet = make(map[string]metricDataPoint, len(v.lastMetricSet))
+	v.curMetricSet = make(map[string]*metricFamily, len(v.lastMetricSet))
 	return nil
 }
 
@@ -242,12 +310,14 @@ func (v *OpenMetricsValidator) validateLabels() error {
 		return nil
 	}
 	var lset labels.Labels
-	for _, data := range v.curMetricSet {
-		if len(lset) == 0 {
-			lset = labels.New(data.lset...)
-			continue
+	for _, mf := range v.curMetricSet {
+		for _, metric := range mf.metrics {
+			if len(lset) == 0 {
+				lset = labels.New(metric.lset...)
+				continue
+			}
+			lset = duplicatedLabels(lset, metric.lset)
 		}
-		lset = duplicatedLabels(lset, data.lset)
 	}
 	if len(lset) > 0 {
 		return errShouldNotDuplicateLabel.tryReport(v.level)
@@ -266,22 +336,96 @@ func duplicatedLabels(this, other labels.Labels) labels.Labels {
 	return res
 }
 
-// validate validates the current record against last record for a metric.
-// TODO: validate more metric types.
-func validate(last, cur metricDataPoint) error {
-	switch last.m.Type {
-	case textparse.MetricTypeCounter:
-		return validateCounter(last, cur)
+func (v *OpenMetricsValidator) compareMetricFamilies(last, cur *metricFamily) error {
+	for lset, lastMF := range last.metrics {
+		curMF, ok := cur.metrics[lset]
+		if ok {
+			return compareMetric(cur.metricType, lastMF, curMF)
+		}
+		if err := errShouldNotMetricsDisappear.tryReport(v.level); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func validateCounter(last, cur metricDataPoint) error {
-	if cur.value < last.value {
-		return errMustNotCounterValueDecrease
+func (v *OpenMetricsValidator) validateMetricFamily(cur *metricFamily) error {
+	switch *cur.metricType {
+	case textparse.MetricTypeHistogram, textparse.MetricTypeGaugeHistogram:
+		return v.validateMetricFamilyHistogram(cur)
+	case textparse.MetricTypeSummary:
+		return v.validateMetricFamilySummary(cur)
+	case textparse.MetricTypeStateset:
+		return v.validateMetricFamilyStateSet(cur)
+	default:
+		return nil
+	}
+}
+
+func (v *OpenMetricsValidator) validateMetricFamilyStateSet(cur *metricFamily) error {
+	for _, m := range cur.metrics {
+		if len(m.lset) < 2 {
+			return errMustStateSetContainLabel
+		}
+	}
+	return nil
+}
+
+func (v *OpenMetricsValidator) validateMetricFamilySummary(cur *metricFamily) error {
+	for _, m := range cur.metrics {
+		mn := m.lset.Get(labels.MetricName)
+		if strings.HasSuffix(mn, "_count") ||
+			strings.HasSuffix(mn, "_sum") ||
+			strings.HasSuffix(mn, "_created") {
+			continue
+		}
+		// Metrics with empty suffix are expected to have quantile label.
+		strVal := m.lset.Get("quantile")
+		val, err := strconv.ParseFloat(strVal, 64)
+		if err != nil {
+			return fmt.Errorf("invalid quantile value %q: %v", strVal, err)
+		}
+		if val < 0 || val > 1 || math.IsNaN(val) {
+			return errMustQuantileBeBetweenZeroAndOne
+		}
+	}
+	return nil
+}
+
+func (v *OpenMetricsValidator) validateMetricFamilyHistogram(cur *metricFamily) error {
+	var positiveInfBucketFound bool
+	// Histogram MetricPoints MUST have at least a bucket with an +Inf threshold
+	for _, m := range cur.metrics {
+		val := m.lset.Get(labels.BucketLabel)
+		if val == "+Inf" {
+			positiveInfBucketFound = true
+		}
+	}
+	if !positiveInfBucketFound {
+		return errMustContainPositiveInfBucket
+	}
+	return nil
+}
+
+// compareMetric validates the current record against last record for a metric.
+// TODO: compareMetric more metric types.
+func compareMetric(mt *textparse.MetricType, last, cur metric) error {
+	if mt == nil {
+		return errMustMetricFamilyWithMetadata
 	}
 	if cur.timestamp <= last.timestamp {
-		return errMustNotTimestampDecrease
+		return errMustTimestampIncrease
+	}
+	switch *mt {
+	case textparse.MetricTypeCounter:
+		return compareMetricCounter(last, cur)
+	}
+	return nil
+}
+
+func compareMetricCounter(last, cur metric) error {
+	if cur.value < last.value {
+		return errMustNotCounterValueDecrease
 	}
 	return nil
 }
