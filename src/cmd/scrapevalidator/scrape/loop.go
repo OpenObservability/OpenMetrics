@@ -55,36 +55,38 @@ func NewLoop(
 	return l
 }
 
-// Run starts the loop.
-func (l *Loop) Run() error {
-	if err := l.runOnce(); err != nil {
-		return err
-	}
+// Run runs the loop.
+func (l *Loop) Run(killAfter time.Duration) {
+	l.runOnce()
 
 	ticker := time.NewTicker(l.scrapeInterval)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		if err := l.runOnce(); err != nil {
-			return err
+	for {
+		select {
+		case <-ticker.C:
+			l.runOnce()
+		case <-time.After(killAfter):
+			return
 		}
 	}
-	return nil
 }
 
-func (l *Loop) runOnce() error {
+func (l *Loop) runOnce() {
 	ctx, cancel := context.WithTimeout(context.Background(), l.scrapeTimeout)
 	defer cancel()
 
 	b, err := l.scraper.Scrape(ctx)
 	if err != nil {
-		return err
+		log.Printf("scrape failed: %v\n", err)
+		return
 	}
 	log.Println("scraped successfully")
 
-	err = l.validator.Validate(b)
-	if err == nil {
-		log.Println("validated successfully")
+	if err := l.validator.Validate(b); err != nil {
+		l.validator.Reset()
+		log.Printf("validation failed: %v\n", err)
+		return
 	}
-	return err
+	log.Println("validated successfully")
 }

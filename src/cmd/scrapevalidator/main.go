@@ -14,7 +14,8 @@ var (
 	endpointArg       = flag.String("endpoint", "", "prom endpoint to validate, this is required")
 	scrapeTimeoutArg  = flag.Duration("scrape-timeout", 8*time.Second, "timeout for each scrape")
 	scrapeIntervalArg = flag.Duration("scrape-interval", 10*time.Second, "time between scrapes")
-	errorLevelArg     = flag.String("error-level", "must", "OpenMetrics defines rules in different categories like \"SHOULD\" and \"MUST\", by default this parameter is set to \"must\" so that only the rules in the \"MUST\" category is checked, the alternative value is \"should\" which validates the rules in both categories.")
+	errorLevelArg     = flag.String("error-level", "should", `OpenMetrics defines rules in different categories like "SHOULD" and "MUST", by default this parameter is set to "should" so that it validates the rules in both the "MUST" and "SHOULD" categories, the alternative value is "must" which validates only the rules in the "MUST" category.`)
+	killAfter         = flag.Duration("kill-after", 5*time.Minute, "kill the tool after")
 )
 
 func main() {
@@ -38,7 +39,5 @@ func main() {
 	}
 
 	s := scrape.NewLoop(*endpointArg, opts...)
-	if err := s.Run(); err != nil {
-		log.Fatalf("validation failed: %s", err)
-	}
+	s.Run(*killAfter)
 }

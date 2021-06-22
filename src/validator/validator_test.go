@@ -9,6 +9,18 @@ import (
 	"go.uber.org/multierr"
 )
 
+func TestValidateCaptureMultipleError(t *testing.T) {
+	str := `# TYPE a counter
+# HELP a help
+a_total{a="1",foo="bar"} 3 2
+a_total{a="1",foo="bar"} 2 1
+# EOF`
+	v := NewValidator(ErrorLevelMust)
+	err := v.Validate([]byte(str))
+	require.Contains(t, err.Error(), errMustTimestampIncrease.Error())
+	require.Contains(t, err.Error(), errMustNotCounterValueDecrease.Error())
+}
+
 func TestValidateShouldAndMust(t *testing.T) {
 	tcs := []testCase{
 		{
@@ -315,6 +327,7 @@ func run(t *testing.T, v *OpenMetricsValidator, tc testCase) {
 		require.NoError(t, mErr)
 		return
 	}
+	require.Error(t, mErr)
 	require.Contains(t, mErr.Error(), tc.expectedErr.Error())
 }
 
