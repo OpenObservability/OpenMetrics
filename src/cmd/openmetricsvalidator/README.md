@@ -30,33 +30,9 @@ We are working on updating the tool to bridge the gap between the python client 
 Here is a list of the failing tests:
 
 ```
-FAIL test: bad_counter_values_0
-FAIL test: bad_counter_values_1
-FAIL test: bad_counter_values_15
-FAIL test: bad_counter_values_16
-FAIL test: bad_counter_values_17
-FAIL test: bad_counter_values_18
-FAIL test: bad_counter_values_19
-FAIL test: bad_exemplars_on_unallowed_samples_2
-FAIL test: bad_grouping_or_ordering_10
-FAIL test: bad_grouping_or_ordering_3
-FAIL test: bad_histograms_1
-FAIL test: bad_histograms_2
-FAIL test: bad_histograms_3
-FAIL test: bad_histograms_7
-FAIL test: bad_info_and_stateset_values_0
-FAIL test: bad_info_and_stateset_values_1
-FAIL test: bad_metadata_in_wrong_place_1
-FAIL test: bad_metadata_in_wrong_place_2
-FAIL test: bad_repeated_metadata_0
-FAIL test: bad_repeated_metadata_1
-FAIL test: bad_repeated_metadata_3
-FAIL test: bad_stateset_info_values_1
-FAIL test: bad_stateset_info_values_3
-FAIL test: bad_unit_6
-FAIL test: bad_unit_7
+FAIL test: bad_timestamp_4
+FAIL test: bad_timestamp_5
+FAIL test: bad_timestamp_7
 FAIL test: duplicate_timestamps
-FAIL test: nan
-FAIL test: no_metadata
-FAILED passed=177, failed=28, total_failures=28
+FAILED passed=201, failed=4, total_failures=4
 ```

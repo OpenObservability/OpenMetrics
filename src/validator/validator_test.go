@@ -24,6 +24,94 @@ a_total{a="1",foo="bar"} 2 1
 func TestValidateShouldAndMust(t *testing.T) {
 	tcs := []testCase{
 		{
+			name: "bad_examplar_in_gauge",
+			exports: []string{
+				`# TYPE a_bucket gauge
+a_bucket 1 # {a="b"} 0.5
+# EOF`,
+			},
+			expectedErr: errExampler,
+		},
+		{
+			name: "bad_mix_timestamp_presence",
+			exports: []string{
+				`# TYPE a gauge
+a 0 0
+a 0
+# EOF`,
+			},
+			expectedErr: errMustNotMixTimestampPresense,
+		},
+		{
+			name: "bad_mix_timestamp_presence",
+			exports: []string{
+				`# TYPE a gauge
+a 0
+a 0 0
+# EOF`,
+			},
+			expectedErr: errMustNotMixTimestampPresense,
+		},
+		{
+			name: "bad_invalid_gauge_histogram_buckets_missing_count",
+			exports: []string{
+				`# TYPE a gaugehistogram
+a_bucket{le="+Inf"} 1
+a_gsum -1
+a_gcount 1
+# EOF`,
+			},
+			expectedErr: errMustGaugeHistogramNotHaveGSumAndNegative,
+		},
+		{
+			name: "bad_invalid_histogram_buckets_missing_count",
+			exports: []string{
+				`# TYPE a histogram
+a_bucket{le="-1"} 0
+a_bucket{le="+Inf"} 0
+a_sum 0
+a_count 0
+# EOF`,
+			},
+			expectedErr: errMustHistogramNotHaveSumAndNegative,
+		},
+		{
+			name: "bad_invalid_histogram_buckets_missing_count",
+			exports: []string{
+				`# TYPE a histogram
+a_bucket{le="+Inf"} 0
+a_sum 0
+# EOF`,
+			},
+			expectedErr: errMustHistogramHaveSumAndCount,
+		},
+		{
+			name: "bad_invalid_info_value",
+			exports: []string{
+				`# TYPE a info
+a 2.0
+# EOF`,
+			},
+			expectedErr: errInvalidInfoValue,
+		},
+		{
+			name: "bad_invalid_stateset_value",
+			exports: []string{
+				`# TYPE a stateset
+a{a="b"} 2.0
+# EOF`,
+			},
+			expectedErr: errInvalidStateSetValue,
+		},
+		{
+			name: "bad_must_label_names_be_unique",
+			exports: []string{
+				`a{a="1",a="1"} 1
+# EOF`,
+			},
+			expectedErr: errMustLabelNamesBeUnique,
+		},
+		{
 			name: "bad_must_not_counter_decreasing",
 			exports: []string{
 				`# TYPE a counter
@@ -115,16 +203,6 @@ a_total{a="1",foo="bar"} 2 1
 			expectedErr: errMustTimestampIncrease,
 		},
 		{
-			name: "bad_must_not_metric_name_change",
-			exports: []string{
-				`# TYPE a counter
-# HELP b help
-a_total1 2
-# EOF`,
-			},
-			expectedErr: errors.New(`metric name changed from "a" to "b"`),
-		},
-		{
 			name: "bad_must_histogram_have_+Inf_bucket",
 			exports: []string{
 				`# TYPE a gaugehistogram
@@ -149,7 +227,7 @@ a 0
 a{quantile="2"} 0
 # EOF`,
 			},
-			expectedErr: errMustQuantileBeBetweenZeroAndOne,
+			expectedErr: errMustSummaryQuantileBeBetweenZeroAndOne,
 		},
 		{
 			name: "bad_must_summary_quantile_be_between_0_and_1",
@@ -158,7 +236,16 @@ a{quantile="2"} 0
 a{quantile="NaN"} 0
 # EOF`,
 			},
-			expectedErr: errMustQuantileBeBetweenZeroAndOne,
+			expectedErr: errMustSummaryQuantileBeBetweenZeroAndOne,
+		},
+		{
+			name: "good_must_stateset_contain_label",
+			exports: []string{
+				`# TYPE a stateset
+# HELP a help
+a{a="b"} 0
+# EOF`,
+			},
 		},
 		{
 			name: "bad_must_stateset_contain_label",
@@ -180,14 +267,123 @@ a{a="bar"} 0
 			},
 		},
 		{
-			name: "bad_clashing_names",
+			name: "bad_duplicated_metric_type",
 			exports: []string{
 				`# TYPE a counter
 # TYPE a counter
-# EOF
-`,
+# EOF`,
 			},
-			expectedErr: errMustMetricNameBeUnique,
+			expectedErr: errMetricTypeAlreadySet,
+		},
+		{
+			name: "bad_duplicated_help",
+			exports: []string{
+				`# HELP a help
+# HELP a help
+# EOF`,
+			},
+			expectedErr: errHelpAlreadySet,
+		},
+		{
+			name: "bad_duplicated_unit",
+			exports: []string{
+				`# UNIT cc_seconds seconds
+# UNIT cc_seconds seconds
+# EOF`,
+			},
+			expectedErr: errUnitAlreadySet,
+		},
+		{
+			name: "bad_must_not_counter_total_be_nan",
+			exports: []string{
+				`# TYPE a counter
+a_total NaN
+# EOF`,
+			},
+			expectedErr: errMustCounterValueBeValid,
+		},
+		{
+			name: "bad_must_not_counter_total_be_negative",
+			exports: []string{
+				`# TYPE a counter
+a_total -1
+# EOF`,
+			},
+			expectedErr: errMustCounterValueBeValid,
+		},
+		{
+			name: "bad_must_not_summary_sum_be_nan",
+			exports: []string{
+				`# TYPE a summary
+a_sum NaN
+# EOF`,
+			},
+			expectedErr: errInvalidSummaryCountAndSum,
+		},
+		{
+			name: "bad_must_not_summary_count_be_negative",
+			exports: []string{
+				`# TYPE a summary
+a_count -1
+# EOF`,
+			},
+			expectedErr: errInvalidSummaryCountAndSum,
+		},
+		{
+			name: "bad_must_not_summary_quantile_value_be_negative",
+			exports: []string{
+				`# TYPE a summary
+a{quantile="0.5"} -1
+# EOF`,
+			},
+			expectedErr: errMustNotSummaryQuantileValueBeNegative,
+		},
+		{
+			name: "good_metric_name_without_metadata",
+			exports: []string{
+				`a 0
+b 0
+# EOF`,
+			},
+		},
+		{
+			name: "bad_metric_families_interleaved",
+			exports: []string{
+				`# TYPE a summary
+quantile{quantile="0"} 0
+a_sum{a="1"} 0
+quantile{quantile="1"} 0
+# EOF`,
+			},
+			expectedErr: errMustNotMetricFamiliesInterleave,
+		},
+		{
+			name: "bad_unit_for_info",
+			exports: []string{
+				`# TYPE x_u info
+# UNIT x_u u
+# EOF`,
+			},
+			expectedErr: errMustNoUnitForInfo,
+		},
+		{
+			name: "bad_unit_for_stateset",
+			exports: []string{
+				`# TYPE x_u stateset
+# UNIT x_u u
+# EOF`,
+			},
+			expectedErr: errMustNoUnitForStateSet,
+		},
+		{
+			name: "bad_metadata_in_wrong_place",
+			exports: []string{
+				`# TYPE a_s gauge
+a_s 1
+# UNIT a_s s
+# EOF`,
+			},
+			expectedErr: errUnitAlreadySet,
 		},
 	}
 	for _, tc := range tcs {
@@ -289,16 +485,6 @@ a_total{a="1",foo="bar"} 2 1
 # EOF`,
 			},
 			expectedErr: errMustTimestampIncrease,
-		},
-		{
-			name: "bad_must_not_metric_name_change",
-			exports: []string{
-				`# TYPE a counter
-# HELP b help
-a_total1 2
-# EOF`,
-			},
-			expectedErr: errors.New(`metric name changed from "a" to "b"`),
 		},
 	}
 
