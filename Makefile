@@ -28,7 +28,6 @@ test_prometheus_client_go_parser:
 	cd ./src && make prometheusclientgoparser
 	make test-impl cmd-parser-text="./bin/prometheusclientgoparser"
 
-
 # To test OpenMetrics validator:
 .PHONY: test_open_metrics_validator
 test_open_metrics_validator:
