@@ -669,7 +669,7 @@ The Sample MetricName for the value of a MetricPoint for a MetricFamily of type 
 
 StateSets MUST have one sample per State in the MetricPoint. Each State's sample MUST have a label with the MetricFamily name as the label name and the State name as the label value. The State sample's value MUST be 1 if the State is true and MUST be 0 if the State is false.
 
-An example with the states "a", "bb", and "ccc" in which only the value b is enabled and the metric name is foo:
+An example with the states "a", "bb", and "ccc" in which only the value bb is enabled and the metric name is foo:
 
 ~~~~
 # TYPE foo stateset
