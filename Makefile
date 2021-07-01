@@ -22,12 +22,6 @@ test_prometheus_client_python_parser:
 	make prometheus_client_python_parser
 	make test-impl cmd-parser-text="docker run --rm -i prometheus_client_python_parser:latest"
 
-# To test github.com/prometheus/prometheus/pkg/textparse parser:
-.PHONY: test_prometheus_client_go_parser
-test_prometheus_client_go_parser:
-	cd ./src && make prometheusclientgoparser
-	make test-impl cmd-parser-text="./bin/prometheusclientgoparser"
-
 # To test OpenMetrics validator:
 .PHONY: test_open_metrics_validator
 test_open_metrics_validator:

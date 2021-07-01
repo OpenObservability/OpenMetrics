@@ -2,7 +2,6 @@ BUILD := $(abspath ../bin)
 BINARIES :=                \
 	openmetricstest          \
 	openmetricsvalidator     \
-	prometheusclientgoparser \
 	scrapevalidator          \
 
 .PHONY: setup
