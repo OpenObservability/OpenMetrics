@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	errExampler = errorWithLevel{
+	errExemplar = errorWithLevel{
 		err:   errors.New("only histogram/gaugehistogram buckets and counters can have exemplars"),
 		level: ErrorLevelMust,
 	}
@@ -438,7 +438,7 @@ func (v *OpenMetricsValidator) recordMetric(
 	lset labels.Labels,
 	timestamp int64,
 	value float64,
-	withExampler bool,
+	withExemplar bool,
 	withTimestamp bool,
 ) {
 	mfn := v.sanitizedMetricName(mn)
@@ -453,7 +453,7 @@ func (v *OpenMetricsValidator) recordMetric(
 		lset:         lset,
 		value:        value,
 		timestamp:    timestamp,
-		withExemplar: withExampler,
+		withExemplar: withExemplar,
 	}
 	v.validateMetric(mn, mf.MetricType(), cur)
 	key := labelKey(lset)
@@ -702,7 +702,7 @@ func (v *OpenMetricsValidator) validateMetricFamilyGaugeHistogram(mfn string, cu
 func (v *OpenMetricsValidator) validateMetric(mn string, mt textparse.MetricType, cur metric) {
 	if cur.withExemplar {
 		if mt != textparse.MetricTypeGaugeHistogram && mt != textparse.MetricTypeHistogram && mt != textparse.MetricTypeCounter {
-			v.addError(mn, errExampler)
+			v.addError(mn, errExemplar)
 		}
 	}
 	switch mt {

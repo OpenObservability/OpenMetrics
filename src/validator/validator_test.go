@@ -24,13 +24,30 @@ a_total{a="1",foo="bar"} 2 1
 func TestValidateShouldAndMust(t *testing.T) {
 	tcs := []testCase{
 		{
-			name: "bad_examplar_in_gauge",
+			name: "good_exemplar_in_counter",
+			exports: []string{
+				`# TYPE a counter
+a_total 1 # {a="b"} 0.5
+# EOF`,
+			},
+		},
+		{
+			name: "bad_exemplar_timestamp",
+			exports: []string{
+				`# TYPE a counter
+a_total 1 # {a="b"} 0.5 NaN
+# EOF`,
+			},
+			expectedErr: errors.New("invalid exemplar timestamp"),
+		},
+		{
+			name: "bad_exemplar_in_gauge",
 			exports: []string{
 				`# TYPE a_bucket gauge
 a_bucket 1 # {a="b"} 0.5
 # EOF`,
 			},
-			expectedErr: errExampler,
+			expectedErr: errExemplar,
 		},
 		{
 			name: "bad_mix_timestamp_presence",
