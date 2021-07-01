@@ -1,5 +1,5 @@
 {
   "type": "text",
   "file": "metrics",
-  "shouldParse": false
+  "shouldParse": true
 }

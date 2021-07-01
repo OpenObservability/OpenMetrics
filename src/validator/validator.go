@@ -728,7 +728,7 @@ func (v *OpenMetricsValidator) validateMetricStateSet(mn string, cur metric) {
 // compareMetric compares the current record against last record for a metric.
 // TODO: compare more metric types.
 func (v *OpenMetricsValidator) compareMetric(mn string, mt textparse.MetricType, last, cur metric) {
-	if cur.timestamp <= last.timestamp {
+	if cur.timestamp < last.timestamp {
 		v.addError(mn, errMustTimestampIncrease)
 	}
 	switch mt {

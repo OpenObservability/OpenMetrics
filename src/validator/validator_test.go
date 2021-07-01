@@ -178,6 +178,26 @@ a2_total{bar="baz"} 1
 			expectedErr: errShouldNotDuplicateLabel,
 		},
 		{
+			name: "good_timestamp_monotonically_increasing_1",
+			exports: []string{
+				`# TYPE a counter
+# HELP a help
+a_total{a="1",foo="bar"} 1 1
+a_total{a="1",foo="bar"} 2 2
+# EOF`,
+			},
+		},
+		{
+			name: "good_timestamp_monotonically_increasing_2",
+			exports: []string{
+				`# TYPE a counter
+# HELP a help
+a_total{a="1",foo="bar"} 1 1
+a_total{a="1",foo="bar"} 2 1
+# EOF`,
+			},
+		},
+		{
 			name: "bad_must_not_timestamp_decrease_in_metric_set",
 			exports: []string{
 				`# TYPE a counter
