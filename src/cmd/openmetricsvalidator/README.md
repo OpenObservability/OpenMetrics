@@ -21,18 +21,3 @@ cat ./tests/testdata/parsers/bad_help_0/metrics | ./bin/openmetricsvalidator
 cat ./tests/testdata/parsers/simple_counter/metrics | ./bin/openmetricsvalidator
 2021/06/08 20:04:30 successfully validated input
 ```
-
-## Known issues
-
-Like the open metrics golang parser, this validator is also failing some test cases that are passing in the python parser.
-
-We are working on updating the tool to bridge the gap between the python client and this validator.
-Here is a list of the failing tests:
-
-```
-FAIL test: bad_timestamp_4
-FAIL test: bad_timestamp_5
-FAIL test: bad_timestamp_7
-FAIL test: duplicate_timestamps
-FAILED passed=201, failed=4, total_failures=4
-```
