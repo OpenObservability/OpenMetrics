@@ -5,12 +5,12 @@
 Ops WG                                                  R. Hartmann, Ed.
 Internet-Draft                                              Grafana Labs
 Intended status: Standards Track                               B. Kochie
-Expires: December 31, 2021                                        GitLab
+Expires: January 2, 2022                                          GitLab
                                                                B. Brazil
                                                        Robust Perception
                                                           R. Skillington
                                                             Chronosphere
-                                                           June 29, 2021
+                                                           July 01, 2021
 
 
      OpenMetrics, a cloud-native, highly scalable metrics protocol
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 31, 2021.
+   This Internet-Draft will expire on January 2, 2022.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 1]
+Hartmann, et al.         Expires January 2, 2022                [Page 1]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    to this document.  Code Components extracted from this document must
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 2]
+Hartmann, et al.         Expires January 2, 2022                [Page 2]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
      5.6.  NaN . . . . . . . . . . . . . . . . . . . . . . . . . . .  32
@@ -165,9 +165,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 3]
+Hartmann, et al.         Expires January 2, 2022                [Page 3]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 1.1.  Requirements Language
@@ -221,9 +221,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 4]
+Hartmann, et al.         Expires January 2, 2022                [Page 4]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    precedence.  This reduces repetition as the text wire format MUST be
@@ -277,9 +277,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 5]
+Hartmann, et al.         Expires January 2, 2022                [Page 5]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 3.1.7.  Exemplars
@@ -333,9 +333,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 6]
+Hartmann, et al.         Expires January 2, 2022                [Page 6]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 3.1.9.1.1.  Suffixes
@@ -389,9 +389,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 7]
+Hartmann, et al.         Expires January 2, 2022                [Page 7]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 3.1.9.5.  MetricSet
@@ -445,9 +445,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 8]
+Hartmann, et al.         Expires January 2, 2022                [Page 8]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    A MetricPoint in a Metric with the type Counter SHOULD have a
@@ -501,9 +501,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 9]
+Hartmann, et al.         Expires January 2, 2022                [Page 9]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 3.2.5.  Histogram
@@ -557,9 +557,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 10]
+Hartmann, et al.         Expires January 2, 2022               [Page 10]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 3.2.6.  GaugeHistogram
@@ -613,9 +613,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 11]
+Hartmann, et al.         Expires January 2, 2022               [Page 11]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    did not see before.  Created MUST NOT relate to the collection period
@@ -669,9 +669,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 12]
+Hartmann, et al.         Expires January 2, 2022               [Page 12]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    Push-based negotiation is inherently more complex, as the exposer
@@ -725,9 +725,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 13]
+Hartmann, et al.         Expires January 2, 2022               [Page 13]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
  realnumber =/ [SIGN] *DIGIT "." 1*DIGIT [ "e" [SIGN] 1*DIGIT ]
@@ -781,9 +781,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 14]
+Hartmann, et al.         Expires January 2, 2022               [Page 14]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    The content type MUST be: application/openmetrics-text;
@@ -837,9 +837,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 15]
+Hartmann, et al.         Expires January 2, 2022               [Page 15]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    Arbitrary integer and floating point rendering of numbers MUST NOT be
@@ -893,9 +893,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 16]
+Hartmann, et al.         Expires January 2, 2022               [Page 16]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    Grisu3 such as Grisu3 is not readily available, exposers MAY use a
@@ -949,9 +949,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 17]
+Hartmann, et al.         Expires January 2, 2022               [Page 17]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    # TYPE foo_seconds counter
@@ -1005,9 +1005,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 18]
+Hartmann, et al.         Expires January 2, 2022               [Page 18]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    # TYPE foo_seconds summary
@@ -1061,9 +1061,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 19]
+Hartmann, et al.         Expires January 2, 2022               [Page 19]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    An example with a Metric with no labels and MetricPoint with a
@@ -1117,9 +1117,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 20]
+Hartmann, et al.         Expires January 2, 2022               [Page 20]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    An example of an "entity" label on the Metric: ~~~~ # TYPE foo
@@ -1173,9 +1173,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 21]
+Hartmann, et al.         Expires January 2, 2022               [Page 21]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 4.1.5.6.  Histogram
@@ -1229,9 +1229,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 22]
+Hartmann, et al.         Expires January 2, 2022               [Page 22]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    Buckets MUST be sorted in number increasing order of "le", and the
@@ -1285,9 +1285,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 23]
+Hartmann, et al.         Expires January 2, 2022               [Page 23]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 4.2.2.  Protobuf schema
@@ -1341,9 +1341,9 @@ enum MetricType {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 24]
+Hartmann, et al.         Expires January 2, 2022               [Page 24]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
   // Info must use info MetricPoint values.
@@ -1397,9 +1397,9 @@ message UnknownValue {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 25]
+Hartmann, et al.         Expires January 2, 2022               [Page 25]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
   // Required.
@@ -1453,9 +1453,9 @@ message HistogramValue {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 26]
+Hartmann, et al.         Expires January 2, 2022               [Page 26]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
   repeated Bucket buckets = 5;
@@ -1509,9 +1509,9 @@ message InfoValue {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 27]
+Hartmann, et al.         Expires January 2, 2022               [Page 27]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 // Value for SUMMARY MetricPoint.
@@ -1565,9 +1565,9 @@ message SummaryValue {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 28]
+Hartmann, et al.         Expires January 2, 2022               [Page 28]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 5.1.1.  Out of scope
@@ -1621,9 +1621,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 29]
+Hartmann, et al.         Expires January 2, 2022               [Page 29]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    joules, grams, meters, ratios, volts, amperes, and celsius.  Units
@@ -1677,9 +1677,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 30]
+Hartmann, et al.         Expires January 2, 2022               [Page 30]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    Going to that extreme would not be useful.  The possibility of having
@@ -1733,9 +1733,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 31]
+Hartmann, et al.         Expires January 2, 2022               [Page 31]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    A notable exception is that adding a label to the value of an Info
@@ -1789,9 +1789,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 32]
+Hartmann, et al.         Expires January 2, 2022               [Page 32]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 5.8.  Exposition Performance
@@ -1845,9 +1845,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 33]
+Hartmann, et al.         Expires January 2, 2022               [Page 33]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    DNS.  Rather the aim is to keep to a lightweight informal approach,
@@ -1901,9 +1901,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 34]
+Hartmann, et al.         Expires January 2, 2022               [Page 34]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    Within the Prometheus ecosystem a set of per-process metrics has
@@ -1957,9 +1957,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 35]
+Hartmann, et al.         Expires January 2, 2022               [Page 35]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 5.12.  Metric Names versus Labels
@@ -2013,9 +2013,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 36]
+Hartmann, et al.         Expires January 2, 2022               [Page 36]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    wire format.  In particular, the query languages created or adopted
@@ -2069,9 +2069,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 37]
+Hartmann, et al.         Expires January 2, 2022               [Page 37]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    own target metadata, it is still often useful to have access to the
@@ -2125,9 +2125,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 38]
+Hartmann, et al.         Expires January 2, 2022               [Page 38]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    As an example, you should not expose a gauge with the average rate of
@@ -2181,9 +2181,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 39]
+Hartmann, et al.         Expires January 2, 2022               [Page 39]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    While there are limited use cases for attaching timestamps to exposed
@@ -2237,9 +2237,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 40]
+Hartmann, et al.         Expires January 2, 2022               [Page 40]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    example ~~~~ # TYPE my_boot_time_seconds gauge # HELP
@@ -2293,9 +2293,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 41]
+Hartmann, et al.         Expires January 2, 2022               [Page 41]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
 5.18.  Size Limits
@@ -2349,9 +2349,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 42]
+Hartmann, et al.         Expires January 2, 2022               [Page 42]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    order of magnitude of the time series. 1,000 gauges with one Metric
@@ -2405,9 +2405,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 43]
+Hartmann, et al.         Expires January 2, 2022               [Page 43]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    If more than one metric endpoint needs to be reachable at a common IP
@@ -2461,9 +2461,9 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 44]
+Hartmann, et al.         Expires January 2, 2022               [Page 44]
 
-Internet-Draft                 OpenMetrics                     June 2021
+Internet-Draft                 OpenMetrics                     July 2021
 
 
    [timestamp]
@@ -2517,4 +2517,4 @@ Authors' Addresses
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 45]
+Hartmann, et al.         Expires January 2, 2022               [Page 45]
