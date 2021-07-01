@@ -5,12 +5,12 @@
 Ops WG                                                  R. Hartmann, Ed.
 Internet-Draft                                              Grafana Labs
 Intended status: Standards Track                               B. Kochie
-Expires: December 31, 2021                                        GitLab
+Expires: January 1, 2022                                          GitLab
                                                                B. Brazil
                                                        Robust Perception
                                                           R. Skillington
                                                             Chronosphere
-                                                           June 29, 2021
+                                                           June 30, 2021
 
 
      OpenMetrics, a cloud-native, highly scalable metrics protocol
@@ -38,7 +38,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 31, 2021.
+   This Internet-Draft will expire on January 1, 2022.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 1]
+Hartmann, et al.         Expires January 1, 2022                [Page 1]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 2]
+Hartmann, et al.         Expires January 1, 2022                [Page 2]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -165,7 +165,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 3]
+Hartmann, et al.         Expires January 1, 2022                [Page 3]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -221,7 +221,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 4]
+Hartmann, et al.         Expires January 1, 2022                [Page 4]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -277,7 +277,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 5]
+Hartmann, et al.         Expires January 1, 2022                [Page 5]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -333,7 +333,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 6]
+Hartmann, et al.         Expires January 1, 2022                [Page 6]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -389,7 +389,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 7]
+Hartmann, et al.         Expires January 1, 2022                [Page 7]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -445,7 +445,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 8]
+Hartmann, et al.         Expires January 1, 2022                [Page 8]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -501,7 +501,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021               [Page 9]
+Hartmann, et al.         Expires January 1, 2022                [Page 9]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -557,7 +557,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 10]
+Hartmann, et al.         Expires January 1, 2022               [Page 10]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -613,7 +613,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 11]
+Hartmann, et al.         Expires January 1, 2022               [Page 11]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -669,7 +669,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 12]
+Hartmann, et al.         Expires January 1, 2022               [Page 12]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -725,7 +725,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 13]
+Hartmann, et al.         Expires January 1, 2022               [Page 13]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -781,7 +781,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 14]
+Hartmann, et al.         Expires January 1, 2022               [Page 14]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -837,7 +837,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 15]
+Hartmann, et al.         Expires January 1, 2022               [Page 15]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -893,7 +893,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 16]
+Hartmann, et al.         Expires January 1, 2022               [Page 16]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -949,7 +949,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 17]
+Hartmann, et al.         Expires January 1, 2022               [Page 17]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1005,7 +1005,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 18]
+Hartmann, et al.         Expires January 1, 2022               [Page 18]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1061,7 +1061,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 19]
+Hartmann, et al.         Expires January 1, 2022               [Page 19]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1117,7 +1117,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 20]
+Hartmann, et al.         Expires January 1, 2022               [Page 20]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1173,7 +1173,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 21]
+Hartmann, et al.         Expires January 1, 2022               [Page 21]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1229,7 +1229,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 22]
+Hartmann, et al.         Expires January 1, 2022               [Page 22]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1285,7 +1285,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 23]
+Hartmann, et al.         Expires January 1, 2022               [Page 23]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1341,7 +1341,7 @@ enum MetricType {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 24]
+Hartmann, et al.         Expires January 1, 2022               [Page 24]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1397,7 +1397,7 @@ message UnknownValue {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 25]
+Hartmann, et al.         Expires January 1, 2022               [Page 25]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1453,7 +1453,7 @@ message HistogramValue {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 26]
+Hartmann, et al.         Expires January 1, 2022               [Page 26]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1509,7 +1509,7 @@ message InfoValue {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 27]
+Hartmann, et al.         Expires January 1, 2022               [Page 27]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1565,7 +1565,7 @@ message SummaryValue {
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 28]
+Hartmann, et al.         Expires January 1, 2022               [Page 28]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1621,7 +1621,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 29]
+Hartmann, et al.         Expires January 1, 2022               [Page 29]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1677,7 +1677,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 30]
+Hartmann, et al.         Expires January 1, 2022               [Page 30]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1733,7 +1733,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 31]
+Hartmann, et al.         Expires January 1, 2022               [Page 31]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1789,7 +1789,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 32]
+Hartmann, et al.         Expires January 1, 2022               [Page 32]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1845,7 +1845,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 33]
+Hartmann, et al.         Expires January 1, 2022               [Page 33]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1901,7 +1901,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 34]
+Hartmann, et al.         Expires January 1, 2022               [Page 34]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -1957,7 +1957,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 35]
+Hartmann, et al.         Expires January 1, 2022               [Page 35]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2013,7 +2013,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 36]
+Hartmann, et al.         Expires January 1, 2022               [Page 36]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2069,7 +2069,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 37]
+Hartmann, et al.         Expires January 1, 2022               [Page 37]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2125,7 +2125,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 38]
+Hartmann, et al.         Expires January 1, 2022               [Page 38]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2181,7 +2181,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 39]
+Hartmann, et al.         Expires January 1, 2022               [Page 39]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2237,7 +2237,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 40]
+Hartmann, et al.         Expires January 1, 2022               [Page 40]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2293,7 +2293,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 41]
+Hartmann, et al.         Expires January 1, 2022               [Page 41]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2349,7 +2349,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 42]
+Hartmann, et al.         Expires January 1, 2022               [Page 42]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2405,7 +2405,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 43]
+Hartmann, et al.         Expires January 1, 2022               [Page 43]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2461,7 +2461,7 @@ Internet-Draft                 OpenMetrics                     June 2021
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 44]
+Hartmann, et al.         Expires January 1, 2022               [Page 44]
 
 Internet-Draft                 OpenMetrics                     June 2021
 
@@ -2517,4 +2517,4 @@ Authors' Addresses
 
 
 
-Hartmann, et al.        Expires December 31, 2021              [Page 45]
+Hartmann, et al.         Expires January 1, 2022               [Page 45]
