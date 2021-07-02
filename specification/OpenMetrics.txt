@@ -1107,7 +1107,7 @@ Internet-Draft                 OpenMetrics                     July 2021
    false.
 
    An example with the states "a", "bb", and "ccc" in which only the
-   value b is enabled and the metric name is foo:
+   value bb is enabled and the metric name is foo:
 
    # TYPE foo stateset
    foo{foo="a"} 0
