@@ -413,6 +413,7 @@ application/openmetrics-text; version=1.0.0; charset=utf-8
 Line endings MUST be signalled with line feed (\n) and MUST NOT contain carriage returns (\r). Expositions MUST end with EOF and SHOULD end with 'EOF\n'.
 
 An example of a complete exposition:
+
 ~~~~
 # TYPE acme_http_router_request_seconds summary
 # UNIT acme_http_router_request_seconds seconds
@@ -464,7 +465,7 @@ Exposers SHOULD produce output for the values 1e-10 up to 1e+10 in powers of ten
 
 Parsers MUST NOT reject inputs which are outside of the canonical values merely because they are not consistent with the canonical values. For example 1.1e-4 must not be rejected, even though it is not the consistent rendering of 0.00011.
 
-Exposers SHOULD follow these patterns for non-canonical numbers, and the intention is by adjusting the rendering algorithm to be consistent for these values that the vast majority of other values will also have consistent rendering. Exposers using only a few particular le/quantile values could also hardcode. In languages such as C where a minimal floating point rendering algorithm such as Grisu3 such as Grisu3 is not readily available, exposers MAY use a different rendering.
+Exposers SHOULD follow these patterns for non-canonical numbers, and the intention is by adjusting the rendering algorithm to be consistent for these values that the vast majority of other values will also have consistent rendering. Exposers using only a few particular le/quantile values could also hardcode. In languages such as C where a minimal floating point rendering algorithm such as Grisu3 is not readily available, exposers MAY use a different rendering.
 
 A warning to implementers in C and other languages that share its printf implementation: The standard precision of %f, %e and %g is only six significant digits. 17 significant digits are required for full precision, e.g. `printf("%.17g", d)`.
 
@@ -492,18 +493,21 @@ If no TYPE is exposed, the MetricFamily MUST be of type Unknown.
 If a unit is specified it MUST be provided in a UNIT metadata line. In addition, an underscore and the unit MUST be the suffix of the MetricFamily name.
 
 A valid example for a foo_seconds metric with a unit of "seconds":
+
 ~~~~
 # TYPE foo_seconds counter
 # UNIT foo_seconds seconds
 ~~~~
 
 An invalid example, where the unit is not a suffix on the name:
+
 ~~~~
 # TYPE foo counter
 # UNIT foo seconds
 ~~~~
 
 It is also valid to have:
+
 ~~~~
 # TYPE foo_seconds counter
 ~~~~
@@ -527,7 +531,9 @@ Aside from this metadata and the EOF line at the end of the message, you MUST NO
 Metrics MUST NOT be interleaved.
 
 See the example in "Text format -> MetricPoint".
-Labels
+
+#### Labels
+
 A sample without labels or a timestamp and the value 0 MUST be rendered either like:
 
 ~~~~
@@ -541,6 +547,7 @@ bar_seconds_count{} 0
 ~~~~
 
 Label values MAY be any valid UTF-8 value, so escaping MUST be applied as per the ABNF. A valid example with two labels:
+
 ~~~~
 bar_seconds_count{a="x",b="escaping\" example \n "} 0
 ~~~~
@@ -595,12 +602,14 @@ foo_seconds_sum{a="bb"} 0 456
 The Sample MetricName for the value of a MetricPoint for a MetricFamily of type Gauge MUST NOT have a suffix.
 
 An example MetricFamily with a Metric with no labels and a MetricPoint with no timestamp:
+
 ~~~~
 # TYPE foo gauge
 foo 17.0
 ~~~~
 
 An example of a MetricFamily with two Metrics with a label and MetricPoints with no timestamp:
+
 ~~~~
 # TYPE foo gauge
 foo{a="bb"} 17.0
@@ -608,23 +617,27 @@ foo{a="ccc"} 17.0
 ~~~~
 
 An example of a MetricFamily with no Metrics:
+
 ~~~~
 # TYPE foo gauge
 ~~~~
 
 An example with a Metric with a  label and a MetricPoint with a timestamp:
+
 ~~~~
 # TYPE foo gauge
 foo{a="b"} 17.0 1520879607.789
 ~~~~
 
 An example with a Metric with no labels and MetricPoint with a timestamp:
+
 ~~~~
 # TYPE foo gauge
 foo 17.0 1520879607.789
 ~~~~
 
 An example with a Metric with no labels and two MetricPoints with timestamps:
+
 ~~~~
 # TYPE foo gauge
 foo 17.0 123
@@ -636,18 +649,21 @@ foo 18.0 456
 The MetricPoint's Total Value Sample MetricName MUST have the suffix "_total". If present the MetricPoint's Created Value Sample MetricName MUST have the suffix "_created".
 
 An example with a Metric with no labels, and a MetricPoint with no timestamp and no created:
+
 ~~~~
 # TYPE foo counter
 foo_total 17.0
 ~~~~
 
 An example with a Metric with no labels, and a MetricPoint with a timestamp and no created:
+
 ~~~~
 # TYPE foo counter
 foo_total 17.0 1520879607.789
 ~~~~
 
 An example with a Metric with no labels, and a MetricPoint with no timestamp and a created:
+
 ~~~~
 # TYPE foo counter
 foo_total 17.0 
@@ -655,6 +671,7 @@ foo_created 1520430000.123
 ~~~~
 
 An example with a Metric with no labels, and a MetricPoint with a timestamp and a created:
+
 ~~~~
 # TYPE foo counter
 foo_total 17.0 1520879607.789
@@ -679,6 +696,7 @@ foo{foo="ccc"} 0
 ~~~~
 
 An example of an "entity" label on the Metric:
+
 ~~~~
 # TYPE foo stateset
 foo{entity="controller",foo="a"} 1.0
@@ -694,12 +712,14 @@ foo{entity="replica",foo="ccc"} 1.0
 The Sample MetricName for the value of a MetricPoint for a MetricFamily of type Info MUST have the suffix "_info". The Sample value MUST always be 1.
 
 An example of a Metric with no labels, and one MetricPoint value with "name" and "version" labels:
+
 ~~~~
 # TYPE foo info
 foo_info{name="pretty name",version="8.2.7"} 1
 ~~~~
 
 An example of a Metric with label "entity" and one MetricPoint value with “name” and “version” labels:
+
 ~~~~
 # TYPE foo info
 foo_info{entity="controller",name="pretty name",version="8.2.7"} 1.0
@@ -713,6 +733,7 @@ Metric labels and MetricPoint value labels MAY be in any order.
 If present, the MetricPoint's Sum Value Sample MetricName MUST have the suffix "_sum". If present, the MetricPoint's Count Value Sample MetricName MUST have the suffix "_count". If present, the MetricPoint's Created Value Sample MetricName MUST have the suffix "_created". If present, the MetricPoint's Quantile Values MUST specify the quantile measured using a label with a label name of "quantile" and with a label value of the quantile measured.
 
 An example of a Metric with no labels and a MetricPoint with Sum, Count and Created values:
+
 ~~~~
 # TYPE foo summary
 foo_count 17.0
@@ -721,6 +742,7 @@ foo_created 1520430000.123
 ~~~~
 
 An example of a Metric with no labels and a MetricPoint with two quantiles:
+
 ~~~~
 # TYPE foo summary
 foo{quantile="0.95"} 123.7
@@ -737,6 +759,7 @@ If and only if a Sum Value is present in a MetricPoint, then the MetricPoint's +
 Buckets MUST be sorted in number increasing order of "le", and the value of the "le" label MUST follow the rules for Canonical Numbers.
 
 An example of a Metric with no labels and a MetricPoint with Sum, Count, and Created values, and with 12 buckets. A wide and atypical but valid variety of “le” values is shown on purpose:
+
 ~~~~
 # TYPE foo histogram
 foo_bucket{le="0.0"} 0
@@ -761,6 +784,7 @@ Exemplars without Labels MUST represent an empty LabelSet as {}.
 
 An example of Exemplars showcasing several valid cases:
 The "0.01" bucket has no Exemplar. The 0.1 bucket has an Exemplar with no Labels. The 1 bucket has an Exemplar with one Label. The 10 bucket has an Exemplar with a Label and a timestamp. In practice all buckets SHOULD have the same style of Exemplars.
+
 ~~~~
 # TYPE foo histogram
 foo_bucket{le="0.01"} 0
@@ -781,6 +805,7 @@ If and only if a Sum Value is present in a MetricPoint, then the MetricPoint's +
 Buckets MUST be sorted in number increasing order of "le", and the value of the "le" label MUST follow the rules for Canonical Numbers. 
 
 An example of a Metric with no labels, and one MetricPoint value with no Exemplar with no Exemplars in the buckets:
+
 ~~~~
 # TYPE foo gaugehistogram
 foo_bucket{le="0.01"} 20.0
@@ -798,6 +823,7 @@ foo_created  1520430000.123
 The sample metric name for the value of the MetricPoint for a MetricFamily of type Unknown MUST NOT have a suffix.
 
 An example with a Metric with no labels and a MetricPoint with no timestamp:
+
 ~~~~
 # TYPE foo unknown
 foo 42.23
@@ -1189,6 +1215,7 @@ There are situations in which both using multiple Metrics within a MetricFamily 
 As a reminder, OpenMetrics is built with the assumption that ingestors can process and perform aggregations on data.
 
 Exposing a total sum alongside other metrics is wrong, as this would result in double-counting upon aggregation in downstream ingestors.
+
 ~~~~
 wrong_metric{label="a"} 1
 wrong_metric{label="b"} 6
@@ -1200,7 +1227,8 @@ Labels of a Metric should be to the minimum needed to ensure uniqueness as every
 Experience has shown that downstream ingestors find it easier to work with separate total and failure MetricFamiles rather than using {result="success"} and {result="failure"} Labels within one MetricFamily. Also it is usually better to expose separate read & write and send & receive MetricFamiles as full duplex systems are common and downstream ingestors are more likely to care about those values separately than in aggregate.
 
 All of this is not as easy as it may sound. It's an area where experience and engineering trade-offs by domain-specific experts in both exposition and the exposed system are required to find a good balance.
-Metric and Label Name Characters
+
+## Metric and Label Name Characters
 
 OpenMetrics builds on the existing widely adopted Prometheus text exposition format and the ecosystem which formed around it. Backwards compatibility is a core design goal. Expanding or contracting the set of characters that are supported by the Prometheus text format would work against that goal. Breaking backwards compatibility would have wider implications than just the wire format. In particular, the query languages created or adopted to work with data transmitted within the Prometheus ecosystem rely on these precise character sets. Label values support full UTF-8, so the format can represent multi-lingual metrics.
 
@@ -1221,6 +1249,7 @@ OpenMetrics is stateless and provides the same exposition to all ingestors, whic
 One approach would be for push-style ingestors to provide target metadata based on operator configuration out-of-band, for example as a HTTP header. While this would transport target metadata for push-style ingestors, and is not precluded by this standard, it has the disadvantage that even though pull-style ingestors should use their own target metadata, it is still often useful to have access to the metadata the exposer itself is aware of.
 
 The preferred solution is to provide this target metadata as part of the exposition, but in a way that does not impact on the exposition as a whole. Info MetricFamilies are designed for this. An exposer may include an Info MetricFamily called "target" with a single Metric with no labels with the metadata. An example in the text format might be:
+
 ~~~~
 # TYPE target info
 # HELP target Target metadata
@@ -1270,12 +1299,14 @@ All of this is to say that, in general, MetricPoint timestamps should not be exp
 ### Tracking When Metrics Last Changed
 
 Presume you had a counter my_counter which was initialized, and then later incremented by 1 at time 123. This would be a correct way to expose it in the text format:
+
 ~~~~
 # HELP my_counter Good increment example
 # TYPE my_counter counter
 my_counter_total 1
 ~~~~
 As per the parent section, ingestors should be free to attach their own timestamps, so this would be incorrect:
+
 ~~~~
 # HELP my_counter Bad increment example
 # TYPE my_counter counter
@@ -1284,6 +1315,7 @@ my_counter_total 1 123
 
 
 In case the specific time of the last change of a counter matters, this would be the correct way:
+
 ~~~~
 # HELP my_counter Good increment example
 # TYPE my_counter counter
@@ -1298,6 +1330,7 @@ By putting the timestamp of last change into its own Gauge as a value, ingestors
 
 
 Experience has shown that exposing absolute timestamps (epoch is considered absolute here) is more robust than time elapsed, seconds since, or similar. In either case, they would be gauges. For example
+
 ~~~~
 # TYPE my_boot_time_seconds gauge
 # HELP my_boot_time_seconds Boot time of the machine
@@ -1306,6 +1339,7 @@ my_boot_time_seconds 1256060124
 ~~~~
 
 Is better than
+
 ~~~~
 # TYPE my_time_since_boot_seconds gauge
 # HELP my_time_since_boot_seconds Time elapsed since machine booted
@@ -1324,6 +1358,7 @@ Exposing desired bounds for a system can make sense, but proper care needs to be
 As a counter example, some thresholds can change with scale, deployment model, or over time. A certain amount of CPU usage may be acceptable in one setting and undesirable in another. Aggregation of values can further change acceptable values. In such a system, exposing bounds could be counter-productive.
 
 For example a the maximum size of a queue may be exposed alongside the number of items currently in the queue like:
+
 ~~~~
 # HELP acme_notifications_queue_capacity The capacity of the notifications queue.
 # TYPE acme_notifications_queue_capacity gauge
