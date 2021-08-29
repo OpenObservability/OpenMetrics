@@ -1323,7 +1323,7 @@ Keep in mind that there are monitoring systems in common use which support every
 Exposing desired bounds for a system can make sense, but proper care needs to be taken. For values which are universally true, it can make sense to emit Gauge metrics for such thresholds. For example, a data center HVAC system knows the current measurements, the setpoints, and the alert setpoints. It has a globally valid and correct view of the desired system state.
 As a counter example, some thresholds can change with scale, deployment model, or over time. A certain amount of CPU usage may be acceptable in one setting and undesirable in another. Aggregation of values can further change acceptable values. In such a system, exposing bounds could be counter-productive.
 
-For example a the maximum size of a queue may be exposed alongside the number of items currently in the queue like:
+For example the maximum size of a queue may be exposed alongside the number of items currently in the queue like:
 ~~~~
 # HELP acme_notifications_queue_capacity The capacity of the notifications queue.
 # TYPE acme_notifications_queue_capacity gauge
