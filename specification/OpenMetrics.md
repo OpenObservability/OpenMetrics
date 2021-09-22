@@ -158,7 +158,7 @@ Exposers SHOULD avoid names that could be confused with the suffixes that text f
 * Counter: '_total', '_created'
 * Summary: '_count', '_sum', '_created', '' (empty)
 * Histogram: '_count', '_sum', '_bucket', '_created'
-* GaugeHistogram: '_gcount', '_gsum', '_bucket'
+* GaugeHistogram: '_gcount', '_gsum', '_bucket', '_created'
 * Info: '_info'
 * Gauge: '' (empty)
 * StateSet: '' (empty)
