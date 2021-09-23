@@ -158,7 +158,7 @@ Exposers SHOULD avoid names that could be confused with the suffixes that text f
 * Counter: '_total', '_created'
 * Summary: '_count', '_sum', '_created', '' (empty)
 * Histogram: '_count', '_sum', '_bucket', '_created'
-* GaugeHistogram: '_gcount', '_gsum', '_bucket', '_created'
+* GaugeHistogram: '_gcount', '_gsum', '_bucket'
 * Info: '_info'
 * Gauge: '' (empty)
 * StateSet: '' (empty)
@@ -202,7 +202,7 @@ A gauge MAY be used to encode an enum where the enum has many states and changes
 
 Counters measure discrete events. Common examples are the number of HTTP requests received, CPU seconds spent, or bytes sent. For counters how quickly they are increasing over time is what is of interest to a user.
 
-A MetricPoint in a Metric with the type Counter MUST have one value called Total. A Total is a non-NaN and MUST be monotonically non-decreasing over time, starting from 0. 
+A MetricPoint in a Metric with the type Counter MUST have one value called Total. A Total is a non-NaN and MUST be monotonically non-decreasing over time, starting from 0.
 
 A MetricPoint in a Metric with the type Counter SHOULD have a Timestamp value called Created. This can help ingestors discern between new metrics and long-running ones it did not see before.
 
@@ -520,7 +520,7 @@ The value of a UNIT or HELP line MAY be empty. This MUST be treated as if no met
 
 There MUST NOT be more than one of each type of metadata line for a MetricFamily. The ordering SHOULD be TYPE, UNIT, HELP.
 
-Aside from this metadata and the EOF line at the end of the message, you MUST NOT expose lines beginning with a #. 
+Aside from this metadata and the EOF line at the end of the message, you MUST NOT expose lines beginning with a #.
 
 #### Metric
 
@@ -650,7 +650,7 @@ foo_total 17.0 1520879607.789
 An example with a Metric with no labels, and a MetricPoint with no timestamp and a created:
 ~~~~
 # TYPE foo counter
-foo_total 17.0 
+foo_total 17.0
 foo_created 1520430000.123
 ~~~~
 
@@ -732,7 +732,7 @@ Quantiles MAY be in any order.
 #### Histogram
 
 The MetricPoint's Bucket Values Sample MetricNames MUST have the suffix "_bucket". If present, the MetricPoint's Sum Value Sample MetricName MUST have the suffix "_sum". If present, the MetricPoint's Created Value Sample MetricName MUST have the suffix "_created".
-If and only if a Sum Value is present in a MetricPoint, then the MetricPoint's +Inf Bucket value MUST also appear in a Sample with a MetricName with the suffix "_count". 
+If and only if a Sum Value is present in a MetricPoint, then the MetricPoint's +Inf Bucket value MUST also appear in a Sample with a MetricName with the suffix "_count".
 
 Buckets MUST be sorted in number increasing order of "le", and the value of the "le" label MUST follow the rules for Canonical Numbers.
 
@@ -775,10 +775,10 @@ foo_created  1520430000.123
 
 #### GaugeHistogram
 
-The MetricPoint's Bucket Values Sample MetricNames MUST have the suffix "_bucket". If present, the MetricPoint's Sum Value Sample MetricName MUST have the suffix "_gsum". If present, the MetricPoint's Created Value Sample MetricName MUST have the suffix "_created".
-If and only if a Sum Value is present in a MetricPoint, then the MetricPoint's +Inf Bucket value MUST also appear in a Sample with a MetricName with the suffix "_gcount". 
+The MetricPoint's Bucket Values Sample MetricNames MUST have the suffix "_bucket". If present, the MetricPoint's Sum Value Sample MetricName MUST have the suffix "_gsum".
+If and only if a Sum Value is present in a MetricPoint, then the MetricPoint's +Inf Bucket value MUST also appear in a Sample with a MetricName with the suffix "_gcount".
 
-Buckets MUST be sorted in number increasing order of "le", and the value of the "le" label MUST follow the rules for Canonical Numbers. 
+Buckets MUST be sorted in number increasing order of "le", and the value of the "le" label MUST follow the rules for Canonical Numbers.
 
 An example of a Metric with no labels, and one MetricPoint value with no Exemplar with no Exemplars in the buckets:
 ~~~~
@@ -790,7 +790,6 @@ foo_bucket{le="10"} 34.0
 foo_bucket{le="+Inf"} 42.0
 foo_gcount 42.0
 foo_gsum 3289.3
-foo_created  1520430000.123
 ~~~~
 
 #### Unknown
@@ -1025,7 +1024,7 @@ message SummaryValue {
     int64 int_value = 2;
   }
 
-  // Optional. 
+  // Optional.
   uint64 count = 3;
 
   // The time sum and count values began being collected for this summary.
@@ -1036,7 +1035,7 @@ message SummaryValue {
   repeated Quantile quantile = 5;
 
   message Quantile {
-    // Required. 
+    // Required.
     double quantile = 1;
 
     // Required.
