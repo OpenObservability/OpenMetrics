@@ -263,6 +263,8 @@ type OpenMetricsValidator struct {
 	lastMetricSet        map[string]*metricFamily
 	curMetricSet         map[string]*metricFamily
 	lastMetricFamilyName string
+	seenLabelSets        map[uint64]labels.Labels
+	lastLabelSet         labels.Labels
 	mErr                 error
 
 	nowFn nowFn
@@ -273,6 +275,7 @@ func NewValidator(level ErrorLevel) *OpenMetricsValidator {
 	return &OpenMetricsValidator{
 		lastMetricSet: make(map[string]*metricFamily),
 		curMetricSet:  make(map[string]*metricFamily),
+		seenLabelSets: make(map[uint64]labels.Labels),
 		level:         level,
 		nowFn:         time.Now,
 	}
@@ -373,6 +376,9 @@ func (v *OpenMetricsValidator) addOrGetMetricFamily(mfn string) *metricFamily {
 		mf = newMetricFamily()
 		v.curMetricSet[mfn] = mf
 		v.lastMetricFamilyName = mfn
+		v.lastLabelSet = nil
+		v.seenLabelSets = make(map[uint64]labels.Labels)
+
 		return mf
 	}
 	if v.lastMetricFamilyName != "" && mfn != v.lastMetricFamilyName {
@@ -456,6 +462,17 @@ func (v *OpenMetricsValidator) recordMetric(
 		withExemplar: withExemplar,
 	}
 	v.validateMetric(mn, mf.MetricType(), cur)
+
+	ignoredLabels := getIgnoredLabels(mn, mfn, mf)
+	hash, _ := lset.HashWithoutLabels([]byte{}, ignoredLabels...)
+	_, seen := v.seenLabelSets[hash]
+	if v.lastLabelSet != nil && !labels.Equal(v.lastLabelSet, lset.WithoutLabels(ignoredLabels...)) && seen {
+		v.addError(mfn, errMustNotMetricFamiliesInterleave)
+	}
+
+	v.lastLabelSet = lset.WithoutLabels(ignoredLabels...)
+	v.seenLabelSets[hash] = lset
+
 	key := labelKey(lset)
 	last, ok := mf.metrics[key]
 	if !ok {
@@ -533,6 +550,25 @@ func (v *OpenMetricsValidator) compareMetricFamilies(mfn string, last, cur *metr
 		}
 		v.addError(mfn, errShouldNotMetricsDisappear.tryReport(v.level))
 	}
+}
+
+func getIgnoredLabels(name string, mfn string, cur *metricFamily) []string {
+	ignored := []string{}
+	ignored = append(ignored, "__name__")
+	switch cur.MetricType() {
+	case textparse.MetricTypeHistogram:
+		fallthrough
+	case textparse.MetricTypeGaugeHistogram:
+		if strings.HasSuffix(name, "_bucket") {
+			ignored = append(ignored, labels.BucketLabel)
+		}
+	case textparse.MetricTypeSummary:
+		if name == mfn {
+			ignored = append(ignored, "quantile")
+		}
+	}
+
+	return ignored
 }
 
 func (v *OpenMetricsValidator) validateMetricFamily(mfn string, cur *metricFamily) {
