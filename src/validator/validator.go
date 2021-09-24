@@ -463,7 +463,7 @@ func (v *OpenMetricsValidator) recordMetric(
 	}
 	v.validateMetric(mn, mf.MetricType(), cur)
 
-	ignoredLabels := getIgnoredLabels(mn, mf)
+	ignoredLabels := getIgnoredLabels(mn, mfn, mf)
 	hash, _ := lset.HashWithoutLabels([]byte{}, ignoredLabels...)
 	_, seen := v.seenLabelSets[hash]
 	if v.lastLabelSet != nil && !labels.Equal(v.lastLabelSet, lset.WithoutLabels(ignoredLabels...)) && seen {
@@ -552,17 +552,18 @@ func (v *OpenMetricsValidator) compareMetricFamilies(mfn string, last, cur *metr
 	}
 }
 
-func getIgnoredLabels(name string, cur *metricFamily) []string {
+func getIgnoredLabels(name string, mfn string, cur *metricFamily) []string {
 	ignored := []string{}
 	ignored = append(ignored, "__name__")
 	switch cur.MetricType() {
 	case textparse.MetricTypeHistogram:
+		fallthrough
 	case textparse.MetricTypeGaugeHistogram:
 		if strings.HasSuffix(name, "_bucket") {
 			ignored = append(ignored, labels.BucketLabel)
 		}
-	case textparse.MetricTypeStateset:
-		if strings.HasSuffix(name, "_quantile") {
+	case textparse.MetricTypeSummary:
+		if name == mfn {
 			ignored = append(ignored, "quantile")
 		}
 	}
