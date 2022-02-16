@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/prometheus/prometheus/pkg/exemplar"
 	"github.com/prometheus/prometheus/pkg/labels"
@@ -138,18 +139,16 @@ var (
 	}
 )
 
-var (
-	_reservedSuffixes = map[textparse.MetricType]validSuffixes{
-		textparse.MetricTypeCounter:        {suffixes: []string{"_total", "_created"}},
-		textparse.MetricTypeSummary:        {suffixes: []string{"_count", "_sum", "_created"}, allowEmpty: true},
-		textparse.MetricTypeHistogram:      {suffixes: []string{"_count", "_sum", "_bucket", "_created"}},
-		textparse.MetricTypeGaugeHistogram: {suffixes: []string{"_gcount", "_gsum", "_bucket"}},
-		textparse.MetricTypeInfo:           {suffixes: []string{"_info"}},
-		textparse.MetricTypeGauge:          {allowEmpty: true},
-		textparse.MetricTypeStateset:       {allowEmpty: true},
-		textparse.MetricTypeUnknown:        {allowEmpty: true},
-	}
-)
+var _reservedSuffixes = map[textparse.MetricType]validSuffixes{
+	textparse.MetricTypeCounter:        {suffixes: []string{"_total", "_created"}},
+	textparse.MetricTypeSummary:        {suffixes: []string{"_count", "_sum", "_created"}, allowEmpty: true},
+	textparse.MetricTypeHistogram:      {suffixes: []string{"_count", "_sum", "_bucket", "_created"}},
+	textparse.MetricTypeGaugeHistogram: {suffixes: []string{"_gcount", "_gsum", "_bucket"}},
+	textparse.MetricTypeInfo:           {suffixes: []string{"_info"}},
+	textparse.MetricTypeGauge:          {allowEmpty: true},
+	textparse.MetricTypeStateset:       {allowEmpty: true},
+	textparse.MetricTypeUnknown:        {allowEmpty: true},
+}
 
 type validSuffixes struct {
 	suffixes   []string
@@ -347,7 +346,21 @@ func (v *OpenMetricsValidator) Validate(b []byte) error {
 			continue
 		}
 
+		if withExemplar {
+			// Check the exemplar length of the labels is valid.
+			total := 0
+			for _, l := range e.Labels {
+				total += utf8.RuneCountInString(l.Name)
+				total += utf8.RuneCountInString(l.Value)
+			}
+			if total > exemplar.ExemplarMaxLabelSetLength {
+				v.addError(mn, fmt.Errorf("exemplar label contents of %d exceeds maximum of %d UTF-8 characters",
+					total, exemplar.ExemplarMaxLabelSetLength))
+			}
+		}
+
 		v.recordMetric(mn, lset, t, value, withExemplar, withTimestamp)
+
 		// Mark that a metric data point is found.
 		dataPointFound = true
 	}
