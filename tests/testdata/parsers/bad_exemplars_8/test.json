@@ -1,4 +1,5 @@
 {
+  "comment": "exemplar with invalid scientific notation float for exemplar timestamp",
   "type": "text",
   "file": "metrics",
   "shouldParse": false

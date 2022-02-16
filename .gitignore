@@ -15,5 +15,10 @@ bin/
 OpenMetrics.xml
 .refcache/
 
+# Ignore kdrfc ruby bundle and vendor
+.bundle
+vendor/
+
 # Golang vendor
 src/vendor/
+

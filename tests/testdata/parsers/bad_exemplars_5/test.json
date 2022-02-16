@@ -1,4 +1,5 @@
 {
+  "comment": "exemplar with trailing whitespace after timestamp",
   "type": "text",
   "file": "metrics",
   "shouldParse": false

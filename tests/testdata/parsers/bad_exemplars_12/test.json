@@ -1,4 +1,5 @@
 {
+  "comment": "exemplar malformed but still contains # on the line",
   "type": "text",
   "file": "metrics",
   "shouldParse": false

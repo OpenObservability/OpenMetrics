@@ -104,6 +104,7 @@ func runTests(dir string, opts runTestsOptions) (runTestsResults, error) {
 }
 
 type testDef struct {
+	Comment     string `json:"comment"`
 	Type        string `json:"type"`
 	File        string `json:"file"`
 	ShouldParse bool   `json:"shouldParse"`
@@ -124,7 +125,12 @@ func runTest(dir string, opts runTestsOptions) (runTestResult, error) {
 		return result, fmt.Errorf("cannot parse test file: %v", err)
 	}
 
-	log.Println("RUN test:", result.name)
+	var description string
+	if test.Comment != "" {
+		description = fmt.Sprintf("(%s)", test.Comment)
+	}
+
+	log.Println("RUN test:", result.name, description)
 
 	inputFile := path.Join(dir, test.File)
 	input, err := ioutil.ReadFile(inputFile)

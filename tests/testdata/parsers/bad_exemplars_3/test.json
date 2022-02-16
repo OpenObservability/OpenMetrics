@@ -1,4 +1,5 @@
 {
+  "comment": "exemplar label set missing following whitespace",
   "type": "text",
   "file": "metrics",
   "shouldParse": false
