@@ -137,6 +137,11 @@ var (
 		err:   errors.New("the same label name and value SHOULD NOT appear on every Metric within a MetricSet"),
 		level: ErrorLevelShould,
 	}
+
+	errCounterValueNaN = errorWithLevel{
+		err:   errors.New("counter like value is NaN"),
+		level: ErrorLevelMust,
+	}
 )
 
 var _reservedSuffixes = map[textparse.MetricType]validSuffixes{
@@ -755,10 +760,30 @@ func (v *OpenMetricsValidator) validateMetric(mn string, mt textparse.MetricType
 		}
 	}
 	switch mt {
+	case textparse.MetricTypeCounter:
+		v.validateMetricCounterValue(mn, cur)
+	case textparse.MetricTypeHistogram:
+		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") || strings.HasSuffix(mn, "_created") || strings.HasSuffix(mn, "_bucket") {
+			v.validateMetricCounterValue(mn, cur)
+		}
+	case textparse.MetricTypeGaugeHistogram:
+		if strings.HasSuffix(mn, "_gcount") || strings.HasSuffix(mn, "_gsum") || strings.HasSuffix(mn, "_bucket") {
+			v.validateMetricCounterValue(mn, cur)
+		}
+	case textparse.MetricTypeSummary:
+		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") || strings.HasSuffix(mn, "_created") {
+			v.validateMetricCounterValue(mn, cur)
+		}
 	case textparse.MetricTypeInfo:
 		v.validateMetricInfo(mn, cur)
 	case textparse.MetricTypeStateset:
 		v.validateMetricStateSet(mn, cur)
+	}
+}
+
+func (v *OpenMetricsValidator) validateMetricCounterValue(mn string, cur metric) {
+	if math.IsNaN(cur.value) {
+		v.addError(mn, errCounterValueNaN)
 	}
 }
 
