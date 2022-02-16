@@ -1,4 +1,5 @@
 {
+  "comment": "must have buckets in order",
   "type": "text",
   "file": "metrics",
   "shouldParse": false
