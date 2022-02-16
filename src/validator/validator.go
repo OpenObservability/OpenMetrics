@@ -874,7 +874,7 @@ func (v *OpenMetricsValidator) validateMetric(mn string, mt textparse.MetricType
 	case textparse.MetricTypeCounter:
 		v.validateMetricCounterValue(mn, cur)
 	case textparse.MetricTypeHistogram:
-		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") || strings.HasSuffix(mn, "_created") || strings.HasSuffix(mn, "_bucket") {
+		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") || strings.HasSuffix(mn, "_bucket") {
 			v.validateMetricCounterValue(mn, cur)
 		}
 	case textparse.MetricTypeGaugeHistogram:
@@ -892,7 +892,7 @@ func (v *OpenMetricsValidator) validateMetric(mn string, mt textparse.MetricType
 			}
 		}
 	case textparse.MetricTypeSummary:
-		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") || strings.HasSuffix(mn, "_created") {
+		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") {
 			v.validateMetricCounterValue(mn, cur)
 		}
 	case textparse.MetricTypeInfo:
