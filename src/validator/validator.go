@@ -872,7 +872,9 @@ func (v *OpenMetricsValidator) validateMetricFamilyGaugeHistogram(mfn string, cu
 func (v *OpenMetricsValidator) validateMetric(mn string, mt textparse.MetricType, cur metric) {
 	switch mt {
 	case textparse.MetricTypeCounter:
-		v.validateMetricCounterValue(mn, cur)
+		if !strings.HasSuffix(mn, "_created") {
+			v.validateMetricCounterValue(mn, cur)
+		}
 	case textparse.MetricTypeHistogram:
 		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") || strings.HasSuffix(mn, "_bucket") {
 			v.validateMetricCounterValue(mn, cur)
