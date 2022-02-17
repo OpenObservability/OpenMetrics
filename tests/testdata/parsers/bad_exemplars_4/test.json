@@ -1,4 +1,5 @@
 {
+  "comment": "exemplar with whitespace following exemplar value missing timestamp",
   "type": "text",
   "file": "metrics",
   "shouldParse": false

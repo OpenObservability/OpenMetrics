@@ -1,4 +1,5 @@
 {
+  "comment": "exemplar label set missing opening brace and preceeding whitespace",
   "type": "text",
   "file": "metrics",
   "shouldParse": false

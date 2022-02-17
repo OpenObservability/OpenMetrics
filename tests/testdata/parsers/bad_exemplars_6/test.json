@@ -1,4 +1,5 @@
 {
+  "comment": "exemplar label characters exceed max length of 128",
   "type": "text",
   "file": "metrics",
   "shouldParse": false

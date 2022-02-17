@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/prometheus/prometheus/pkg/exemplar"
 	"github.com/prometheus/prometheus/pkg/labels"
@@ -67,6 +69,17 @@ var (
 		err:   errors.New("A Total is a non-NaN and MUST be monotonically non-decreasing over time, starting from 0"),
 		level: ErrorLevelMust,
 	}
+
+	errCounterValueNaN = errorWithLevel{
+		err:   errors.New("counter like value must not be NaN"),
+		level: ErrorLevelMust,
+	}
+
+	errCounterValueNegative = errorWithLevel{
+		err:   errors.New("counter like value must not be negative"),
+		level: ErrorLevelMust,
+	}
+
 	errMustContainPositiveInfBucket = errorWithLevel{
 		err:   errors.New("Histogram MetricPoints MUST have at least a bucket with an +Inf threshold"),
 		level: ErrorLevelMust,
@@ -112,6 +125,11 @@ var (
 		level: ErrorLevelMust,
 	}
 
+	errMustHistogramBucketsInOrder = errorWithLevel{
+		err:   errors.New("histogram must have buckets in order"),
+		level: ErrorLevelMust,
+	}
+
 	errMustHistogramHaveSumAndCount = errorWithLevel{
 		err:   errors.New("If and only if a Sum Value is present in a MetricPoint, then the MetricPoint's +Inf Bucket value MUST also appear in a Sample with a MetricName with the suffix \"_count\""),
 		level: ErrorLevelMust,
@@ -122,8 +140,33 @@ var (
 		level: ErrorLevelMust,
 	}
 
+	errGaugeHistogramBucketValueNaN = errorWithLevel{
+		err:   errors.New("gauge histogram bucket value must not be NaN"),
+		level: ErrorLevelMust,
+	}
+
+	errGaugeHistogramBucketValueNegative = errorWithLevel{
+		err:   errors.New("gauge histogram bucket value must not be negative"),
+		level: ErrorLevelMust,
+	}
+
+	errGaugeHistogramGSumValueNaN = errorWithLevel{
+		err:   errors.New("gauge histogram _gsum value must not be negative"),
+		level: ErrorLevelMust,
+	}
+
+	errMustGaugeHistogramBucketsInOrder = errorWithLevel{
+		err:   errors.New("gauge histogram must have buckets in order"),
+		level: ErrorLevelMust,
+	}
+
 	errMustGaugeHistogramNotHaveGSumAndNegative = errorWithLevel{
 		err:   errors.New("Cannot have negative _gsum with non-negative buckets"),
+		level: ErrorLevelMust,
+	}
+
+	errMustGaugeHistogramHaveGSumAndGCountOrNeither = errorWithLevel{
+		err:   errors.New("must have both _gsum and _gcount or neither"),
 		level: ErrorLevelMust,
 	}
 
@@ -138,18 +181,16 @@ var (
 	}
 )
 
-var (
-	_reservedSuffixes = map[textparse.MetricType]validSuffixes{
-		textparse.MetricTypeCounter:        {suffixes: []string{"_total", "_created"}},
-		textparse.MetricTypeSummary:        {suffixes: []string{"_count", "_sum", "_created"}, allowEmpty: true},
-		textparse.MetricTypeHistogram:      {suffixes: []string{"_count", "_sum", "_bucket", "_created"}},
-		textparse.MetricTypeGaugeHistogram: {suffixes: []string{"_gcount", "_gsum", "_bucket"}},
-		textparse.MetricTypeInfo:           {suffixes: []string{"_info"}},
-		textparse.MetricTypeGauge:          {allowEmpty: true},
-		textparse.MetricTypeStateset:       {allowEmpty: true},
-		textparse.MetricTypeUnknown:        {allowEmpty: true},
-	}
-)
+var _reservedSuffixes = map[textparse.MetricType]validSuffixes{
+	textparse.MetricTypeCounter:        {suffixes: []string{"_total", "_created"}},
+	textparse.MetricTypeSummary:        {suffixes: []string{"_count", "_sum", "_created"}, allowEmpty: true},
+	textparse.MetricTypeHistogram:      {suffixes: []string{"_count", "_sum", "_bucket", "_created"}},
+	textparse.MetricTypeGaugeHistogram: {suffixes: []string{"_gcount", "_gsum", "_bucket"}},
+	textparse.MetricTypeInfo:           {suffixes: []string{"_info"}},
+	textparse.MetricTypeGauge:          {allowEmpty: true},
+	textparse.MetricTypeStateset:       {allowEmpty: true},
+	textparse.MetricTypeUnknown:        {allowEmpty: true},
+}
 
 type validSuffixes struct {
 	suffixes   []string
@@ -210,17 +251,35 @@ func (e errorWithLevel) tryReport(level ErrorLevel) error {
 }
 
 type metric struct {
-	lset         labels.Labels
-	timestamp    int64
-	value        float64
-	withExemplar bool
+	lset      labels.Labels
+	timestamp int64
+	value     float64
+	exemplar  *exemplar.Exemplar
+}
+
+type histogramMetric struct {
+	le     float64
+	metric metric
+}
+
+func (m metric) String() string {
+	name := m.lset.Get(labels.MetricName)
+	labelsWithoutName := m.lset.Copy().WithoutLabels(labels.MetricName)
+	exemplarDesc := ""
+	if m.exemplar != nil {
+		exemplarDesc = fmt.Sprintf(" # %s %v %v",
+			m.exemplar.Labels.String(), m.exemplar.Value, m.exemplar.Ts)
+	}
+	return fmt.Sprintf("%s%s %v %v%s", name, labelsWithoutName, m.value,
+		m.timestamp, exemplarDesc)
 }
 
 type metricFamily struct {
-	metricType *textparse.MetricType
-	help       *string
-	unit       *string
-	metrics    map[string]metric
+	metricType          *textparse.MetricType
+	help                *string
+	unit                *string
+	metrics             map[string]metric
+	orderedByAppearance []metric
 
 	metricWithoutTimestampRecorded bool
 	metricWithTimestampRecorded    bool
@@ -246,6 +305,13 @@ func (mf *metricFamily) trySetDefaultMetadata() {
 		unit := ""
 		mf.unit = &unit
 	}
+}
+
+func (mf *metricFamily) resetAfterValidate() {
+	for i := range mf.orderedByAppearance {
+		mf.orderedByAppearance[i] = metric{}
+	}
+	mf.orderedByAppearance = mf.orderedByAppearance[:0]
 }
 
 func (mf *metricFamily) MetricType() textparse.MetricType {
@@ -347,7 +413,13 @@ func (v *OpenMetricsValidator) Validate(b []byte) error {
 			continue
 		}
 
-		v.recordMetric(mn, lset, t, value, withExemplar, withTimestamp)
+		var maybeExemplar *exemplar.Exemplar
+		if withExemplar {
+			maybeExemplar = &e
+		}
+
+		v.recordMetric(mn, lset, t, value, maybeExemplar, withTimestamp)
+
 		// Mark that a metric data point is found.
 		dataPointFound = true
 	}
@@ -364,7 +436,8 @@ func (v *OpenMetricsValidator) tryResetMetadata(dataPointFound *bool, m *scrape.
 		return
 	}
 	if m.Metric != "" && m.Metric != mfn {
-		v.addError(mfn, fmt.Errorf("metric name changed from %q to %q", m.Metric, mfn))
+		v.addMetricFamilyError(m.Metric,
+			fmt.Errorf("metric name changed from %q to %q", m.Metric, mfn))
 		return
 	}
 	m.Metric = mfn
@@ -385,7 +458,7 @@ func (v *OpenMetricsValidator) addOrGetMetricFamily(mfn string) *metricFamily {
 		// When the metric family name differs from the last seen metric family name
 		// and the metric family is already created, it means the metric families
 		// are interleaved.
-		v.addError(mfn, errMustNotMetricFamiliesInterleave)
+		v.addMetricFamilyError(mfn, errMustNotMetricFamiliesInterleave)
 	}
 	v.lastMetricFamilyName = mfn
 	return mf
@@ -399,7 +472,7 @@ func (v *OpenMetricsValidator) recordMetricType(
 ) {
 	mf := v.addOrGetMetricFamily(mfn)
 	if mf.metricType != nil {
-		v.addError(mfn, errMetricTypeAlreadySet)
+		v.addMetricFamilyError(mfn, errMetricTypeAlreadySet)
 		return
 	}
 	mf.metricType = &mt
@@ -415,7 +488,7 @@ func (v *OpenMetricsValidator) recordHelp(
 ) {
 	mf := v.addOrGetMetricFamily(mfn)
 	if mf.help != nil {
-		v.addError(mfn, errHelpAlreadySet)
+		v.addMetricFamilyError(mfn, errHelpAlreadySet)
 		return
 	}
 	mf.help = &help
@@ -431,7 +504,7 @@ func (v *OpenMetricsValidator) recordUnit(
 ) {
 	mf := v.addOrGetMetricFamily(mfn)
 	if mf.unit != nil {
-		v.addError(mfn, errUnitAlreadySet)
+		v.addMetricFamilyError(mfn, errUnitAlreadySet)
 		return
 	}
 	mf.unit = &unit
@@ -444,7 +517,7 @@ func (v *OpenMetricsValidator) recordMetric(
 	lset labels.Labels,
 	timestamp int64,
 	value float64,
-	withExemplar bool,
+	e *exemplar.Exemplar,
 	withTimestamp bool,
 ) {
 	mfn := v.sanitizedMetricName(mn)
@@ -456,18 +529,19 @@ func (v *OpenMetricsValidator) recordMetric(
 		mf.metricWithoutTimestampRecorded = true
 	}
 	cur := metric{
-		lset:         lset,
-		value:        value,
-		timestamp:    timestamp,
-		withExemplar: withExemplar,
+		lset:      lset,
+		value:     value,
+		timestamp: timestamp,
+		exemplar:  e,
 	}
+	mf.orderedByAppearance = append(mf.orderedByAppearance, cur)
 	v.validateMetric(mn, mf.MetricType(), cur)
 
 	ignoredLabels := getIgnoredLabels(mn, mfn, mf)
 	hash, _ := lset.HashWithoutLabels([]byte{}, ignoredLabels...)
 	_, seen := v.seenLabelSets[hash]
 	if v.lastLabelSet != nil && !labels.Equal(v.lastLabelSet, lset.WithoutLabels(ignoredLabels...)) && seen {
-		v.addError(mfn, errMustNotMetricFamiliesInterleave)
+		v.addMetricError(cur, errMustNotMetricFamiliesInterleave)
 	}
 
 	v.lastLabelSet = lset.WithoutLabels(ignoredLabels...)
@@ -493,7 +567,10 @@ func (v *OpenMetricsValidator) validateRecorded() {
 			v.compareMetricFamilies(mfn, lastMF, curMF)
 			continue
 		}
-		v.addError(mfn, errShouldNotMetricsDisappear.tryReport(v.level))
+		v.addMetricFamilyError(mfn, errShouldNotMetricsDisappear.tryReport(v.level))
+	}
+	for _, mf := range v.curMetricSet {
+		mf.resetAfterValidate()
 	}
 	v.lastMetricSet = v.curMetricSet
 	v.curMetricSet = make(map[string]*metricFamily, len(v.lastMetricSet))
@@ -507,10 +584,10 @@ func (v *OpenMetricsValidator) validateLabels() {
 		lset        labels.Labels
 		initialized bool
 	)
-	for mfn, mf := range v.curMetricSet {
+	for _, mf := range v.curMetricSet {
 		for _, metric := range mf.metrics {
 			if _, ok := metric.lset.HasDuplicateLabelNames(); ok {
-				v.addError(mfn, errMustLabelNamesBeUnique)
+				v.addMetricError(metric, errMustLabelNamesBeUnique)
 			}
 			numMetrics++
 			if !initialized {
@@ -548,7 +625,7 @@ func (v *OpenMetricsValidator) compareMetricFamilies(mfn string, last, cur *metr
 			v.compareMetric(mfn, cur.MetricType(), lastMF, curMF)
 			continue
 		}
-		v.addError(mfn, errShouldNotMetricsDisappear.tryReport(v.level))
+		v.addMetricFamilyError(mfn, errShouldNotMetricsDisappear.tryReport(v.level))
 	}
 }
 
@@ -574,7 +651,7 @@ func getIgnoredLabels(name string, mfn string, cur *metricFamily) []string {
 func (v *OpenMetricsValidator) validateMetricFamily(mfn string, cur *metricFamily) {
 	cur.trySetDefaultMetadata()
 	if cur.metricWithTimestampRecorded && cur.metricWithoutTimestampRecorded {
-		v.addError(mfn, errMustNotMixTimestampPresense)
+		v.addMetricFamilyError(mfn, errMustNotMixTimestampPresense)
 	}
 	switch cur.MetricType() {
 	case textparse.MetricTypeCounter:
@@ -597,7 +674,7 @@ func (v *OpenMetricsValidator) validateMetricFamilyCounter(cur *metricFamily) {
 		mn := m.lset.Get(labels.MetricName)
 		if strings.HasSuffix(mn, "_total") {
 			if m.value < 0 || math.IsNaN(m.value) {
-				v.addError(mn, errMustCounterValueBeValid)
+				v.addMetricError(m, errMustCounterValueBeValid)
 			}
 		}
 	}
@@ -605,17 +682,17 @@ func (v *OpenMetricsValidator) validateMetricFamilyCounter(cur *metricFamily) {
 
 func (v *OpenMetricsValidator) validateMetricFamilyInfo(mfn string, cur *metricFamily) {
 	if cur.unit != nil && *cur.unit != "" {
-		v.addError(mfn, errMustNoUnitForInfo)
+		v.addMetricFamilyError(mfn, errMustNoUnitForInfo)
 	}
 }
 
 func (v *OpenMetricsValidator) validateMetricFamilyStateSet(mfn string, cur *metricFamily) {
 	if cur.unit != nil && *cur.unit != "" {
-		v.addError(mfn, errMustNoUnitForStateSet)
+		v.addMetricFamilyError(mfn, errMustNoUnitForStateSet)
 	}
 	for _, m := range cur.metrics {
 		if !m.lset.Has(mfn) {
-			v.addError(mfn, errMustStateSetContainLabel)
+			v.addMetricError(m, errMustStateSetContainLabel)
 		}
 	}
 }
@@ -626,7 +703,7 @@ func (v *OpenMetricsValidator) validateMetricFamilySummary(mfn string, cur *metr
 		if strings.HasSuffix(mn, "_count") ||
 			strings.HasSuffix(mn, "_sum") {
 			if m.value < 0 || math.IsNaN(m.value) {
-				v.addError(mn, errInvalidSummaryCountAndSum)
+				v.addMetricError(m, errInvalidSummaryCountAndSum)
 			}
 			continue
 		}
@@ -635,16 +712,16 @@ func (v *OpenMetricsValidator) validateMetricFamilySummary(mfn string, cur *metr
 		}
 		// Metrics with empty suffix are expected be quantiles.
 		if m.value < 0 {
-			v.addError(mn, errMustNotSummaryQuantileValueBeNegative)
+			v.addMetricError(m, errMustNotSummaryQuantileValueBeNegative)
 		}
 		strVal := m.lset.Get("quantile")
 		val, err := strconv.ParseFloat(strVal, 64)
 		if err != nil {
-			v.addError(mn, fmt.Errorf("invalid quantile value %q: %v", strVal, err))
+			v.addMetricError(m, fmt.Errorf("invalid quantile value %q: %v", strVal, err))
 			continue
 		}
 		if val < 0 || val > 1 || math.IsNaN(val) {
-			v.addError(mn, errMustSummaryQuantileBeBetweenZeroAndOne)
+			v.addMetricError(m, errMustSummaryQuantileBeBetweenZeroAndOne)
 		}
 	}
 }
@@ -655,9 +732,10 @@ func (v *OpenMetricsValidator) validateMetricFamilyHistogram(mfn string, cur *me
 		negativeBucketFound    bool
 		sumFound               bool
 		countFound             bool
+		byBucket               = make([]histogramMetric, 0, len(cur.metrics))
 	)
-	// Histogram MetricPoints MUST have at least a bucket with an +Inf threshold
-	for _, m := range cur.metrics {
+	// Histogram MetricPoints MUST have at least a bucket with an +Inf threshold.
+	for _, m := range cur.orderedByAppearance {
 		mn := m.lset.Get(labels.MetricName)
 		if strings.HasSuffix(mn, "_sum") {
 			sumFound = true
@@ -672,92 +750,205 @@ func (v *OpenMetricsValidator) validateMetricFamilyHistogram(mfn string, cur *me
 		}
 		val := m.lset.Get(labels.BucketLabel)
 		if val == "+Inf" {
+			byBucket = append(byBucket, histogramMetric{
+				le:     math.Inf(1),
+				metric: m,
+			})
 			positiveInfBucketFound = true
 			continue
 		}
 		floatVal, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			v.addError(mn, err)
+			v.addMetricError(m, err)
 			continue
 		}
+		byBucket = append(byBucket, histogramMetric{
+			le:     floatVal,
+			metric: m,
+		})
 		if floatVal < 0 {
 			negativeBucketFound = true
 		}
 	}
+
+	// Histogram must have increasing bucket counts since they are all counting
+	// less than or equal to with the bucket.
+	sorted := sort.SliceIsSorted(byBucket, func(i, j int) bool {
+		return byBucket[i].le < byBucket[j].le
+	})
+	if !sorted {
+		v.addMetricFamilyError(mfn, errMustHistogramBucketsInOrder)
+	} else {
+		for i := 1; i < len(byBucket); i++ {
+			last, cur := byBucket[i-1], byBucket[i]
+			if last.metric.value > cur.metric.value {
+				v.addMetricError(cur.metric, errorWithLevel{
+					err: fmt.Errorf("bucket value %v is out of order: last=%v, cur=%v",
+						cur.le, last.metric.value, cur.metric.value),
+					level: ErrorLevelMust,
+				})
+				break
+			}
+		}
+	}
+
 	if !positiveInfBucketFound {
-		v.addError(mfn, errMustContainPositiveInfBucket)
+		v.addMetricFamilyError(mfn, errMustContainPositiveInfBucket)
 	}
 	if sumFound != countFound {
-		v.addError(mfn, errMustHistogramHaveSumAndCount)
+		v.addMetricFamilyError(mfn, errMustHistogramHaveSumAndCount)
 	}
 	if sumFound && negativeBucketFound {
-		v.addError(mfn, errMustHistogramNotHaveSumAndNegative)
+		v.addMetricFamilyError(mfn, errMustHistogramNotHaveSumAndNegative)
 	}
 }
 
 func (v *OpenMetricsValidator) validateMetricFamilyGaugeHistogram(mfn string, cur *metricFamily) {
 	var (
 		positiveInfBucketFound bool
+		gsumFound              bool
+		gcountFound            bool
 		negativeBucketFound    bool
 		negativeGSumFound      bool
+		byBucket               = make([]histogramMetric, 0, len(cur.metrics))
 	)
 	// Histogram MetricPoints MUST have at least a bucket with an +Inf threshold
-	for _, m := range cur.metrics {
+	for _, m := range cur.orderedByAppearance {
 		mn := m.lset.Get(labels.MetricName)
 		if strings.HasSuffix(mn, "_gsum") {
+			gsumFound = true
 			if m.value < 0 {
 				negativeGSumFound = true
 			}
 			continue
 		}
 		if strings.HasSuffix(mn, "_gcount") {
+			gcountFound = true
 			continue
 		}
 		val := m.lset.Get(labels.BucketLabel)
 		if val == "+Inf" {
+			byBucket = append(byBucket, histogramMetric{
+				le:     math.Inf(1),
+				metric: m,
+			})
 			positiveInfBucketFound = true
 			continue
 		}
 		floatVal, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			v.addError(mn, err)
+			v.addMetricError(m, err)
 			continue
 		}
+		byBucket = append(byBucket, histogramMetric{
+			le:     floatVal,
+			metric: m,
+		})
 		if floatVal < 0 {
 			negativeBucketFound = true
 		}
 	}
+
+	// Histogram must have increasing bucket counts since they are all counting
+	// less than or equal to with the bucket.
+	sorted := sort.SliceIsSorted(byBucket, func(i, j int) bool {
+		return byBucket[i].le < byBucket[j].le
+	})
+	if !sorted {
+		v.addMetricFamilyError(mfn, errMustGaugeHistogramBucketsInOrder)
+	}
+
 	if !positiveInfBucketFound {
-		v.addError(mfn, errMustContainPositiveInfBucket)
+		v.addMetricFamilyError(mfn, errMustContainPositiveInfBucket)
 	}
 	if negativeGSumFound && !negativeBucketFound {
-		v.addError(mfn, errMustGaugeHistogramNotHaveGSumAndNegative)
+		v.addMetricFamilyError(mfn, errMustGaugeHistogramNotHaveGSumAndNegative)
+	}
+	if (gsumFound && !gcountFound) || (!gsumFound && gcountFound) {
+		v.addMetricFamilyError(mfn, errMustGaugeHistogramHaveGSumAndGCountOrNeither)
 	}
 }
 
 func (v *OpenMetricsValidator) validateMetric(mn string, mt textparse.MetricType, cur metric) {
-	if cur.withExemplar {
-		if mt != textparse.MetricTypeGaugeHistogram && mt != textparse.MetricTypeHistogram && mt != textparse.MetricTypeCounter {
-			v.addError(mn, errExemplar)
-		}
-	}
 	switch mt {
+	case textparse.MetricTypeCounter:
+		if !strings.HasSuffix(mn, "_created") {
+			v.validateMetricCounterValue(mn, cur)
+		}
+	case textparse.MetricTypeHistogram:
+		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") || strings.HasSuffix(mn, "_bucket") {
+			v.validateMetricCounterValue(mn, cur)
+		}
+	case textparse.MetricTypeGaugeHistogram:
+		switch {
+		case strings.HasSuffix(mn, "_bucket"):
+			if math.IsNaN(cur.value) {
+				v.addMetricError(cur, errGaugeHistogramBucketValueNaN)
+			}
+			if cur.value < 0 {
+				v.addMetricError(cur, errGaugeHistogramBucketValueNegative)
+			}
+		case strings.HasSuffix(mn, "_gsum"):
+			if math.IsNaN(cur.value) {
+				v.addMetricError(cur, errGaugeHistogramGSumValueNaN)
+			}
+		}
+	case textparse.MetricTypeSummary:
+		if strings.HasSuffix(mn, "_count") || strings.HasSuffix(mn, "_sum") {
+			v.validateMetricCounterValue(mn, cur)
+		}
 	case textparse.MetricTypeInfo:
 		v.validateMetricInfo(mn, cur)
 	case textparse.MetricTypeStateset:
 		v.validateMetricStateSet(mn, cur)
 	}
+
+	v.validateExemplar(mt, cur)
+}
+
+func (v *OpenMetricsValidator) validateExemplar(mt textparse.MetricType, cur metric) {
+	if cur.exemplar == nil {
+		return
+	}
+
+	// Check valid for this type at all.
+	if mt != textparse.MetricTypeGaugeHistogram && mt != textparse.MetricTypeHistogram && mt != textparse.MetricTypeCounter {
+		v.addMetricError(cur, errExemplar)
+		return
+	}
+
+	// Check the exemplar length of the labels is valid.
+	total := 0
+	for _, l := range cur.exemplar.Labels {
+		total += utf8.RuneCountInString(l.Name)
+		total += utf8.RuneCountInString(l.Value)
+	}
+	if total > exemplar.ExemplarMaxLabelSetLength {
+		v.addMetricError(cur, fmt.Errorf("exemplar label contents of %d exceeds maximum of %d UTF-8 characters",
+			total, exemplar.ExemplarMaxLabelSetLength))
+	}
+}
+
+func (v *OpenMetricsValidator) validateMetricCounterValue(mn string, cur metric) {
+	if math.IsNaN(cur.value) {
+		v.addMetricError(cur, errCounterValueNaN)
+		return
+	}
+
+	if cur.value < 0 {
+		v.addMetricError(cur, errCounterValueNegative)
+	}
 }
 
 func (v *OpenMetricsValidator) validateMetricInfo(mn string, cur metric) {
 	if cur.value != 1 {
-		v.addError(mn, errInvalidInfoValue)
+		v.addMetricError(cur, errInvalidInfoValue)
 	}
 }
 
 func (v *OpenMetricsValidator) validateMetricStateSet(mn string, cur metric) {
 	if cur.value != 1 && cur.value != 0 {
-		v.addError(mn, errInvalidStateSetValue)
+		v.addMetricError(cur, errInvalidStateSetValue)
 	}
 }
 
@@ -765,7 +956,7 @@ func (v *OpenMetricsValidator) validateMetricStateSet(mn string, cur metric) {
 // TODO: compare more metric types.
 func (v *OpenMetricsValidator) compareMetric(mn string, mt textparse.MetricType, last, cur metric) {
 	if cur.timestamp < last.timestamp {
-		v.addError(mn, errMustTimestampIncrease)
+		v.addMetricError(cur, errMustTimestampIncrease)
 	}
 	switch mt {
 	case textparse.MetricTypeCounter:
@@ -775,15 +966,22 @@ func (v *OpenMetricsValidator) compareMetric(mn string, mt textparse.MetricType,
 
 func (v *OpenMetricsValidator) compareMetricCounter(mn string, last, cur metric) {
 	if cur.value < last.value {
-		v.addError(mn, errMustNotCounterValueDecrease)
+		v.addMetricError(cur, errMustNotCounterValueDecrease)
 	}
 }
 
-func (v *OpenMetricsValidator) addError(mn string, err error) {
+func (v *OpenMetricsValidator) addMetricError(m metric, err error) {
 	if err == nil {
 		return
 	}
-	v.mErr = multierr.Append(v.mErr, fmt.Errorf("error found on metric %q: %v", mn, err))
+	v.mErr = multierr.Append(v.mErr, fmt.Errorf("error for metric %s: %v", m.String(), err))
+}
+
+func (v *OpenMetricsValidator) addMetricFamilyError(name string, err error) {
+	if err == nil {
+		return
+	}
+	v.mErr = multierr.Append(v.mErr, fmt.Errorf("error for metric family %s: %v", name, err))
 }
 
 // labelKey generates a key for the labels.
