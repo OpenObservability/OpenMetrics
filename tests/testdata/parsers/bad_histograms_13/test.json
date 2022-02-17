@@ -1,0 +1,6 @@
+{
+  "comment": "histogram with count that doesn't match the +Inf bucket",
+  "type": "text",
+  "file": "metrics",
+  "shouldParse": false
+}

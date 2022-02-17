@@ -1,0 +1,6 @@
+{
+  "comment": "gauge histogram with _gcount but no _gsum",
+  "type": "text",
+  "file": "metrics",
+  "shouldParse": false
+}
