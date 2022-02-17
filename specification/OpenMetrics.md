@@ -398,6 +398,7 @@ escaped-string = *escaped-char
 
 escaped-char = normal-char
 escaped-char =/ BS ("n" / DQUOTE / BS)
+escaped-char =/ BS normal-char
 
 ; Any unicode character, except newline, double quote, and backslash
 normal-char = %x00-09 / %x0B-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
@@ -439,6 +440,9 @@ Where the ABNF notes escaping, the following escaping MUST be applied
 Line feed, '\n' (0x0A) -> literally '\n' (Bytecode 0x5c 0x6e)
 Double quotes -> '\"' (Bytecode 0x5c 0x22)
 Backslash -> '\\' (Bytecode 0x5c 0x5c)
+
+You SHOULD NOT use a backslash before other characters, as they do not escape.
+'\\a' SHOULD be used instead of the equivialent '\a' for example.
 
 #### Numbers
 
