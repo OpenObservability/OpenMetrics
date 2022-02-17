@@ -124,7 +124,7 @@ Exemplars are references to data outside of the MetricSet. A common use case are
 
 Exemplars MUST consist of a LabelSet and a value, and MAY have a timestamp. They MAY each be different from the MetricPoints' LabelSet and timestamp.
 
-The combined length of the label names and values of an Exemplar's LabelSet MUST NOT exceed 128 UTF-8 characters. Other characters in the text rendering of an exemplar such as ",= are not included in this limit for implementation simplicity and for consistency between the text and proto formats.
+The combined length of the label names and values of an Exemplar's LabelSet MUST NOT exceed 128 UTF-8 character code points. Other characters in the text rendering of an exemplar such as ",= are not included in this limit for implementation simplicity and for consistency between the text and proto formats.
 
 Ingestors MAY discard exemplars.
 
