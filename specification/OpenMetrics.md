@@ -333,7 +333,7 @@ metricfamily = *metric-descriptor *metric
 
 metric-descriptor = HASH SP type SP metricname SP metric-type LF
 metric-descriptor =/ HASH SP help SP metricname SP escaped-string LF
-metric-descriptor =/ HASH SP unit SP metricname SP 1*metricname-char LF
+metric-descriptor =/ HASH SP unit SP metricname SP *metricname-char LF
 
 metric = *sample
 
