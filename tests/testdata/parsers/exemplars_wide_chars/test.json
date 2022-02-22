@@ -1,0 +1,7 @@
+{
+  "comment": "exemplar label characters exactly 128 code points, which exceed 128 bytes",
+  "type": "text",
+  "file": "metrics",
+  "shouldParse": true
+}
+

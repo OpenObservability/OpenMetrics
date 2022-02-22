@@ -1,0 +1,7 @@
+{
+  "comment": "exemplar label characters exceed 128 code points, but fewer than 128 glyphs",
+  "type": "text",
+  "file": "metrics",
+  "shouldParse": false
+}
+

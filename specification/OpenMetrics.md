@@ -124,7 +124,7 @@ Exemplars are references to data outside of the MetricSet. A common use case are
 
 Exemplars MUST consist of a LabelSet and a value, and MAY have a timestamp. They MAY each be different from the MetricPoints' LabelSet and timestamp.
 
-The combined length of the label names and values of an Exemplar's LabelSet MUST NOT exceed 128 UTF-8 characters. Other characters in the text rendering of an exemplar such as ",= are not included in this limit for implementation simplicity and for consistency between the text and proto formats.
+The combined length of the label names and values of an Exemplar's LabelSet MUST NOT exceed 128 UTF-8 character code points. Other characters in the text rendering of an exemplar such as ",= are not included in this limit for implementation simplicity and for consistency between the text and proto formats.
 
 Ingestors MAY discard exemplars.
 
@@ -333,7 +333,7 @@ metricfamily = *metric-descriptor *metric
 
 metric-descriptor = HASH SP type SP metricname SP metric-type LF
 metric-descriptor =/ HASH SP help SP metricname SP escaped-string LF
-metric-descriptor =/ HASH SP unit SP metricname SP 1*metricname-char LF
+metric-descriptor =/ HASH SP unit SP metricname SP *metricname-char LF
 
 metric = *sample
 
@@ -398,6 +398,7 @@ escaped-string = *escaped-char
 
 escaped-char = normal-char
 escaped-char =/ BS ("n" / DQUOTE / BS)
+escaped-char =/ BS normal-char
 
 ; Any unicode character, except newline, double quote, and backslash
 normal-char = %x00-09 / %x0B-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
@@ -436,9 +437,13 @@ process_cpu_seconds_total 4.20072246e+06
 #### Escaping
 
 Where the ABNF notes escaping, the following escaping MUST be applied
-Line feed, '\n' (0x0A) -> literally '\n' (Bytecode 0x5c 0x6e)
-Double quotes -> '\"' (Bytecode 0x5c 0x22)
-Backslash -> '\\' (Bytecode 0x5c 0x5c)
+Line feed, '\n' (0x0A) -> literally '\\n' (Bytecode 0x5c 0x6e)
+Double quotes -> '\\"' (Bytecode 0x5c 0x22)
+Backslash -> '\\\\' (Bytecode 0x5c 0x5c)
+
+A double backslash SHOULD be used to represent a backslash character.
+A single backslash SHOULD NOT be used for undefined escape sequences.
+As an example, '\\\\a' is equivalent and preferable to '\\a'.
 
 #### Numbers
 
