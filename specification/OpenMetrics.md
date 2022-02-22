@@ -437,12 +437,13 @@ process_cpu_seconds_total 4.20072246e+06
 #### Escaping
 
 Where the ABNF notes escaping, the following escaping MUST be applied
-Line feed, '\n' (0x0A) -> literally '\n' (Bytecode 0x5c 0x6e)
-Double quotes -> '\"' (Bytecode 0x5c 0x22)
-Backslash -> '\\' (Bytecode 0x5c 0x5c)
+Line feed, '\n' (0x0A) -> literally '\\n' (Bytecode 0x5c 0x6e)
+Double quotes -> '\\"' (Bytecode 0x5c 0x22)
+Backslash -> '\\\\' (Bytecode 0x5c 0x5c)
 
-You SHOULD NOT use a backslash before other characters, as they do not escape.
-'\\a' SHOULD be used instead of the equivialent '\a' for example.
+A double backslash SHOULD be used to represent a backslash character.
+A single backslash SHOULD NOT be used for undefined escape sequences.
+As an example, '\\\\a' is equivalent and preferable to '\\a'.
 
 #### Numbers
 

@@ -5,12 +5,12 @@
 Ops WG                                                  R. Hartmann, Ed.
 Internet-Draft                                              Grafana Labs
 Intended status: Standards Track                               B. Kochie
-Expires: August 22, 2022                                          GitLab
+Expires: August 26, 2022                                          GitLab
                                                                B. Brazil
                                                        Robust Perception
                                                           R. Skillington
                                                             Chronosphere
-                                                       February 18, 2022
+                                                       February 22, 2022
 
 
      OpenMetrics, a cloud-native, highly scalable metrics protocol
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 22, 2022.
+   This Internet-Draft will expire on August 26, 2022.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 1]
+Hartmann, et al.         Expires August 26, 2022                [Page 1]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 2]
+Hartmann, et al.         Expires August 26, 2022                [Page 2]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -165,7 +165,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 3]
+Hartmann, et al.         Expires August 26, 2022                [Page 3]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -221,7 +221,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 4]
+Hartmann, et al.         Expires August 26, 2022                [Page 4]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -277,7 +277,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 5]
+Hartmann, et al.         Expires August 26, 2022                [Page 5]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -333,7 +333,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 6]
+Hartmann, et al.         Expires August 26, 2022                [Page 6]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -389,7 +389,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 7]
+Hartmann, et al.         Expires August 26, 2022                [Page 7]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -445,7 +445,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 8]
+Hartmann, et al.         Expires August 26, 2022                [Page 8]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -501,7 +501,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022                [Page 9]
+Hartmann, et al.         Expires August 26, 2022                [Page 9]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -557,7 +557,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 10]
+Hartmann, et al.         Expires August 26, 2022               [Page 10]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -613,7 +613,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 11]
+Hartmann, et al.         Expires August 26, 2022               [Page 11]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -669,7 +669,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 12]
+Hartmann, et al.         Expires August 26, 2022               [Page 12]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -725,7 +725,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 13]
+Hartmann, et al.         Expires August 26, 2022               [Page 13]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -781,7 +781,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 14]
+Hartmann, et al.         Expires August 26, 2022               [Page 14]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -823,12 +823,12 @@ Internet-Draft                 OpenMetrics                 February 2022
 
    Where the ABNF notes escaping, the following escaping MUST be applied
    Line feed, '\n' (0x0A) -> literally '\n' (Bytecode 0x5c 0x6e) Double
-   quotes -> '"' (Bytecode 0x5c 0x22) Backslash -> '\' (Bytecode 0x5c
+   quotes -> '\"' (Bytecode 0x5c 0x22) Backslash -> '\\' (Bytecode 0x5c
    0x5c)
 
-   You SHOULD NOT use a backslash before other characters, as they do
-   not escape.  '\a' SHOULD be used instead of the equivialent '\a' for
-   example.
+   A double backslash SHOULD be used to represent a backslash character.
+   A single backslash SHOULD NOT be used for undefined escape sequences.
+   As an example, '\\a' is equivalent and preferable to '\a'.
 
 
 
@@ -837,7 +837,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 15]
+Hartmann, et al.         Expires August 26, 2022               [Page 15]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -893,7 +893,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 16]
+Hartmann, et al.         Expires August 26, 2022               [Page 16]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -949,7 +949,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 17]
+Hartmann, et al.         Expires August 26, 2022               [Page 17]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1005,7 +1005,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 18]
+Hartmann, et al.         Expires August 26, 2022               [Page 18]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1061,7 +1061,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 19]
+Hartmann, et al.         Expires August 26, 2022               [Page 19]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1117,7 +1117,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 20]
+Hartmann, et al.         Expires August 26, 2022               [Page 20]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1173,7 +1173,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 21]
+Hartmann, et al.         Expires August 26, 2022               [Page 21]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1229,7 +1229,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 22]
+Hartmann, et al.         Expires August 26, 2022               [Page 22]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1285,7 +1285,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 23]
+Hartmann, et al.         Expires August 26, 2022               [Page 23]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1341,7 +1341,7 @@ message MetricFamily {
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 24]
+Hartmann, et al.         Expires August 26, 2022               [Page 24]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1397,7 +1397,7 @@ message MetricPoint {
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 25]
+Hartmann, et al.         Expires August 26, 2022               [Page 25]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1453,7 +1453,7 @@ message HistogramValue {
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 26]
+Hartmann, et al.         Expires August 26, 2022               [Page 26]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1509,7 +1509,7 @@ message StateSetValue {
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 27]
+Hartmann, et al.         Expires August 26, 2022               [Page 27]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1565,7 +1565,7 @@ message SummaryValue {
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 28]
+Hartmann, et al.         Expires August 26, 2022               [Page 28]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1621,7 +1621,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 29]
+Hartmann, et al.         Expires August 26, 2022               [Page 29]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1677,7 +1677,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 30]
+Hartmann, et al.         Expires August 26, 2022               [Page 30]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1733,7 +1733,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 31]
+Hartmann, et al.         Expires August 26, 2022               [Page 31]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1789,7 +1789,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 32]
+Hartmann, et al.         Expires August 26, 2022               [Page 32]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1845,7 +1845,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 33]
+Hartmann, et al.         Expires August 26, 2022               [Page 33]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1901,7 +1901,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 34]
+Hartmann, et al.         Expires August 26, 2022               [Page 34]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -1957,7 +1957,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 35]
+Hartmann, et al.         Expires August 26, 2022               [Page 35]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2013,7 +2013,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 36]
+Hartmann, et al.         Expires August 26, 2022               [Page 36]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2069,7 +2069,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 37]
+Hartmann, et al.         Expires August 26, 2022               [Page 37]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2125,7 +2125,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 38]
+Hartmann, et al.         Expires August 26, 2022               [Page 38]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2181,7 +2181,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 39]
+Hartmann, et al.         Expires August 26, 2022               [Page 39]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2237,7 +2237,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 40]
+Hartmann, et al.         Expires August 26, 2022               [Page 40]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2293,7 +2293,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 41]
+Hartmann, et al.         Expires August 26, 2022               [Page 41]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2349,7 +2349,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 42]
+Hartmann, et al.         Expires August 26, 2022               [Page 42]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2405,7 +2405,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 43]
+Hartmann, et al.         Expires August 26, 2022               [Page 43]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2461,7 +2461,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 44]
+Hartmann, et al.         Expires August 26, 2022               [Page 44]
 
 Internet-Draft                 OpenMetrics                 February 2022
 
@@ -2517,4 +2517,4 @@ Authors' Addresses
 
 
 
-Hartmann, et al.         Expires August 22, 2022               [Page 45]
+Hartmann, et al.         Expires August 26, 2022               [Page 45]
