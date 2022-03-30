@@ -677,7 +677,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    Push-based negotiation is inherently more complex, as the exposer
    typically initiates the connection.  Producers MUST use the oldest
    version of the standard (i.e. 1.0.0) unless requested otherwise by
-   the ingestor.  Text format
+   the ingestor.
 
 4.1.1.  ABNF
 
