@@ -5,12 +5,12 @@
 Ops WG                                                  R. Hartmann, Ed.
 Internet-Draft                                              Grafana Labs
 Intended status: Standards Track                               B. Kochie
-Expires: August 26, 2022                                          GitLab
+Expires: October 2, 2022                                          GitLab
                                                                B. Brazil
                                                        Robust Perception
                                                           R. Skillington
                                                             Chronosphere
-                                                       February 22, 2022
+                                                          March 31, 2022
 
 
      OpenMetrics, a cloud-native, highly scalable metrics protocol
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 26, 2022.
+   This Internet-Draft will expire on October 2, 2022.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Hartmann, et al.         Expires August 26, 2022                [Page 1]
+Hartmann, et al.         Expires October 2, 2022                [Page 1]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    carefully, as they describe your rights and restrictions with respect
@@ -92,28 +92,29 @@ Table of Contents
        3.2.8.  Unknown . . . . . . . . . . . . . . . . . . . . . . .  12
    4.  Data transmission & wire formats  . . . . . . . . . . . . . .  12
      4.1.  Protocol Negotiation  . . . . . . . . . . . . . . . . . .  12
-       4.1.1.  ABNF  . . . . . . . . . . . . . . . . . . . . . . . .  13
-       4.1.2.  Overall Structure . . . . . . . . . . . . . . . . . .  15
-       4.1.3.  MetricFamily  . . . . . . . . . . . . . . . . . . . .  17
-       4.1.4.  MetricPoint . . . . . . . . . . . . . . . . . . . . .  19
-       4.1.5.  Metric types  . . . . . . . . . . . . . . . . . . . .  19
-     4.2.  Protobuf format . . . . . . . . . . . . . . . . . . . . .  23
-       4.2.1.  Overall Structure . . . . . . . . . . . . . . . . . .  23
-       4.2.2.  Protobuf schema . . . . . . . . . . . . . . . . . . .  24
+     4.2.  Text format . . . . . . . . . . . . . . . . . . . . . . .  13
+       4.2.1.  ABNF  . . . . . . . . . . . . . . . . . . . . . . . .  13
+       4.2.2.  Overall Structure . . . . . . . . . . . . . . . . . .  15
+       4.2.3.  MetricFamily  . . . . . . . . . . . . . . . . . . . .  17
+       4.2.4.  MetricPoint . . . . . . . . . . . . . . . . . . . . .  19
+       4.2.5.  Metric types  . . . . . . . . . . . . . . . . . . . .  19
+     4.3.  Protobuf format . . . . . . . . . . . . . . . . . . . . .  23
+       4.3.1.  Overall Structure . . . . . . . . . . . . . . . . . .  23
+       4.3.2.  Protobuf schema . . . . . . . . . . . . . . . . . . .  24
    5.  Design Considerations . . . . . . . . . . . . . . . . . . . .  28
      5.1.  Scope . . . . . . . . . . . . . . . . . . . . . . . . . .  28
        5.1.1.  Out of scope  . . . . . . . . . . . . . . . . . . . .  29
      5.2.  Extensions and Improvements . . . . . . . . . . . . . . .  29
      5.3.  Units and Base Units  . . . . . . . . . . . . . . . . . .  30
-     5.4.  Statelessness . . . . . . . . . . . . . . . . . . . . . .  31
 
 
 
-Hartmann, et al.         Expires August 26, 2022                [Page 2]
+Hartmann, et al.         Expires October 2, 2022                [Page 2]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
+     5.4.  Statelessness . . . . . . . . . . . . . . . . . . . . . .  31
      5.5.  Exposition Across Time and Metric Evolution . . . . . . .  31
      5.6.  NaN . . . . . . . . . . . . . . . . . . . . . . . . . . .  32
      5.7.  Missing Data  . . . . . . . . . . . . . . . . . . . . . .  33
@@ -164,10 +165,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-
-Hartmann, et al.         Expires August 26, 2022                [Page 3]
+Hartmann, et al.         Expires October 2, 2022                [Page 3]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 1.1.  Requirements Language
@@ -221,9 +221,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022                [Page 4]
+Hartmann, et al.         Expires October 2, 2022                [Page 4]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    precedence.  This reduces repetition as the text wire format MUST be
@@ -277,9 +277,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022                [Page 5]
+Hartmann, et al.         Expires October 2, 2022                [Page 5]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 3.1.7.  Exemplars
@@ -333,9 +333,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022                [Page 6]
+Hartmann, et al.         Expires October 2, 2022                [Page 6]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 3.1.9.1.1.  Suffixes
@@ -389,9 +389,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022                [Page 7]
+Hartmann, et al.         Expires October 2, 2022                [Page 7]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 3.1.9.5.  MetricSet
@@ -445,9 +445,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022                [Page 8]
+Hartmann, et al.         Expires October 2, 2022                [Page 8]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    A MetricPoint in a Metric with the type Counter SHOULD have a
@@ -501,9 +501,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022                [Page 9]
+Hartmann, et al.         Expires October 2, 2022                [Page 9]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 3.2.5.  Histogram
@@ -557,9 +557,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 10]
+Hartmann, et al.         Expires October 2, 2022               [Page 10]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 3.2.6.  GaugeHistogram
@@ -613,9 +613,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 11]
+Hartmann, et al.         Expires October 2, 2022               [Page 11]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    did not see before.  Created MUST NOT relate to the collection period
@@ -669,17 +669,19 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 12]
+Hartmann, et al.         Expires October 2, 2022               [Page 12]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    Push-based negotiation is inherently more complex, as the exposer
    typically initiates the connection.  Producers MUST use the oldest
    version of the standard (i.e. 1.0.0) unless requested otherwise by
-   the ingestor.  Text format
+   the ingestor.
 
-4.1.1.  ABNF
+4.2.  Text format
+
+4.2.1.  ABNF
 
    ABNF as per RFC 5234
 
@@ -720,16 +722,16 @@ Internet-Draft                 OpenMetrics                 February 2022
 
   ; Not 100% sure this captures all float corner cases.
   ; Leading 0s explicitly okay
+
+
+
+Hartmann, et al.         Expires October 2, 2022               [Page 13]
+
+Internet-Draft                 OpenMetrics                    March 2022
+
+
   realnumber = [SIGN] 1*DIGIT
   realnumber =/ [SIGN] 1*DIGIT ["." *DIGIT] [ "e" [SIGN] 1*DIGIT ]
-
-
-
-Hartmann, et al.         Expires August 26, 2022               [Page 13]
-
-Internet-Draft                 OpenMetrics                 February 2022
-
-
   realnumber =/ [SIGN] *DIGIT "." 1*DIGIT [ "e" [SIGN] 1*DIGIT ]
 
 
@@ -779,14 +781,12 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-
-
-Hartmann, et al.         Expires August 26, 2022               [Page 14]
+Hartmann, et al.         Expires October 2, 2022               [Page 14]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
-4.1.2.  Overall Structure
+4.2.2.  Overall Structure
 
    UTF-8 MUST be used.  Byte order markers (BOMs) MUST NOT be used.  As
    an important reminder for implementers, byte 0 is valid UTF-8 while,
@@ -819,7 +819,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    system CPU time spent in seconds.  process_cpu_seconds_total
    4.20072246e+06 # EOF ~~~~
 
-4.1.2.1.  Escaping
+4.2.2.1.  Escaping
 
    Where the ABNF notes escaping, the following escaping MUST be applied
    Line feed, '\n' (0x0A) -> literally '\n' (Bytecode 0x5c 0x6e) Double
@@ -837,12 +837,12 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 15]
+Hartmann, et al.         Expires October 2, 2022               [Page 15]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
-4.1.2.2.  Numbers
+4.2.2.2.  Numbers
 
    Integer numbers MUST NOT have a decimal point.  Examples are "23",
    "0042", and "1341298465647914".
@@ -858,7 +858,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    used for "quantile" and "le" label values as in section "Canonical
    Numbers".  They MAY be used anywhere else numbers are used.
 
-4.1.2.2.1.  Considerations: Canonical Numbers
+4.2.2.2.1.  Considerations: Canonical Numbers
 
    Numbers in the "le" label values of histograms and "quantile" label
    values of summary metrics are special in that they're label values,
@@ -893,9 +893,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 16]
+Hartmann, et al.         Expires October 2, 2022               [Page 16]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    Parsers MUST NOT reject inputs which are outside of the canonical
@@ -917,13 +917,13 @@ Internet-Draft                 OpenMetrics                 February 2022
    only six significant digits. 17 significant digits are required for
    full precision, e.g. "printf("%.17g", d)".
 
-4.1.2.3.  Timestamps
+4.2.2.3.  Timestamps
 
    Timestamps SHOULD NOT use exponential float rendering for timestamps
    if nanosecond precision is needed as rendering of a float64 does not
    have sufficient precision, e.g. 1604676851.123456789.
 
-4.1.3.  MetricFamily
+4.2.3.  MetricFamily
 
    There MUST NOT be an explicit separator between MetricFamilies.  The
    next MetricFamily MUST be signalled with either metadata or a new
@@ -931,7 +931,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
    MetricFamilies MUST NOT be interleaved.
 
-4.1.3.1.  MetricFamily metadata
+4.2.3.1.  MetricFamily metadata
 
    There are four pieces of metadata: The MetricFamily name, TYPE, UNIT
    and HELP.  An example of the metadata for a counter Metric called foo
@@ -949,9 +949,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 17]
+Hartmann, et al.         Expires October 2, 2022               [Page 17]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    A valid example for a foo_seconds metric with a unit of "seconds":
@@ -977,7 +977,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    Aside from this metadata and the EOF line at the end of the message,
    you MUST NOT expose lines beginning with a #.
 
-4.1.3.2.  Metric
+4.2.3.2.  Metric
 
    Metrics MUST NOT be interleaved.
 
@@ -1005,12 +1005,12 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 18]
+Hartmann, et al.         Expires October 2, 2022               [Page 18]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
-4.1.4.  MetricPoint
+4.2.4.  MetricPoint
 
    MetricPoints MUST NOT be interleaved.
 
@@ -1046,9 +1046,9 @@ Internet-Draft                 OpenMetrics                 February 2022
    foo_seconds_sum{a="bb"} 0 123
    foo_seconds_sum{a="bb"} 0 456
 
-4.1.5.  Metric types
+4.2.5.  Metric types
 
-4.1.5.1.  Gauge
+4.2.5.1.  Gauge
 
    The Sample MetricName for the value of a MetricPoint for a
    MetricFamily of type Gauge MUST NOT have a suffix.
@@ -1061,9 +1061,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 19]
+Hartmann, et al.         Expires October 2, 2022               [Page 19]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    An example of a MetricFamily with two Metrics with a label and
@@ -1082,7 +1082,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    An example with a Metric with no labels and two MetricPoints with
    timestamps: ~~~~ # TYPE foo gauge foo 17.0 123 foo 18.0 456 ~~~~
 
-4.1.5.2.  Counter
+4.2.5.2.  Counter
 
    The MetricPoint's Total Value Sample MetricName MUST have the suffix
    "_total".  If present the MetricPoint's Created Value Sample
@@ -1105,7 +1105,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
    Exemplars MAY be attached to the MetricPoint's Total sample.
 
-4.1.5.3.  StateSet
+4.2.5.3.  StateSet
 
    The Sample MetricName for the value of a MetricPoint for a
    MetricFamily of type StateSet MUST NOT have a suffix.
@@ -1117,9 +1117,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 20]
+Hartmann, et al.         Expires October 2, 2022               [Page 20]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    value MUST be 1 if the State is true and MUST be 0 if the State is
@@ -1140,7 +1140,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    1.0 foo{entity="replica",foo="bb"} 0.0
    foo{entity="replica",foo="ccc"} 1.0 ~~~~
 
-4.1.5.4.  Info
+4.2.5.4.  Info
 
    The Sample MetricName for the value of a MetricPoint for a
    MetricFamily of type Info MUST have the suffix "_info".  The Sample
@@ -1158,7 +1158,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
    Metric labels and MetricPoint value labels MAY be in any order.
 
-4.1.5.5.  Summary
+4.2.5.5.  Summary
 
    If present, the MetricPoint's Sum Value Sample MetricName MUST have
    the suffix "_sum".  If present, the MetricPoint's Count Value Sample
@@ -1173,9 +1173,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 21]
+Hartmann, et al.         Expires October 2, 2022               [Page 21]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    An example of a Metric with no labels and a MetricPoint with Sum,
@@ -1188,7 +1188,7 @@ Internet-Draft                 OpenMetrics                 February 2022
 
    Quantiles MAY be in any order.
 
-4.1.5.6.  Histogram
+4.2.5.6.  Histogram
 
    The MetricPoint's Bucket Values Sample MetricNames MUST have the
    suffix "_bucket".  If present, the MetricPoint's Sum Value Sample
@@ -1211,7 +1211,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    foo_bucket{le="1.1e+23"} 17 foo_bucket{le="+Inf"} 17 foo_count 17
    foo_sum 324789.3 foo_created 1520430000.123 ~~~~
 
-4.1.5.6.1.  Exemplars
+4.2.5.6.1.  Exemplars
 
    Exemplars without Labels MUST represent an empty LabelSet as {}.
 
@@ -1229,12 +1229,12 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 22]
+Hartmann, et al.         Expires October 2, 2022               [Page 22]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
-4.1.5.7.  GaugeHistogram
+4.2.5.7.  GaugeHistogram
 
    The MetricPoint's Bucket Values Sample MetricNames MUST have the
    suffix "_bucket".  If present, the MetricPoint's Sum Value Sample
@@ -1252,7 +1252,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    foo_bucket{le="1"} 34.0 foo_bucket{le="10"} 34.0
    foo_bucket{le="+Inf"} 42.0 foo_gcount 42.0 foo_gsum 3289.3 ~~~~
 
-4.1.5.8.  Unknown
+4.2.5.8.  Unknown
 
    The sample metric name for the value of the MetricPoint for a
    MetricFamily of type Unknown MUST NOT have a suffix.
@@ -1260,9 +1260,9 @@ Internet-Draft                 OpenMetrics                 February 2022
    An example with a Metric with no labels and a MetricPoint with no
    timestamp: ~~~~ # TYPE foo unknown foo 42.23 ~~~~
 
-4.2.  Protobuf format
+4.3.  Protobuf format
 
-4.2.1.  Overall Structure
+4.3.1.  Overall Structure
 
    Protobuf messages MUST be encoded in binary and MUST have
    "application/openmetrics-protobuf; version=1.0.0" as their content
@@ -1271,12 +1271,12 @@ Internet-Draft                 OpenMetrics                 February 2022
    All payloads MUST be a single binary encoded MetricSet message, as
    defined by the OpenMetrics protobuf schema.
 
-4.2.1.1.  Version
+4.3.1.1.  Version
 
    The protobuf format MUST follow the proto3 version of the protocol
    buffer language.
 
-4.2.1.2.  Strings
+4.3.1.2.  Strings
 
    All string fields MUST be UTF-8 encoded.
 
@@ -1285,12 +1285,12 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 23]
+Hartmann, et al.         Expires October 2, 2022               [Page 23]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
-4.2.1.3.  Timestamps
+4.3.1.3.  Timestamps
 
    Timestamp representations in the OpenMetrics protobuf schema MUST
    follow the published google.protobuf.Timestamp [timestamp] message.
@@ -1299,7 +1299,7 @@ Internet-Draft                 OpenMetrics                 February 2022
    int32 that counts forward from the seconds timestamp component.  It
    MUST be within 0 to 999,999,999 inclusive.
 
-4.2.2.  Protobuf schema
+4.3.2.  Protobuf schema
 
 syntax = "proto3";
 
@@ -1341,9 +1341,9 @@ message MetricFamily {
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 24]
+Hartmann, et al.         Expires October 2, 2022               [Page 24]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 enum MetricType {
@@ -1397,9 +1397,9 @@ message MetricPoint {
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 25]
+Hartmann, et al.         Expires October 2, 2022               [Page 25]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
     SummaryValue summary_value = 7;
@@ -1453,9 +1453,9 @@ message HistogramValue {
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 26]
+Hartmann, et al.         Expires October 2, 2022               [Page 26]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
   // Optional.
@@ -1509,9 +1509,9 @@ message StateSetValue {
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 27]
+Hartmann, et al.         Expires October 2, 2022               [Page 27]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
   }
@@ -1565,9 +1565,9 @@ message SummaryValue {
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 28]
+Hartmann, et al.         Expires October 2, 2022               [Page 28]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    Systems of all sizes should be supported, from applications that
@@ -1621,9 +1621,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 29]
+Hartmann, et al.         Expires October 2, 2022               [Page 29]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    geolocation type for latitude/longitude as this can be done with
@@ -1677,9 +1677,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 30]
+Hartmann, et al.         Expires October 2, 2022               [Page 30]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    power, as watts can be expressed as a counter with a joule unit.  In
@@ -1733,9 +1733,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 31]
+Hartmann, et al.         Expires October 2, 2022               [Page 31]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    a counter is not getting increments doesn't invalidate that it still
@@ -1789,9 +1789,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 32]
+Hartmann, et al.         Expires October 2, 2022               [Page 32]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 5.7.  Missing Data
@@ -1845,9 +1845,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 33]
+Hartmann, et al.         Expires October 2, 2022               [Page 33]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    metrics in their code with "acme_", and if they had a HTTP router
@@ -1901,9 +1901,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 34]
+Hartmann, et al.         Expires October 2, 2022               [Page 34]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    consumed and passed through a general purpose monitoring system may
@@ -1957,9 +1957,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 35]
+Hartmann, et al.         Expires October 2, 2022               [Page 35]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    The label name "type" is highly generic and should be avoided.  For
@@ -2013,9 +2013,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 36]
+Hartmann, et al.         Expires October 2, 2022               [Page 36]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    both exposition and the exposed system are required to find a good
@@ -2069,9 +2069,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 37]
+Hartmann, et al.         Expires October 2, 2022               [Page 37]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    addition the push-style approach would break pull-style ingestors, as
@@ -2125,9 +2125,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 38]
+Hartmann, et al.         Expires October 2, 2022               [Page 38]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    staging_ even if they all originated from targets in a staging
@@ -2181,9 +2181,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 39]
+Hartmann, et al.         Expires October 2, 2022               [Page 39]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    Summary quantiles must be float64, as they are estimates and thus
@@ -2237,9 +2237,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 40]
+Hartmann, et al.         Expires October 2, 2022               [Page 40]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    By putting the timestamp of last change into its own Gauge as a
@@ -2293,9 +2293,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 41]
+Hartmann, et al.         Expires October 2, 2022               [Page 41]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    acme_notifications_queue_capacity The capacity of the notifications
@@ -2349,9 +2349,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 42]
+Hartmann, et al.         Expires October 2, 2022               [Page 42]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
    scaling: What happens if you scale your instance count by 1-2 orders
@@ -2405,9 +2405,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 43]
+Hartmann, et al.         Expires October 2, 2022               [Page 43]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 7.  IANA Considerations
@@ -2461,9 +2461,9 @@ Internet-Draft                 OpenMetrics                 February 2022
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 44]
+Hartmann, et al.         Expires October 2, 2022               [Page 44]
 
-Internet-Draft                 OpenMetrics                 February 2022
+Internet-Draft                 OpenMetrics                    March 2022
 
 
 8.2.  Informative References
@@ -2517,4 +2517,4 @@ Authors' Addresses
 
 
 
-Hartmann, et al.         Expires August 26, 2022               [Page 45]
+Hartmann, et al.         Expires October 2, 2022               [Page 45]
