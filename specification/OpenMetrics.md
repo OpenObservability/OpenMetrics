@@ -315,6 +315,8 @@ Negotiation of what version of the OpenMetrics format to use is out-of-band. For
 
 Push-based negotiation is inherently more complex, as the exposer typically initiates the connection. Producers MUST use the oldest version of the standard (i.e. 1.0.0) unless requested otherwise by the ingestor.
 
+## Text format
+
 ### ABNF
 
 ABNF as per RFC 5234
