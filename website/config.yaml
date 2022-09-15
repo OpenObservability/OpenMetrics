@@ -5,7 +5,7 @@ disableKinds: [taxonomy, taxonomyTerm]
 
 params:
   description: |
-    OpenMetrics is the official standard for metrics in the [Prometheus](https://prometheus.io/) ecosystem. With its support for examplars, it ties metrics and traces as closely and efficiently as never seen before. The [specification](https://github.com/OpenObservability/OpenMetrics/blob/master/specification/OpenMetrics.md) covers semantics, data model, and wire format for cloud-native metrics at scale, with support for both text representation and Protocol Buffers.
+    OpenMetrics is partially supported by [Prometheus](https://prometheus.io/) ecosystem. With its support for examplars, it ties metrics and traces as closely and efficiently as never seen before. The [specification](https://github.com/OpenObservability/OpenMetrics/blob/master/specification/OpenMetrics.md) covers semantics, data model, and wire format for cloud-native metrics at scale, with support for both text representation and Protocol Buffers.
   subdescription: |
     You can track the project's progress on the [OpenMetrics mailing list](https://groups.google.com/forum/m/#!forum/openmetrics).
   favicon: /images/logo/logo.png
