@@ -110,8 +110,8 @@ message GaugeValue {
 message CounterValue {
   // Required.
   oneof total {
-    double double_value = 1;
-    uint64 int_value = 2;
+    double double_total = 1;
+    uint64 int_total = 2;
   }
 
   // The time values began being collected for this counter.
@@ -126,8 +126,8 @@ message CounterValue {
 message HistogramValue {
   // Optional.
   oneof sum {
-    double double_value = 1;
-    int64 int_value = 2;
+    double double_sum = 1;
+    int64 int_sum = 2;
   }
 
   // Optional.
@@ -190,8 +190,8 @@ message InfoValue {
 message SummaryValue {
   // Optional. 
   oneof sum {
-    double double_value = 1;
-    int64 int_value = 2;
+    double double_sum = 1;
+    int64 int_sum = 2;
   }
 
   // Optional. 
