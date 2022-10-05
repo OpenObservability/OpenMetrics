@@ -131,7 +131,10 @@ message HistogramValue {
   }
 
   // Optional.
-  uint64 count = 3;
+  oneof count {
+    double double_count = 6;
+    uint64 int_count = 3;
+  }
 
   // The time values began being collected for this histogram.
   // Optional.
@@ -144,7 +147,10 @@ message HistogramValue {
   // with an optional exemplar.
   message Bucket {  
     // Required.
-    uint64 count = 1;
+    oneof count {
+      double double_count = 4;
+      uint64 int_count = 1;
+    }
 
     // Optional.
     double upper_bound = 2;
