@@ -158,6 +158,62 @@ message HistogramValue {
     // Optional.
     Exemplar exemplar = 3;
   }
+
+  // Everything below here is for native histograms (also known as sparse histograms).
+
+  // schema defines the bucket schema. Currently, valid numbers are -4 <= n <= 8.
+  // They are all for base-2 bucket schemas, where 1 is a bucket boundary in each case, and
+  // then each power of two is divided into 2^n logarithmic buckets.
+  // Or in other words, each bucket boundary is the previous boundary times 2^(2^-n).
+  // In the future, more bucket schemas may be added using numbers < -4 or > 8.
+  // Optional.
+  sint32 schema = 7;
+
+  // Breadth of the zero bucket.
+  // Optional.
+  double zero_threshold = 8;
+
+  // Count in zero bucket.
+  // Optional.
+  oneof zero_count {
+    double double_zero_count = 9;
+    uint64 int_zero_count = 10;
+  }
+  
+  // Negative buckets for the native histogram.
+  // Optional.
+  repeated BucketSpan negative_span = 11;
+  // Use either "negative_delta" or "negative_count", the former for
+  // regular histograms with integer counts, the latter for float
+  // histograms.
+  repeated sint64 negative_delta    = 12; // Count delta of each bucket compared to previous one (or to zero for 1st bucket).
+  repeated double negative_count    = 13; // Absolute count of each bucket.
+
+  // Positive buckets for the native histogram.
+  // Optional.
+  repeated BucketSpan positive_span = 14;
+  // Use either "positive_delta" or "positive_count", the former for
+  // regular histograms with integer counts, the latter for float
+  // histograms.
+  repeated sint64 positive_delta    = 15; // Count delta of each bucket compared to previous one (or to zero for 1st bucket).
+  repeated double positive_count    = 16; // Absolute count of each bucket.
+
+  // A BucketSpan defines a number of consecutive buckets in a native
+  // histogram with their offset. Logically, it would be more
+  // straightforward to include the bucket counts in the Span. However,
+  // the protobuf representation is more compact in the way the data is
+  // structured here (with all the buckets in a single array separate
+  // from the Spans).
+  message BucketSpan {
+
+    // Gap to previous span, or starting point for 1st span (which can be negative).
+    // Required.
+    sint32 offset = 1;
+
+    // Length of consecutive buckets.
+    // Required.
+    uint32 length = 2;
+  }
 }
 
 message Exemplar {
