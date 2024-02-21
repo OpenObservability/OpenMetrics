@@ -5,6 +5,8 @@ syntax = "proto3";
 // All string fields MUST be UTF-8 encoded strings.
 package openmetrics;
 
+option go_package = "github.com/OpenObservability/OpenMetrics/proto;openmetrics";
+
 import "google/protobuf/timestamp.proto";
 
 // The top-level container type that is encoded and sent over the wire.
@@ -110,8 +112,8 @@ message GaugeValue {
 message CounterValue {
   // Required.
   oneof total {
-    double double_value = 1;
-    uint64 int_value = 2;
+    double double_total = 1;
+    uint64 int_total = 2;
   }
 
   // The time values began being collected for this counter.
@@ -126,12 +128,15 @@ message CounterValue {
 message HistogramValue {
   // Optional.
   oneof sum {
-    double double_value = 1;
-    int64 int_value = 2;
+    double double_sum = 1;
+    int64 int_sum = 2;
   }
 
   // Optional.
-  uint64 count = 3;
+  oneof count {
+    double double_count = 6;
+    uint64 int_count = 3;
+  }
 
   // The time values began being collected for this histogram.
   // Optional.
@@ -144,13 +149,76 @@ message HistogramValue {
   // with an optional exemplar.
   message Bucket {  
     // Required.
-    uint64 count = 1;
+    oneof count {
+      double double_count = 4;
+      uint64 int_count = 1;
+    }
 
     // Optional.
     double upper_bound = 2;
 
     // Optional.
     Exemplar exemplar = 3;
+  }
+
+  // Everything below here is for native histograms (also known as sparse histograms).
+
+  // schema defines the bucket schema. Currently, valid numbers are -4 <= n <= 8.
+  // They are all for base-2 bucket schemas, where 1 is a bucket boundary in each case, and
+  // then each power of two is divided into 2^n logarithmic buckets.
+  // Or in other words, each bucket boundary is the previous boundary times 2^(2^-n).
+  // In the future, more bucket schemas may be added using numbers < -4 or > 8.
+  // Optional.
+  sint32 schema = 7;
+
+  // Breadth of the zero bucket.
+  // Optional.
+  double zero_threshold = 8;
+
+  // Count in zero bucket.
+  // Optional.
+  oneof zero_count {
+    double double_zero_count = 9;
+    uint64 int_zero_count = 10;
+  }
+  
+  // Negative buckets for the native histogram.
+  // Optional.
+  repeated BucketSpan negative_span = 11;
+  // Use either "negative_delta" or "negative_count", the former for
+  // regular histograms with integer counts, the latter for float
+  // histograms.
+  repeated sint64 negative_delta    = 12; // Count delta of each bucket compared to previous one (or to zero for 1st bucket).
+  repeated double negative_count    = 13; // Absolute count of each bucket.
+
+  // Positive buckets for the native histogram.
+  // Optional.
+  repeated BucketSpan positive_span = 14;
+  // Use either "positive_delta" or "positive_count", the former for
+  // regular histograms with integer counts, the latter for float
+  // histograms.
+  repeated sint64 positive_delta    = 15; // Count delta of each bucket compared to previous one (or to zero for 1st bucket).
+  repeated double positive_count    = 16; // Absolute count of each bucket.
+
+  // Only used for native histograms. These exemplars MUST have a timestamp.
+  // Optional.
+  repeated Exemplar exemplars = 17;
+
+  // A BucketSpan defines a number of consecutive buckets in a native
+  // histogram with their offset. Logically, it would be more
+  // straightforward to include the bucket counts in the Span. However,
+  // the protobuf representation is more compact in the way the data is
+  // structured here (with all the buckets in a single array separate
+  // from the Spans).
+  message BucketSpan {
+
+    // Gap to previous span, or starting point for 1st span (which can be negative).
+    // Required.
+    sint32 offset = 1;
+
+    // Length of consecutive buckets.
+    // Required.
+    uint32 length = 2;
   }
 }
 
@@ -190,8 +258,8 @@ message InfoValue {
 message SummaryValue {
   // Optional. 
   oneof sum {
-    double double_value = 1;
-    int64 int_value = 2;
+    double double_sum = 1;
+    int64 int_sum = 2;
   }
 
   // Optional. 

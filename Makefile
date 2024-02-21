@@ -31,7 +31,7 @@ test_open_metrics_validator:
 
 .PHONY: proto_go
 proto_go: setup
-	protoc --go_out=$(BUILD) --go_opt=paths=source_relative ./proto/*.proto
+	protoc --go_out=. --go_opt=paths=source_relative ./proto/*.proto
 
 .PHONY: setup
 setup:
