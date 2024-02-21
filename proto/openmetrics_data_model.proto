@@ -198,6 +198,10 @@ message HistogramValue {
   repeated sint64 positive_delta    = 15; // Count delta of each bucket compared to previous one (or to zero for 1st bucket).
   repeated double positive_count    = 16; // Absolute count of each bucket.
 
+  // Only used for native histograms. These exemplars MUST have a timestamp.
+  // Optional.
+  repeated Exemplar exemplars = 17;
+
   // A BucketSpan defines a number of consecutive buckets in a native
   // histogram with their offset. Logically, it would be more
   // straightforward to include the bucket counts in the Span. However,
