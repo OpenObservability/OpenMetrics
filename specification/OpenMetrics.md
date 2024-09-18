@@ -316,7 +316,7 @@ Partial or invalid expositions MUST be considered erroneous in their entirety.
 
 ### ABNF specification
 
-Versioning follows a semantic versioning model as per [SemanticVersioning] on the specification level. Breaking semantic changes MUST be signaled with a major version increase. For example, removing a stanza.
+Versioning follows a semantic versioning model as per {{SemanticVersioning}} on the specification level. Breaking semantic changes MUST be signaled with a major version increase. For example, removing a stanza.
 
 Semantic extensions to the ABNF MUST be signaled with a minor or major version increase. For example, adding a line starting with `# foo`.
 
