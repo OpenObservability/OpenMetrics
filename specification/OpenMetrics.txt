@@ -676,9 +676,9 @@ Internet-Draft                 OpenMetrics                September 2024
 
 4.1.1.  ABNF specification
 
-   Versioning follows a semantic versioning model on the specification
-   level.  Breaking semantic changes MUST be signaled with a major
-   version increase.  For example, removing a stanza.
+   Versioning follows a semantic versioning model as per [SEMVER] on the
+   specification level.  Breaking semantic changes MUST be signaled with
+   a major version increase.  For example, removing a stanza.
 
    Semantic extensions to the ABNF MUST be signaled with a minor or
    major version increase.  For example, adding a line starting with #
@@ -2527,6 +2527,9 @@ Internet-Draft                 OpenMetrics                September 2024
               DOI 10.17487/RFC9110, June 2022,
               <https://www.rfc-editor.org/rfc/rfc9110>.
 
+   [SEMVER]   "Semantic Versioning 2.0.0", n.d.,
+              <https://semver.org/spec/v2.0.0.html>.
+
 8.2.  Informative References
 
    [normalization]
@@ -2563,9 +2566,6 @@ Authors' Addresses
    Rob Skillington
    Chronosphere
    Email: rob.skillington@gmail.com
-
-
-
 
 
 
