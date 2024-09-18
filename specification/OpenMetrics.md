@@ -4,6 +4,7 @@ abbrev: OpenMetrics
 docname: draft-richih-opsawg-openmetrics-01
 category: std
 
+ipr: trust200902
 area: General
 workgroup: Ops WG
 keyword: Internet-Draft
@@ -1058,7 +1059,8 @@ message SummaryValue {
   // Optional.
   uint64 count = 3;
 
-  // The time sum and count values began being collected for this summary.
+  // The time sum and count values began being collected
+  // for this summary.
   // Optional.
   google.protobuf.Timestamp created = 4;
 
