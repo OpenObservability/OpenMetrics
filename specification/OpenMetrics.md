@@ -35,6 +35,7 @@ normative:
   RFC2119:
   RFC5234:
   RFC8174:
+  RFC9110:
 
 informative:
   normalization:
@@ -46,6 +47,9 @@ informative:
   timestamp:
     target: https://github.com/protocolbuffers/protobuf/blob/2f6a7546e4539499bc08abc6900dc929782f5dcd/src/google/protobuf/timestamp.proto
     title: Go Timestamp ProtoBuf
+  SemanticVersioning:
+    target: https://semver.org/spec/v2.0.0.html
+    title: Semantic Versioning 2.0.0
 
 --- abstract
 
@@ -308,11 +312,33 @@ The text format compresses well, and protobuf is already binary and efficiently 
 
 Partial or invalid expositions MUST be considered erroneous in their entirety.
 
+## Versioning and compatibility
+
+### ABNF specification
+
+Versioning follows a semantic versioning model as per {{SemanticVersioning}} on the specification level. Breaking semantic changes MUST be signaled with a major version increase. For example, removing a stanza.
+
+Semantic extensions to the ABNF MUST be signaled with a minor or major version increase. For example, adding a line starting with `# foo`.
+
+### Ingestor
+
+Ingestors MUST implement version 1.0.0 of the standard.
+Ingestors MAY support versions higher than 1.0.0. In this case, they MUST implement protocol version negotiation.
+In case no protocol version negotiation takes place, version 1.0.0 SHOULD be assumed.
+
+### Exposer
+
+Exposers MUST implement version 1.0.0 of the standard.
+Exposers MAY support versions higher than 1.0.0. In this case, they MUST implement protocol version negotiation.
+Exposers SHOULD negotiate the highest common version with ingestors.
+
 ## Protocol Negotiation
 
 All ingestor implementations MUST be able to ingest data secured with TLS 1.2 or later. All exposers SHOULD be able to emit data secured with TLS 1.2 or later. ingestor implementations SHOULD be able to ingest data from HTTP without TLS. All implementations SHOULD use TLS to transmit data.
 
-Negotiation of what version of the OpenMetrics format to use is out-of-band. For example for pull-based exposition over HTTP standard HTTP content type negotiation is used, and MUST default to the oldest version of the standard (i.e. 1.0.0) if no newer version is requested.
+Negotiation of what version of the OpenMetrics format to use is out-of-band. For example for pull-based exposition over HTTP the standard HTTP content type negotiation MUST be used. The ingestor MUST send the "Accept" header according to {{RFC9110}} and indicate the versions it supports, for example
+
+application/openmetrics-text;version=1.0.0;q=0.7,application/openmetrics-text;version=1.1.0;q=0.8
 
 Push-based negotiation is inherently more complex, as the exposer typically initiates the connection. Producers MUST use the oldest version of the standard (i.e. 1.0.0) unless requested otherwise by the ingestor.
 
@@ -320,7 +346,7 @@ Push-based negotiation is inherently more complex, as the exposer typically init
 
 ### ABNF
 
-ABNF as per RFC 5234
+ABNF as per {{RFC5234}}
 
 EDITOR’S NOTE: Should we update to RFC 7405, in particular the case insensitive bits?
 
