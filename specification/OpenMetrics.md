@@ -36,9 +36,6 @@ normative:
   RFC5234:
   RFC8174:
   RFC9110:
-  SEMVER:
-    target: https://semver.org/spec/v2.0.0.html
-    title: Semantic Versioning 2.0.0
 
 informative:
   normalization:
@@ -50,6 +47,9 @@ informative:
   timestamp:
     target: https://github.com/protocolbuffers/protobuf/blob/2f6a7546e4539499bc08abc6900dc929782f5dcd/src/google/protobuf/timestamp.proto
     title: Go Timestamp ProtoBuf
+  SemanticVersioning:
+    target: https://semver.org/spec/v2.0.0.html
+    title: Semantic Versioning 2.0.0
 
 --- abstract
 
@@ -316,7 +316,7 @@ Partial or invalid expositions MUST be considered erroneous in their entirety.
 
 ### ABNF specification
 
-Versioning follows a semantic versioning model as per [SEMVER] on the specification level. Breaking semantic changes MUST be signaled with a major version increase. For example, removing a stanza.
+Versioning follows a semantic versioning model as per [SemanticVersioning] on the specification level. Breaking semantic changes MUST be signaled with a major version increase. For example, removing a stanza.
 
 Semantic extensions to the ABNF MUST be signaled with a minor or major version increase. For example, adding a line starting with `# foo`.
 
