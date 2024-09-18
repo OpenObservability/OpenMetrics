@@ -313,29 +313,27 @@ Partial or invalid expositions MUST be considered erroneous in their entirety.
 
 ### ABNF specification
 
-Versioning follows a semantic versioning model on the specification level. Breaking semantic changes (for example removal from ABNF) MUST result in major version bump, however additions MUST be in a minor version bump. Multiple changes may be bundled in the same version update and the version bump will be the biggest version bump in those changes.
+Versioning follows a semantic versioning model on the specification level. Breaking semantic changes MUST be signaled with a major version increase. For example, removing a stanza.
+
+Semantic extensions to the ABNF MUST be signaled with a minor or major version increase. For example, adding a line starting with `# foo`.
 
 ### Ingestor
 
-Ingestors MUST implement at least version 1.0.0 of the standard.
-Ingestors MUST implement protocol negotiation to be able to support higher than 1.0.0 version.
-If exposer doesn't support content negotiation, version 1.0.0 SHOULD be assumed.
-
-An ingestor that supports version "m.y" of the standard MUST support versions "m.x" where "x" and "y" are natural numbers, such that "x < y".
-
-Ingestors MAY refuse to ingest the exposed metrics if content negotiation yields an empty list of versions.
+Ingestors MUST implement version 1.0.0 of the standard.
+Ingestors MAY support versions higher than 1.0.0. In this case, they MUST implement protocol version negotiation.
+In case no protocol version negotiation takes place, version 1.0.0 SHOULD be assumed.
 
 ### Exposer
 
-Exposers MUST implement at least version 1.0.0 of the standard.
-Exposers MUST implement protocol negotiation to be able to support higher than 1.0.0 version.
-Exposers SHOULD negotiate the highest common version with the exposer.
+Exposers MUST implement version 1.0.0 of the standard.
+Exposers MAY support versions higher than 1.0.0. In this case, they MUST implement protocol version negotiation.
+Exposers SHOULD negotiate the highest common version with ingestors.
 
 ## Protocol Negotiation
 
 All ingestor implementations MUST be able to ingest data secured with TLS 1.2 or later. All exposers SHOULD be able to emit data secured with TLS 1.2 or later. ingestor implementations SHOULD be able to ingest data from HTTP without TLS. All implementations SHOULD use TLS to transmit data.
 
-Negotiation of what version of the OpenMetrics format to use is out-of-band. For example for pull-based exposition over HTTP the standard HTTP content type negotiation MUST be used. The ingestor MUST send the "Accept" header according to RFC 9110 and indicate the versions it supports, for example
+Negotiation of what version of the OpenMetrics format to use is out-of-band. For example for pull-based exposition over HTTP the standard HTTP content type negotiation MUST be used. The ingestor MUST send the "Accept" header according to {{RFC9110}} and indicate the versions it supports, for example
 
 application/openmetrics-text;version=1.0.0;q=0.7,application/openmetrics-text;version=1.1.0;q=0.8
 
@@ -345,7 +343,7 @@ Push-based negotiation is inherently more complex, as the exposer typically init
 
 ### ABNF
 
-ABNF as per RFC 5234
+ABNF as per {{RFC5234}}
 
 EDITOR’S NOTE: Should we update to RFC 7405, in particular the case insensitive bits?
 

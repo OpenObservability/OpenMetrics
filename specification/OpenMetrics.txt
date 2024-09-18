@@ -5,12 +5,12 @@
 Ops WG                                                  R. Hartmann, Ed.
 Internet-Draft                                              Grafana Labs
 Intended status: Standards Track                               B. Kochie
-Expires: 21 March 2025                                            GitLab
+Expires: 22 March 2025                                            GitLab
                                                                B. Brazil
                                                        Robust Perception
                                                           R. Skillington
                                                             Chronosphere
-                                                       17 September 2024
+                                                       18 September 2024
 
 
      OpenMetrics, a cloud-native, highly scalable metrics protocol
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 21 March 2025.
+   This Internet-Draft will expire on 22 March 2025.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Hartmann, et al.          Expires 21 March 2025                 [Page 1]
+Hartmann, et al.          Expires 22 March 2025                 [Page 1]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -90,53 +90,57 @@ Table of Contents
        3.2.7.  Summary . . . . . . . . . . . . . . . . . . . . . . .  11
        3.2.8.  Unknown . . . . . . . . . . . . . . . . . . . . . . .  12
    4.  Data transmission & wire formats  . . . . . . . . . . . . . .  12
-     4.1.  Protocol Negotiation  . . . . . . . . . . . . . . . . . .  13
-     4.2.  Text format . . . . . . . . . . . . . . . . . . . . . . .  13
-       4.2.1.  ABNF  . . . . . . . . . . . . . . . . . . . . . . . .  13
-       4.2.2.  Overall Structure . . . . . . . . . . . . . . . . . .  15
-       4.2.3.  MetricFamily  . . . . . . . . . . . . . . . . . . . .  17
-       4.2.4.  MetricPoint . . . . . . . . . . . . . . . . . . . . .  19
-       4.2.5.  Metric types  . . . . . . . . . . . . . . . . . . . .  19
-     4.3.  Protobuf format . . . . . . . . . . . . . . . . . . . . .  23
-       4.3.1.  Overall Structure . . . . . . . . . . . . . . . . . .  23
-       4.3.2.  Protobuf schema . . . . . . . . . . . . . . . . . . .  24
-   5.  Design Considerations . . . . . . . . . . . . . . . . . . . .  28
-     5.1.  Scope . . . . . . . . . . . . . . . . . . . . . . . . . .  28
-       5.1.1.  Out of scope  . . . . . . . . . . . . . . . . . . . .  29
-     5.2.  Extensions and Improvements . . . . . . . . . . . . . . .  29
-     5.3.  Units and Base Units  . . . . . . . . . . . . . . . . . .  30
-     5.4.  Statelessness . . . . . . . . . . . . . . . . . . . . . .  31
+     4.1.  Versioning and compatibility  . . . . . . . . . . . . . .  12
+       4.1.1.  ABNF specification  . . . . . . . . . . . . . . . . .  13
+       4.1.2.  Ingestor  . . . . . . . . . . . . . . . . . . . . . .  13
+       4.1.3.  Exposer . . . . . . . . . . . . . . . . . . . . . . .  13
+     4.2.  Protocol Negotiation  . . . . . . . . . . . . . . . . . .  13
+     4.3.  Text format . . . . . . . . . . . . . . . . . . . . . . .  13
+       4.3.1.  ABNF  . . . . . . . . . . . . . . . . . . . . . . . .  14
+       4.3.2.  Overall Structure . . . . . . . . . . . . . . . . . .  15
+       4.3.3.  MetricFamily  . . . . . . . . . . . . . . . . . . . .  18
+       4.3.4.  MetricPoint . . . . . . . . . . . . . . . . . . . . .  19
+       4.3.5.  Metric types  . . . . . . . . . . . . . . . . . . . .  20
+     4.4.  Protobuf format . . . . . . . . . . . . . . . . . . . . .  24
+       4.4.1.  Overall Structure . . . . . . . . . . . . . . . . . .  24
+       4.4.2.  Protobuf schema . . . . . . . . . . . . . . . . . . .  24
+   5.  Design Considerations . . . . . . . . . . . . . . . . . . . .  29
+     5.1.  Scope . . . . . . . . . . . . . . . . . . . . . . . . . .  29
 
 
 
-Hartmann, et al.          Expires 21 March 2025                 [Page 2]
+Hartmann, et al.          Expires 22 March 2025                 [Page 2]
 
 Internet-Draft                 OpenMetrics                September 2024
 
 
-     5.5.  Exposition Across Time and Metric Evolution . . . . . . .  31
+       5.1.1.  Out of scope  . . . . . . . . . . . . . . . . . . . .  30
+     5.2.  Extensions and Improvements . . . . . . . . . . . . . . .  30
+     5.3.  Units and Base Units  . . . . . . . . . . . . . . . . . .  31
+     5.4.  Statelessness . . . . . . . . . . . . . . . . . . . . . .  32
+     5.5.  Exposition Across Time and Metric Evolution . . . . . . .  32
      5.6.  NaN . . . . . . . . . . . . . . . . . . . . . . . . . . .  33
      5.7.  Missing Data  . . . . . . . . . . . . . . . . . . . . . .  33
-     5.8.  Exposition Performance  . . . . . . . . . . . . . . . . .  33
-     5.9.  Concurrency . . . . . . . . . . . . . . . . . . . . . . .  33
-     5.10. Metric Naming and Namespaces  . . . . . . . . . . . . . .  33
-     5.11. Label Namespacing . . . . . . . . . . . . . . . . . . . .  35
-     5.12. Metric Names versus Labels  . . . . . . . . . . . . . . .  36
-     5.13. Types of Metadata . . . . . . . . . . . . . . . . . . . .  37
+     5.8.  Exposition Performance  . . . . . . . . . . . . . . . . .  34
+     5.9.  Concurrency . . . . . . . . . . . . . . . . . . . . . . .  34
+     5.10. Metric Naming and Namespaces  . . . . . . . . . . . . . .  34
+     5.11. Label Namespacing . . . . . . . . . . . . . . . . . . . .  36
+     5.12. Metric Names versus Labels  . . . . . . . . . . . . . . .  37
+     5.13. Types of Metadata . . . . . . . . . . . . . . . . . . . .  38
        5.13.1.  Supporting Target Metadata in both Push-based and
                Pull-based Systems  . . . . . . . . . . . . . . . . .  38
-     5.14. Client Calculations and Derived Metrics . . . . . . . . .  39
+     5.14. Client Calculations and Derived Metrics . . . . . . . . .  40
      5.15. Number Types  . . . . . . . . . . . . . . . . . . . . . .  40
-     5.16. Exposing Timestamps . . . . . . . . . . . . . . . . . . .  40
+     5.16. Exposing Timestamps . . . . . . . . . . . . . . . . . . .  41
        5.16.1.  Tracking When Metrics Last Changed . . . . . . . . .  41
      5.17. Thresholds  . . . . . . . . . . . . . . . . . . . . . . .  42
-     5.18. Size Limits . . . . . . . . . . . . . . . . . . . . . . .  42
+     5.18. Size Limits . . . . . . . . . . . . . . . . . . . . . . .  43
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  44
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  44
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  45
    8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  45
      8.1.  Normative References  . . . . . . . . . . . . . . . . . .  45
-     8.2.  Informative References  . . . . . . . . . . . . . . . . .  45
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  45
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .  46
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  46
 
 1.  Introduction
 
@@ -157,18 +161,18 @@ Internet-Draft                 OpenMetrics                September 2024
    considered changes.  As of 2020, dozens of exporters, integrations,
    and ingestors use and preferentially negotiate OpenMetrics already.
 
-   Given the wide adoption and significant coordination requirements in
-   the ecosystem, sweeping changes to either the Prometheus exposition
-   format 0.0.4 or OpenMetrics 1.0 are considered out of scope.
 
 
 
 
-
-Hartmann, et al.          Expires 21 March 2025                 [Page 3]
+Hartmann, et al.          Expires 22 March 2025                 [Page 3]
 
 Internet-Draft                 OpenMetrics                September 2024
 
+
+   Given the wide adoption and significant coordination requirements in
+   the ecosystem, sweeping changes to either the Prometheus exposition
+   format 0.0.4 or OpenMetrics 1.0 are considered out of scope.
 
 1.1.  Requirements Language
 
@@ -217,11 +221,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                 [Page 4]
+Hartmann, et al.          Expires 22 March 2025                 [Page 4]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -277,7 +277,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-Hartmann, et al.          Expires 21 March 2025                 [Page 5]
+Hartmann, et al.          Expires 22 March 2025                 [Page 5]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -333,7 +333,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-Hartmann, et al.          Expires 21 March 2025                 [Page 6]
+Hartmann, et al.          Expires 22 March 2025                 [Page 6]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -389,7 +389,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-Hartmann, et al.          Expires 21 March 2025                 [Page 7]
+Hartmann, et al.          Expires 22 March 2025                 [Page 7]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -445,7 +445,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-Hartmann, et al.          Expires 21 March 2025                 [Page 8]
+Hartmann, et al.          Expires 22 March 2025                 [Page 8]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -501,7 +501,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-Hartmann, et al.          Expires 21 March 2025                 [Page 9]
+Hartmann, et al.          Expires 22 March 2025                 [Page 9]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -557,7 +557,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-Hartmann, et al.          Expires 21 March 2025                [Page 10]
+Hartmann, et al.          Expires 22 March 2025                [Page 10]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -613,7 +613,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-Hartmann, et al.          Expires 21 March 2025                [Page 11]
+Hartmann, et al.          Expires 22 March 2025                [Page 11]
 
 Internet-Draft                 OpenMetrics                September 2024
 
@@ -661,6 +661,7 @@ Internet-Draft                 OpenMetrics                September 2024
    Partial or invalid expositions MUST be considered erroneous in their
    entirety.
 
+4.1.  Versioning and compatibility
 
 
 
@@ -668,13 +669,36 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-
-Hartmann, et al.          Expires 21 March 2025                [Page 12]
+Hartmann, et al.          Expires 22 March 2025                [Page 12]
 
 Internet-Draft                 OpenMetrics                September 2024
 
 
-4.1.  Protocol Negotiation
+4.1.1.  ABNF specification
+
+   Versioning follows a semantic versioning model on the specification
+   level.  Breaking semantic changes MUST be signaled with a major
+   version increase.  For example, removing a stanza.
+
+   Semantic extensions to the ABNF MUST be signaled with a minor or
+   major version increase.  For example, adding a line starting with #
+   foo.
+
+4.1.2.  Ingestor
+
+   Ingestors MUST implement version 1.0.0 of the standard.  Ingestors
+   MAY support versions higher than 1.0.0.  In this case, they MUST
+   implement protocol version negotiation.  In case no protocol version
+   negotiation takes place, version 1.0.0 SHOULD be assumed.
+
+4.1.3.  Exposer
+
+   Exposers MUST implement version 1.0.0 of the standard.  Exposers MAY
+   support versions higher than 1.0.0.  In this case, they MUST
+   implement protocol version negotiation.  Exposers SHOULD negotiate
+   the highest common version with ingestors.
+
+4.2.  Protocol Negotiation
 
    All ingestor implementations MUST be able to ingest data secured with
    TLS 1.2 or later.  All exposers SHOULD be able to emit data secured
@@ -683,21 +707,32 @@ Internet-Draft                 OpenMetrics                September 2024
    TLS to transmit data.
 
    Negotiation of what version of the OpenMetrics format to use is out-
-   of-band.  For example for pull-based exposition over HTTP standard
-   HTTP content type negotiation is used, and MUST default to the oldest
-   version of the standard (i.e. 1.0.0) if no newer version is
-   requested.
+   of-band.  For example for pull-based exposition over HTTP the
+   standard HTTP content type negotiation MUST be used.  The ingestor
+   MUST send the "Accept" header according to [RFC9110] and indicate the
+   versions it supports, for example
+
+   application/openmetrics-text;version=1.0.0;q=0.7,application/
+   openmetrics-text;version=1.1.0;q=0.8
 
    Push-based negotiation is inherently more complex, as the exposer
    typically initiates the connection.  Producers MUST use the oldest
    version of the standard (i.e. 1.0.0) unless requested otherwise by
    the ingestor.
 
-4.2.  Text format
+4.3.  Text format
 
-4.2.1.  ABNF
 
-   ABNF as per RFC 5234
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 13]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
+4.3.1.  ABNF
+
+   ABNF as per [RFC5234]
 
    EDITOR’S NOTE: Should we update to RFC 7405, in particular the case
    insensitive bits?
@@ -723,13 +758,6 @@ Internet-Draft                 OpenMetrics                September 2024
 
    exemplar = SP HASH SP labels SP number [SP timestamp]
 
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 13]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    labels = "{" [label *(COMMA label)] "}"
 
    label = label-name EQ DQUOTE escaped-string DQUOTE
@@ -750,6 +778,14 @@ Internet-Draft                 OpenMetrics                September 2024
 
    ; RFC 5234 is case insensitive.
    ; Uppercase
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 14]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
    eof = %d69.79.70
    type = %d84.89.80.69
    help = %d72.69.76.80
@@ -778,14 +814,6 @@ Internet-Draft                 OpenMetrics                September 2024
    label-name = label-name-initial-char *label-name-char
 
    label-name-char = label-name-initial-char / DIGIT
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 14]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    label-name-initial-char = ALPHA / "_"
 
    escaped-string = *escaped-char
@@ -797,7 +825,7 @@ Internet-Draft                 OpenMetrics                September 2024
    ; Any unicode character, except newline, double quote, and backslash
    normal-char = %x00-09 / %x0B-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
 
-4.2.2.  Overall Structure
+4.3.2.  Overall Structure
 
    UTF-8 MUST be used.  Byte order markers (BOMs) MUST NOT be used.  As
    an important reminder for implementers, byte 0 is valid UTF-8 while,
@@ -805,6 +833,14 @@ Internet-Draft                 OpenMetrics                September 2024
 
    The content type MUST be: application/openmetrics-text;
    version=1.0.0; charset=utf-8
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 15]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    Line endings MUST be signalled with line feed (\n) and MUST NOT
    contain carriage returns (\r).  Expositions MUST end with EOF and
@@ -830,19 +866,7 @@ Internet-Draft                 OpenMetrics                September 2024
    system CPU time spent in seconds. process_cpu_seconds_total
    4.20072246e+06 # EOF ~~~~
 
-
-
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 15]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
-4.2.2.1.  Escaping
+4.3.2.1.  Escaping
 
    Where the ABNF notes escaping, the following escaping MUST be applied
    Line feed, '\n' (0x0A) -> literally '\n' (Bytecode 0x5c 0x6e) Double
@@ -853,7 +877,7 @@ Internet-Draft                 OpenMetrics                September 2024
    A single backslash SHOULD NOT be used for undefined escape sequences.
    As an example, '\\a' is equivalent and preferable to '\a'.
 
-4.2.2.2.  Numbers
+4.3.2.2.  Numbers
 
    Integer numbers MUST NOT have a decimal point.  Examples are "23",
    "0042", and "1341298465647914".
@@ -865,11 +889,20 @@ Internet-Draft                 OpenMetrics                September 2024
    so many bits in the mantissa that results in lost precision.  This
    MAY be used to encode nanosecond resolution timestamps.
 
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 16]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
    Arbitrary integer and floating point rendering of numbers MUST NOT be
    used for "quantile" and "le" label values as in section "Canonical
    Numbers".  They MAY be used anywhere else numbers are used.
 
-4.2.2.2.1.  Considerations: Canonical Numbers
+4.3.2.2.1.  Considerations: Canonical Numbers
 
    Numbers in the "le" label values of histograms and "quantile" label
    values of summary metrics are special in that they're label values,
@@ -891,13 +924,6 @@ Internet-Draft                 OpenMetrics                September 2024
    with a .0 appended in case there is no decimal point or exponent to
    make clear that they are floats.
 
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 16]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    Exposers MUST produce output for positive infinity as +Inf.
 
    Exposers SHOULD produce output for the values 0.0 up to 10.0 in 0.001
@@ -913,6 +939,21 @@ Internet-Draft                 OpenMetrics                September 2024
    values.  For example 1.1e-4 must not be rejected, even though it is
    not the consistent rendering of 0.00011.
 
+
+
+
+
+
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 17]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
    Exposers SHOULD follow these patterns for non-canonical numbers, and
    the intention is by adjusting the rendering algorithm to be
    consistent for these values that the vast majority of other values
@@ -927,13 +968,13 @@ Internet-Draft                 OpenMetrics                September 2024
    only six significant digits. 17 significant digits are required for
    full precision, e.g. printf("%.17g", d).
 
-4.2.2.3.  Timestamps
+4.3.2.3.  Timestamps
 
    Timestamps SHOULD NOT use exponential float rendering for timestamps
    if nanosecond precision is needed as rendering of a float64 does not
    have sufficient precision, e.g. 1604676851.123456789.
 
-4.2.3.  MetricFamily
+4.3.3.  MetricFamily
 
    There MUST NOT be an explicit separator between MetricFamilies.  The
    next MetricFamily MUST be signalled with either metadata or a new
@@ -941,18 +982,11 @@ Internet-Draft                 OpenMetrics                September 2024
 
    MetricFamilies MUST NOT be interleaved.
 
-4.2.3.1.  MetricFamily metadata
+4.3.3.1.  MetricFamily metadata
 
    There are four pieces of metadata: The MetricFamily name, TYPE, UNIT
    and HELP.  An example of the metadata for a counter Metric called foo
    is:
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 17]
-
-Internet-Draft                 OpenMetrics                September 2024
-
 
    # TYPE foo counter
 
@@ -967,6 +1001,14 @@ Internet-Draft                 OpenMetrics                September 2024
 
    An invalid example, where the unit is not a suffix on the name: ~~~~
    # TYPE foo counter # UNIT foo seconds ~~~~
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 18]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    It is also valid to have: ~~~~ # TYPE foo_seconds counter ~~~~
 
@@ -985,7 +1027,7 @@ Internet-Draft                 OpenMetrics                September 2024
    Aside from this metadata and the EOF line at the end of the message,
    you MUST NOT expose lines beginning with a #.
 
-4.2.3.2.  Metric
+4.3.3.2.  Metric
 
    Metrics MUST NOT be interleaved.
 
@@ -1003,23 +1045,26 @@ Internet-Draft                 OpenMetrics                September 2024
    applied as per the ABNF.  A valid example with two labels: ~~~~
    bar_seconds_count{a="x",b="escaping" example \n "} 0 ~~~~
 
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 18]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    The rendering of values for a MetricPoint can include additional
    labels (e.g. the "le" label for a Histogram type), which MUST be
    rendered in the same way as a Metric's own LabelSet.
 
-4.2.4.  MetricPoint
+4.3.4.  MetricPoint
 
    MetricPoints MUST NOT be interleaved.
 
    A correct example where there were multiple MetricPoints and Samples
    within a MetricFamily would be:
+
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 19]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    # TYPE foo_seconds summary
    # UNIT foo_seconds seconds
@@ -1050,21 +1095,12 @@ Internet-Draft                 OpenMetrics                September 2024
    foo_seconds_sum{a="bb"} 0 123
    foo_seconds_sum{a="bb"} 0 456
 
-4.2.5.  Metric types
+4.3.5.  Metric types
 
-4.2.5.1.  Gauge
+4.3.5.1.  Gauge
 
    The Sample MetricName for the value of a MetricPoint for a
    MetricFamily of type Gauge MUST NOT have a suffix.
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 19]
-
-Internet-Draft                 OpenMetrics                September 2024
-
 
    An example MetricFamily with a Metric with no labels and a
    MetricPoint with no timestamp: ~~~~ # TYPE foo gauge foo 17.0 ~~~~
@@ -1079,13 +1115,20 @@ Internet-Draft                 OpenMetrics                September 2024
    An example with a Metric with a label and a MetricPoint with a
    timestamp: ~~~~ # TYPE foo gauge foo{a="b"} 17.0 1520879607.789 ~~~~
 
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 20]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
    An example with a Metric with no labels and MetricPoint with a
    timestamp: ~~~~ # TYPE foo gauge foo 17.0 1520879607.789 ~~~~
 
    An example with a Metric with no labels and two MetricPoints with
    timestamps: ~~~~ # TYPE foo gauge foo 17.0 123 foo 18.0 456 ~~~~
 
-4.2.5.2.  Counter
+4.3.5.2.  Counter
 
    The MetricPoint's Total Value Sample MetricName MUST have the suffix
    "_total".  If present the MetricPoint's Created Value Sample
@@ -1108,19 +1151,10 @@ Internet-Draft                 OpenMetrics                September 2024
 
    Exemplars MAY be attached to the MetricPoint's Total sample.
 
-4.2.5.3.  StateSet
+4.3.5.3.  StateSet
 
    The Sample MetricName for the value of a MetricPoint for a
    MetricFamily of type StateSet MUST NOT have a suffix.
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 20]
-
-Internet-Draft                 OpenMetrics                September 2024
-
 
    StateSets MUST have one sample per State in the MetricPoint.  Each
    State's sample MUST have a label with the MetricFamily name as the
@@ -1136,6 +1170,14 @@ Internet-Draft                 OpenMetrics                September 2024
    foo{foo="bb"} 1
    foo{foo="ccc"} 0
 
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 21]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
    An example of an "entity" label on the Metric: ~~~~ # TYPE foo
    stateset foo{entity="controller",foo="a"} 1.0
    foo{entity="controller",foo="bb"} 0.0
@@ -1143,7 +1185,7 @@ Internet-Draft                 OpenMetrics                September 2024
    1.0 foo{entity="replica",foo="bb"} 0.0
    foo{entity="replica",foo="ccc"} 1.0 ~~~~
 
-4.2.5.4.  Info
+4.3.5.4.  Info
 
    The Sample MetricName for the value of a MetricPoint for a
    MetricFamily of type Info MUST have the suffix "_info".  The Sample
@@ -1161,7 +1203,7 @@ Internet-Draft                 OpenMetrics                September 2024
 
    Metric labels and MetricPoint value labels MAY be in any order.
 
-4.2.5.5.  Summary
+4.3.5.5.  Summary
 
    If present, the MetricPoint's Sum Value Sample MetricName MUST have
    the suffix "_sum".  If present, the MetricPoint's Count Value Sample
@@ -1170,13 +1212,6 @@ Internet-Draft                 OpenMetrics                September 2024
    "_created".  If present, the MetricPoint's Quantile Values MUST
    specify the quantile measured using a label with a label name of
    "quantile" and with a label value of the quantile measured.
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 21]
-
-Internet-Draft                 OpenMetrics                September 2024
-
 
    An example of a Metric with no labels and a MetricPoint with Sum,
    Count and Created values: ~~~~ # TYPE foo summary foo_count 17.0
@@ -1188,7 +1223,18 @@ Internet-Draft                 OpenMetrics                September 2024
 
    Quantiles MAY be in any order.
 
-4.2.5.6.  Histogram
+
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 22]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
+4.3.5.6.  Histogram
 
    The MetricPoint's Bucket Values Sample MetricNames MUST have the
    suffix "_bucket".  If present, the MetricPoint's Sum Value Sample
@@ -1211,7 +1257,7 @@ Internet-Draft                 OpenMetrics                September 2024
    foo_bucket{le="1.1e+23"} 17 foo_bucket{le="+Inf"} 17 foo_count 17
    foo_sum 324789.3 foo_created 1520430000.123 ~~~~
 
-4.2.5.6.1.  Exemplars
+4.3.5.6.1.  Exemplars
 
    Exemplars without Labels MUST represent an empty LabelSet as {}.
 
@@ -1226,15 +1272,7 @@ Internet-Draft                 OpenMetrics                September 2024
    foo_bucket{le="+Inf"} 17 foo_count 17 foo_sum 324789.3 foo_created
    1520430000.123 ~~~~
 
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 22]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
-4.2.5.7.  GaugeHistogram
+4.3.5.7.  GaugeHistogram
 
    The MetricPoint's Bucket Values Sample MetricNames MUST have the
    suffix "_bucket".  If present, the MetricPoint's Sum Value Sample
@@ -1242,6 +1280,15 @@ Internet-Draft                 OpenMetrics                September 2024
    is present in a MetricPoint, then the MetricPoint's +Inf Bucket value
    MUST also appear in a Sample with a MetricName with the suffix
    "_gcount".
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 23]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    Buckets MUST be sorted in number increasing order of "le", and the
    value of the "le" label MUST follow the rules for Canonical Numbers.
@@ -1252,7 +1299,7 @@ Internet-Draft                 OpenMetrics                September 2024
    foo_bucket{le="1"} 34.0 foo_bucket{le="10"} 34.0
    foo_bucket{le="+Inf"} 42.0 foo_gcount 42.0 foo_gsum 3289.3 ~~~~
 
-4.2.5.8.  Unknown
+4.3.5.8.  Unknown
 
    The sample metric name for the value of the MetricPoint for a
    MetricFamily of type Unknown MUST NOT have a suffix.
@@ -1260,9 +1307,9 @@ Internet-Draft                 OpenMetrics                September 2024
    An example with a Metric with no labels and a MetricPoint with no
    timestamp: ~~~~ # TYPE foo unknown foo 42.23 ~~~~
 
-4.3.  Protobuf format
+4.4.  Protobuf format
 
-4.3.1.  Overall Structure
+4.4.1.  Overall Structure
 
    Protobuf messages MUST be encoded in binary and MUST have
    "application/openmetrics-protobuf; version=1.0.0" as their content
@@ -1271,26 +1318,16 @@ Internet-Draft                 OpenMetrics                September 2024
    All payloads MUST be a single binary encoded MetricSet message, as
    defined by the OpenMetrics protobuf schema.
 
-4.3.1.1.  Version
+4.4.1.1.  Version
 
    The protobuf format MUST follow the proto3 version of the protocol
    buffer language.
 
-4.3.1.2.  Strings
+4.4.1.2.  Strings
 
    All string fields MUST be UTF-8 encoded.
 
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 23]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
-4.3.1.3.  Timestamps
+4.4.1.3.  Timestamps
 
    Timestamp representations in the OpenMetrics protobuf schema MUST
    follow the published google.protobuf.Timestamp [timestamp] message.
@@ -1299,7 +1336,15 @@ Internet-Draft                 OpenMetrics                September 2024
    int32 that counts forward from the seconds timestamp component.  It
    MUST be within 0 to 999,999,999 inclusive.
 
-4.3.2.  Protobuf schema
+4.4.2.  Protobuf schema
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 24]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
 syntax = "proto3";
 
@@ -1338,14 +1383,6 @@ message MetricFamily {
 }
 
 // The type of a Metric.
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 24]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
 enum MetricType {
   // Unknown must use unknown MetricPoint values.
   UNKNOWN = 0;
@@ -1357,6 +1394,14 @@ enum MetricType {
   STATE_SET = 3;
   // Info must use info MetricPoint values.
   INFO = 4;
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 25]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
   // Histogram must use histogram value MetricPoint values.
   HISTOGRAM = 5;
   // Gauge histogram must use histogram value MetricPoint values.
@@ -1394,14 +1439,6 @@ message MetricPoint {
     HistogramValue histogram_value = 4;
     StateSetValue state_set_value = 5;
     InfoValue info_value = 6;
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 25]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
     SummaryValue summary_value = 7;
   }
 
@@ -1413,6 +1450,14 @@ Internet-Draft                 OpenMetrics                September 2024
 message UnknownValue {
   // Required.
   oneof value {
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 26]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
     double double_value = 1;
     int64 int_value = 2;
   }
@@ -1451,13 +1496,6 @@ message HistogramValue {
     int64 int_value = 2;
   }
 
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 26]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
   // Optional.
   uint64 count = 3;
 
@@ -1467,6 +1505,14 @@ Internet-Draft                 OpenMetrics                September 2024
 
   // Optional.
   repeated Bucket buckets = 5;
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 27]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
   // Bucket is the number of values for a bucket in the histogram
   // with an optional exemplar.
@@ -1506,14 +1552,6 @@ message StateSetValue {
 
     // Required.
     string name = 2;
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 27]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
   }
 }
 
@@ -1524,6 +1562,14 @@ message InfoValue {
 }
 
 // Value for SUMMARY MetricPoint.
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 28]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
 message SummaryValue {
   // Optional.
   oneof sum {
@@ -1563,13 +1609,6 @@ message SummaryValue {
    sufficiently accurate for aggregations to be used as a basis for
    decision-making, but not to reflect individual events.
 
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 28]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    Systems of all sizes should be supported, from applications that
    receive a few requests an hour up to monitoring bandwidth usage on a
    400Gb network port.  Aggregation and analysis of transmitted
@@ -1577,6 +1616,15 @@ Internet-Draft                 OpenMetrics                September 2024
 
    It is intended to transport snapshots of state at the time of data
    transmission at a regular cadence.
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 29]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
 5.1.1.  Out of scope
 
@@ -1611,21 +1659,6 @@ Internet-Draft                 OpenMetrics                September 2024
    sketches or t-digests which could not be expressed as a mix of gauges
    and counters as they would require custom parsing and handling.
 
-
-
-
-
-
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 29]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    This principle is applied consistently throughout the standard.  For
    example a MetricFamily's unit is duplicated in the name so that the
    unit is available for systems that don't understand the unit
@@ -1635,6 +1668,19 @@ Internet-Draft                 OpenMetrics                September 2024
    example, there are no composite data types.  For example, there is no
    geolocation type for latitude/longitude as this can be done with
    separate gauge metrics.
+
+
+
+
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 30]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
 5.3.  Units and Base Units
 
@@ -1674,14 +1720,6 @@ Internet-Draft                 OpenMetrics                September 2024
    exposing the ratio directly would be better, or better still the raw
    power/energy if possible.  Floating point exponents are more than
    sufficient to cover even extreme scientific uses.  An electron volt
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 30]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    (~1e-19 J) all the way up to the energy emitted by a supernova (~1e44
    J) is 63 orders of magnitude, and a 64-bit floating point number can
    cover over 2000 orders of magnitude.
@@ -1692,6 +1730,13 @@ Internet-Draft                 OpenMetrics                September 2024
    power, as watts can be expressed as a counter with a joule unit.  In
    practice a given 3rd party system may only expose watts, so a gauge
    expressed in watts would be the only realistic choice in that case.
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 31]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    Not all MetricFamilies have units.  For example a count of HTTP
    requests wouldn't have a unit.  Technically the unit would be HTTP
@@ -1728,16 +1773,6 @@ Internet-Draft                 OpenMetrics                September 2024
    SHOULD be avoided even though it is technically not breaking This
    also tends to make writing unit tests for exposition easier.
 
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 31]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    Metrics and samples SHOULD NOT appear and disappear from exposition
    to exposition, for example a counter is only useful if it has
    history.  In principle, a given Metric should be present in
@@ -1750,6 +1785,14 @@ Internet-Draft                 OpenMetrics                September 2024
    a counter is not getting increments doesn't invalidate that it still
    has its current value.  There are cases where it may make sense to
    stop exposing a given Metric; see the section on Missing Data.
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 32]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    In general changing a MetricFamily's type, or adding or removing a
    label from its Metrics will be breaking to ingestors.
@@ -1783,17 +1826,6 @@ Internet-Draft                 OpenMetrics                September 2024
    may cause each Help value to be stored.  Frequently switching between
    int and float values could prevent efficient compression.
 
-
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 32]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
 5.6.  NaN
 
    NaN is a number like any other in OpenMetrics, usually resulting from
@@ -1809,6 +1841,14 @@ Internet-Draft                 OpenMetrics                September 2024
    space no longer exists.  There is no special marker or signal for
    this situation.  Subsequent expositions simply do not include this
    Metric.
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 33]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
 5.8.  Exposition Performance
 
@@ -1843,13 +1883,6 @@ Internet-Draft                 OpenMetrics                September 2024
    separated through underscores, so metric names end up being in
    “snake_case”.
 
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 33]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    To take an example "http_request_seconds" is succinct but would clash
    between large numbers of applications, and it's also unclear exactly
    what this metric is measuring.  For example, it might be before or
@@ -1865,6 +1898,14 @@ Internet-Draft                 OpenMetrics                September 2024
    It is not the aim to prevent all potential clashes across all
    applications, as that would require heavy handed solutions such as a
    global registry of metric namespaces or very long namespaces based on
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 34]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
    DNS.  Rather the aim is to keep to a lightweight informal approach,
    so that for a given application that it is very unlikely that there
    is clash across its constituent libraries.
@@ -1897,15 +1938,6 @@ Internet-Draft                 OpenMetrics                September 2024
    good guess at where the instrumentation for a given metric is given
    its metric name.
 
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 34]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    For a common very well known existing piece of software, the name of
    the software itself may be sufficiently distinguishing.  For example
    bind_ is probably sufficient for the DNS software, even though
@@ -1920,6 +1952,15 @@ Internet-Draft                 OpenMetrics                September 2024
    metric prefix such as myexposer_scrape_ may be used.  A common
    example is a gauge myexposer_scrape_duration_seconds for how long
    that exposition took from the exposer's standpoint.
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 35]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    Within the Prometheus ecosystem a set of per-process metrics has
    emerged that are consistent across all implementations, prefixed with
@@ -1954,14 +1995,6 @@ Internet-Draft                 OpenMetrics                September 2024
    when considered against the length increase of the label name.
    However some minimal care to avoid common clashes is recommended.
 
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 35]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    There are label names such as region, zone, cluster,
    availability_zone, az, datacenter, dc, owner, customer, stage,
    service, team, job, instance, environment, and env which are highly
@@ -1977,6 +2010,13 @@ Internet-Draft                 OpenMetrics                September 2024
    UNIT there is no metadata for label names.  This is as it would be
    bloating the format for little gain.  Out-of-band documentation is
    one way for exposers could present this their ingestors.
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 36]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
 5.12.  Metric Names versus Labels
 
@@ -2010,14 +2050,6 @@ Internet-Draft                 OpenMetrics                September 2024
    Experience has shown that downstream ingestors find it easier to work
    with separate total and failure MetricFamiles rather than using
    {result="success"} and {result="failure"} Labels within one
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 36]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    MetricFamily.  Also it is usually better to expose separate read &
    write and send & receive MetricFamiles as full duplex systems are
    common and downstream ingestors are more likely to care about those
@@ -2034,6 +2066,14 @@ Internet-Draft                 OpenMetrics                September 2024
    contracting the set of characters that are supported by the
    Prometheus text format would work against that goal.  Breaking
    backwards compatibility would have wider implications than just the
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 37]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
    wire format.  In particular, the query languages created or adopted
    to work with data transmitted within the Prometheus ecosystem rely on
    these precise character sets.  Label values support full UTF-8, so
@@ -2061,19 +2101,6 @@ Internet-Draft                 OpenMetrics                September 2024
    "Exposer metadata" is coming from within an exposer.  Common examples
    would be software version, compiler version, or Git commit SHA.
 
-
-
-
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 37]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
 5.13.1.  Supporting Target Metadata in both Push-based and Pull-based
          Systems
 
@@ -2088,6 +2115,20 @@ Internet-Draft                 OpenMetrics                September 2024
    ingestors, which is in conflict with the push-style approach.  In
    addition the push-style approach would break pull-style ingestors, as
    unwanted metadata would be exposed.
+
+
+
+
+
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 38]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    One approach would be for push-style ingestors to provide target
    metadata based on operator configuration out-of-band, for example as
@@ -2111,24 +2152,6 @@ Internet-Draft                 OpenMetrics                September 2024
    ingestors relying on it for target metadata don't have to buffer up
    the rest of the exposition before applying business logic based on
    its content.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 38]
-
-Internet-Draft                 OpenMetrics                September 2024
-
 
    Exposers MUST NOT add target metadata labels to all Metrics from an
    exposition, unless explicitly configured for a specific ingestor.
@@ -2154,6 +2177,15 @@ Internet-Draft                 OpenMetrics                September 2024
    staging_ even if they all originated from targets in a staging
    environment).
 
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 39]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
 5.14.  Client Calculations and Derived Metrics
 
    Exposers should leave any math or calculation up to ingestors.  A
@@ -2178,14 +2210,6 @@ Internet-Draft                 OpenMetrics                September 2024
    point precision is not sufficient for this to work in practice.  Due
    to the squaring only half the 53bit mantissa would be available in
    terms of precision.  As an example a histogram observing 10k events
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 39]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    per second would lose precision within 2 hours.  Using 64bit integers
    would be no better due to the loss of the floating decimal point
    because a nanosecond resolution integer typically tracking events of
@@ -2211,6 +2235,13 @@ Internet-Draft                 OpenMetrics                September 2024
    Summary quantiles must be float64, as they are estimates and thus
    fundamentally inaccurate.
 
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 40]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
 5.16.  Exposing Timestamps
 
    One of the core assumptions of OpenMetrics is that exposers expose
@@ -2234,14 +2265,6 @@ Internet-Draft                 OpenMetrics                September 2024
    non-timestamped metrics the ingestor can use its own timestamp from
    the exposition where the Metric is no longer present.
 
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 40]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    All of this is to say that, in general, MetricPoint timestamps should
    not be exposed, as it should be up to the ingestor to apply their own
    timestamps to samples they ingest.
@@ -2264,6 +2287,16 @@ Internet-Draft                 OpenMetrics                September 2024
    incremented # TYPE my_counter_last_increment_timestamp_seconds gauge
    # UNIT my_counter_last_increment_timestamp_seconds seconds
    my_counter_last_increment_timestamp_seconds 123 ~~~~
+
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 41]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    By putting the timestamp of last change into its own Gauge as a
    value, ingestors are free to attach their own timestamp to both
@@ -2290,14 +2323,6 @@ Internet-Draft                 OpenMetrics                September 2024
    slightly after an exemplar or sample timestamp for that same
    MetricPoint.
 
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 41]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    Keep in mind that there are monitoring systems in common use which
    support everything from nanosecond to second resolution, so having
    two MetricPoints that have the same timestamp when truncated to
@@ -2318,6 +2343,16 @@ Internet-Draft                 OpenMetrics                September 2024
    undesirable in another.  Aggregation of values can further change
    acceptable values.  In such a system, exposing bounds could be
    counter-productive.
+
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 42]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
    For example the maximum size of a queue may be exposed alongside the
    number of items currently in the queue like: ~~~~ # HELP
@@ -2345,15 +2380,6 @@ Internet-Draft                 OpenMetrics                September 2024
    systems.  These guidelines are thus both to aid exposers and
    ingestors in understanding what is reasonable.
 
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 42]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    On the other hand, an exposition which is too large in some dimension
    could cause significant performance problems compared to the benefit
    of the metrics exposed.  Thus some guidelines on the size of any
@@ -2376,6 +2402,14 @@ Internet-Draft                 OpenMetrics                September 2024
    of non-comment lines in the text format.  As of 2020, 10 million time
    series in total is considered a large amount and is commonly the
    order of magnitude of the upper bound of any single-instance
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 43]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
    ingestor.  Any single exposition should not go above 10k time series
    without due diligence.  One common consideration is horizontal
    scaling: What happens if you scale your instance count by 1-2 orders
@@ -2403,13 +2437,6 @@ Internet-Draft                 OpenMetrics                September 2024
    of unique strings per hour might indicate a use case for then the use
    case may be more like event logging, not metric time series.
 
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 43]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    There is a hard 128 UTF-8 character limit on exemplar length, to
    prevent misuse of the feature for tracing span data and other event
    logging.
@@ -2429,6 +2456,15 @@ Internet-Draft                 OpenMetrics                September 2024
    exposed to end users; as such, having a /metrics endpoint on ports
    like TCP/80, TCP/443, TCP/8080, and TCP/8443 is generally discouraged
    for publicly exposed services using OpenMetrics.
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 44]
+
+Internet-Draft                 OpenMetrics                September 2024
+
 
 7.  IANA Considerations
 
@@ -2459,13 +2495,6 @@ Internet-Draft                 OpenMetrics                September 2024
    does not support Contributor: any more so we will add this by hand
    once consensus has been achieved.
 
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 44]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
 8.  References
 
 8.1.  Normative References
@@ -2483,6 +2512,20 @@ Internet-Draft                 OpenMetrics                September 2024
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+
+
+
+
+Hartmann, et al.          Expires 22 March 2025                [Page 45]
+
+Internet-Draft                 OpenMetrics                September 2024
+
+
+   [RFC9110]  Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Semantics", STD 97, RFC 9110,
+              DOI 10.17487/RFC9110, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9110>.
 
 8.2.  Informative References
 
@@ -2514,14 +2557,6 @@ Authors' Addresses
 
    Brian Brazil
    Robust Perception
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 45]
-
-Internet-Draft                 OpenMetrics                September 2024
-
-
    Email: brian.brazil@gmail.com
 
 
@@ -2538,39 +2573,4 @@ Internet-Draft                 OpenMetrics                September 2024
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Hartmann, et al.          Expires 21 March 2025                [Page 46]
+Hartmann, et al.          Expires 22 March 2025                [Page 46]
