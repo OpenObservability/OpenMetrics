@@ -125,6 +125,8 @@ Exemplars are references to data outside of the MetricSet. A common use case are
 
 Exemplars MUST consist of a LabelSet and a value, and MAY have a timestamp. They MAY each be different from the MetricPoints' LabelSet and timestamp.
 
+In OpenMetrics 1.0.0 Exemplars are only supported for Counter MetricPoints and for Histogram Buckets. OpenMetrics Text format 1.1.0 loosens this restriction: Exemplars are supported on all time series.
+
 The combined length of the label names and values of an Exemplar's LabelSet MUST NOT exceed 128 UTF-8 character code points. Other characters in the text rendering of an exemplar such as ",= are not included in this limit for implementation simplicity and for consistency between the text and proto formats.
 
 Ingestors MAY discard exemplars.
@@ -209,8 +211,6 @@ A MetricPoint in a Metric with the type Counter SHOULD have a Timestamp value ca
 
 A MetricPoint in a Metric's Counter's Total MAY reset to 0. If present, the corresponding Created time MUST also be set to the timestamp of the reset.
 
-A MetricPoint in a Metric's Counter's Total MAY have an exemplar.
-
 ### StateSet
 
 StateSets represent a series of related boolean values, also called a bitset. If ENUMs need to be encoded this MAY be done via StateSet.
@@ -254,11 +254,11 @@ A Histogram MetricPoint SHOULD have a Timestamp value called Created. This can h
 
 A Histogram's Metric's LabelSet MUST NOT have a "le" label name.
 
-Bucket values MAY have exemplars. Buckets are cumulative to allow monitoring systems to drop any non-+Inf bucket for performance/anti-denial-of-service reasons in a way that loses granularity but is still a valid Histogram.
+Buckets are cumulative to allow monitoring systems to drop any non-+Inf bucket for performance/anti-denial-of-service reasons in a way that loses granularity but is still a valid Histogram.
 
 EDITOR’S NOTE: The second sentence is a consideration, it can be moved if needed
 
-Each bucket covers the values less and or equal to it, and the value of the exemplar MUST be within this range. Exemplars SHOULD be put into the bucket with the highest value. A bucket MUST NOT have more than one exemplar.
+Each bucket covers the values less and or equal to it. If an exemplar is present, the value of the exemplar MUST be within this range. Exemplars SHOULD be put into the bucket with the highest value. A bucket MUST NOT have more than one exemplar.
 
 ### GaugeHistogram
 
@@ -272,9 +272,7 @@ The bucket and Gsum of a GaugeHistogram are conceptually gauges, however bucket 
 
 A GaugeHistogram's Metric's LabelSet MUST NOT have a "le" label name.
 
-Bucket values can have exemplars.
-
-Each bucket covers the values less and or equal to it, and the value of the exemplar MUST be within this range. Exemplars SHOULD be put into the bucket with the highest value. A bucket MUST NOT have more than one exemplar.
+Each bucket covers the values less and or equal to it. If an exemplar is present, the value of the exemplar MUST be within this range. Exemplars SHOULD be put into the bucket with the highest value. A bucket MUST NOT have more than one exemplar.
 
 ### Summary
 
@@ -411,7 +409,7 @@ normal-char = %x00-09 / %x0B-21 / %x23-5B / %x5D-D7FF / %xE000-10FFFF
 UTF-8 MUST be used. Byte order markers (BOMs) MUST NOT be used. As an important reminder for implementers, byte 0 is valid UTF-8 while, for example, byte 255 is not.
 
 The content type MUST be:
-application/openmetrics-text; version=1.0.0; charset=utf-8
+application/openmetrics-text; version=1.1.0; charset=utf-8
 
 Line endings MUST be signalled with line feed (\n) and MUST NOT contain carriage returns (\r). Expositions MUST end with EOF and SHOULD end with 'EOF\n'.
 
@@ -667,8 +665,6 @@ An example with a Metric with no labels, and a MetricPoint with a timestamp and 
 foo_total 17.0 1520879607.789
 foo_created 1520430000.123 1520879607.789
 ~~~~
-
-Exemplars MAY be attached to the MetricPoint's Total sample.
 
 #### StateSet
 
